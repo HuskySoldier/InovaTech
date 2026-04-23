@@ -28,7 +28,8 @@
         <module>api-gateway</module>
         <module>usuarios</module>
         <module>auth-service</module>
-        <module>proyectos</module> 
+        <module>proyectos</module>
+        <module>equipos</module>
     </modules>
 
     <dependencies>

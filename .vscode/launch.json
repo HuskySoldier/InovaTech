@@ -30,7 +30,8 @@
             "mainClass": "com.innovatech.usuarios.UsuariosApplication",
             "projectName": "usuarios",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=62962 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=usuarios"
         },
         {
             "type": "java",
@@ -49,6 +50,17 @@
             "cwd": "${workspaceFolder}",
             "mainClass": "com.innovatech.proyectos.ProyectosApplication",
             "projectName": "proyectos",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=62949 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=proyectos"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-EquiposApplication<equipos>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.innovatech.Equipos.EquiposApplication",
+            "projectName": "equipos",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }

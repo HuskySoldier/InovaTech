@@ -25,6 +25,11 @@ spring:
               uri: lb://proyectos
               predicates:
                 - Path=/api/proyectos/**
+            # --- NUEVA RUTA PARA EQUIPOS ---
+            - id: equipos-route
+              uri: lb://equipos
+              predicates:
+                - Path=/api/equipos/**
 
 management:
   endpoints:
