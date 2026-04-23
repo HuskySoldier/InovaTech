@@ -52,6 +52,16 @@ public class UsuarioController {
         }
     }
 
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UsuarioResponseDTO> obtenerUsuarioPorEmail(@PathVariable String email) {
+        UsuarioResponseDTO usuario = usuarioService.buscarPorEmail(email);
+        if (usuario != null) {
+            return ResponseEntity.ok(usuario);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @GetMapping("/estado/{estado}")
     public ResponseEntity<List<UsuarioSummaryDTO>> listarUsuariosPorEstado(@PathVariable Long estado) {
         List<UsuarioSummaryDTO> usuarios = usuarioService.buscarPorEstado(estado);

@@ -57,6 +57,11 @@ public class UsuarioService {
                 .collect(Collectors.toList());
     }
 
+    public UsuarioResponseDTO buscarPorEmail(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email);
+        return usuario != null ? toResponseDTO(usuario) : null;
+    }
+
     public UsuarioResponseDTO crearUsuario(UsuarioRequestDTO dto) {
         // Validar que el RUN no esté duplicado
         if (usuarioRepository.existsByRun(dto.getRun())) {
@@ -77,7 +82,7 @@ public class UsuarioService {
         nuevoUsuario.setRun(dto.getRun());
         nuevoUsuario.setNombre(dto.getNombre());
         nuevoUsuario.setApellido(dto.getApellido());
-        nuevoUsuario.setEmail(dto.getCorreo());
+        nuevoUsuario.setEmail(dto.getNombre() + "." + dto.getApellido() + "@innovasync.cl");
         nuevoUsuario.setFechaNacimiento(dto.getFechaNacimiento());
         nuevoUsuario.setContrasena(passwordEncoder.encode(dto.getClave())); // Hash bcrypt
         nuevoUsuario.setFotoPerfil(dto.getImgPerfil());
