@@ -20,6 +20,11 @@ spring:
               uri: lb://usuarios
               predicates:
                 - Path=/api/usuarios/**
+            # --- NUEVA RUTA PARA PROYECTOS ---
+            - id: proyectos-route
+              uri: lb://proyectos
+              predicates:
+                - Path=/api/proyectos/**
 
 management:
   endpoints:

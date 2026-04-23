@@ -27,6 +27,8 @@
         <module>discovery-server</module>
         <module>api-gateway</module>
         <module>usuarios</module>
+        <module>auth-service</module>
+        <module>proyectos</module> 
     </modules>
 
     <dependencies>

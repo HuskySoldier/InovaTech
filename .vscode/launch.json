@@ -31,6 +31,26 @@
             "projectName": "usuarios",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AuthServiceApplication<auth-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "innovasync.auth_service.AuthServiceApplication",
+            "projectName": "auth-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-ProyectosApplication<proyectos>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.innovatech.proyectos.ProyectosApplication",
+            "projectName": "proyectos",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }
