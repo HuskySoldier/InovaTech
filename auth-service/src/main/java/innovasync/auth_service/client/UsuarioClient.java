@@ -8,7 +8,7 @@ import lombok.Data;
 @FeignClient(name = "usuarios", url = "http://localhost:8081")
 public interface UsuarioClient {
 
-    @GetMapping("/api/usuarios/email/{email}")
+    @GetMapping("/api/usuarios/auth/email/{email}")
     UsuarioResponseFeign obtenerPorEmail(@PathVariable String email);
 
     @Data

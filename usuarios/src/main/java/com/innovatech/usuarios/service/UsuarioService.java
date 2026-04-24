@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.innovatech.usuarios.DTO.UsuarioAuthDTO;
 import com.innovatech.usuarios.DTO.UsuarioRequestDTO;
 import com.innovatech.usuarios.DTO.UsuarioResponseDTO;
 import com.innovatech.usuarios.DTO.UsuarioSummaryDTO;
@@ -57,9 +58,15 @@ public class UsuarioService {
                 .collect(Collectors.toList());
     }
 
-    public UsuarioResponseDTO buscarPorEmail(String email) {
+    public UsuarioAuthDTO buscarPorEmail(String email) {
         Usuario usuario = usuarioRepository.findByEmail(email);
-        return usuario != null ? toResponseDTO(usuario) : null;
+        UsuarioAuthDTO dto = new UsuarioAuthDTO();
+        dto.setIdUser(usuario.getIdUsuario());
+        dto.setEmail(usuario.getEmail());
+        dto.setContrasena(usuario.getContrasena());
+        dto.setIdRol(usuario.getIdRol());
+        dto.setIdEstado(usuario.getIdEstado());
+        return dto;
     }
 
     public UsuarioResponseDTO crearUsuario(UsuarioRequestDTO dto) {

@@ -15,7 +15,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    // POST http://localhost:8081/api/auth/login
+    // POST http://localhost:8082/api/auth/login
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
         return ResponseEntity.ok(authService.login(request));

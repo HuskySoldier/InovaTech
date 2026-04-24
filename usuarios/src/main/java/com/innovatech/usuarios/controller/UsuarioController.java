@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.innovatech.usuarios.DTO.UsuarioAuthDTO;
 import com.innovatech.usuarios.DTO.UsuarioRequestDTO;
 import com.innovatech.usuarios.DTO.UsuarioResponseDTO;
 import com.innovatech.usuarios.DTO.UsuarioSummaryDTO;
@@ -52,14 +53,9 @@ public class UsuarioController {
         }
     }
 
-    @GetMapping("/email/{email}")
-    public ResponseEntity<UsuarioResponseDTO> obtenerUsuarioPorEmail(@PathVariable String email) {
-        UsuarioResponseDTO usuario = usuarioService.buscarPorEmail(email);
-        if (usuario != null) {
-            return ResponseEntity.ok(usuario);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    @GetMapping("/auth/email/{email}")
+    public ResponseEntity<UsuarioAuthDTO> obtenerParaAuth(@PathVariable String email) {
+        return ResponseEntity.ok(usuarioService.buscarPorEmail(email));
     }
 
     @GetMapping("/estado/{estado}")
