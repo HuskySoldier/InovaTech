@@ -40,7 +40,7 @@ public class DataInitializer {
                     // (idUsuario, run, nombre, apellido, email, fechaNacimiento, contrasena, fotoPerfil, cargo, idRol, idEstado)
                     new Usuario(null, "12345678-9", "Juan", "Pérez", "juan.perez@innovasync.cl", null, passwordEncoder.encode("password123"), null, cargo1, 2L, 1L),
                     new Usuario(null, "98765432-1", "María", "González", "maria.gonzalez@innovasync.cl", null, passwordEncoder.encode("password123"), null, cargo2, 3L, 1L),
-                    new Usuario(null, "11111111-1", "Carlos", "López", "carlos.lopez@innovasync.cl", null, passwordEncoder.encode("password123"), null, cargo3, 2L, 2L),
+                    new Usuario(null, "22222222-1", "Carlos", "López", "carlos.lopez@innovasync.cl", null, passwordEncoder.encode("password123"), null, cargo3, 2L, 2L),
                     new Usuario(null, "11111111-1", "Admin", "Admin", "admin@innovasync.cl", null, passwordEncoder.encode("admin123"), null, cargo3, 1L, 1L)
                 ));
             }
