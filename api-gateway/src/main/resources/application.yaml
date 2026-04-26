@@ -30,6 +30,16 @@ spring:
               uri: lb://equipos
               predicates:
                 - Path=/api/equipos/**
+            #-- NUEVA RUTA PARA PRIVILEGIOS ---    
+            - id: privilegios-route
+              uri: lb://privilegios-service
+              predicates:
+                - Path=/api/roles/**, /api/privilegios/**
+            #-- NUEVA RUTA PARA AUTH ---
+            - id: auth-route
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/auth/**
 
 management:
   endpoints:
