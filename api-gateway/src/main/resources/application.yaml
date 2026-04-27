@@ -40,6 +40,11 @@ spring:
               uri: lb://auth-service
               predicates:
                 - Path=/api/auth/**
+            #-- NUEVA RUTA PARA ASIGNACIONES ---    
+            - id: asignaciones-route
+              uri: lb://asignaciones
+              predicates:
+                - Path=/api/asignaciones/**
 
 management:
   endpoints:
