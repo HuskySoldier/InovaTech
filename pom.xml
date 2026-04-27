@@ -32,6 +32,7 @@
         <module>equipos</module>
         <module>privilegios-service</module>
         <module>asignaciones</module>
+        <module>estado-service</module>
     </modules>
 
     <dependencies>

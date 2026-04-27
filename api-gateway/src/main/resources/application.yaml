@@ -46,6 +46,12 @@ spring:
               predicates:
                 - Path=/api/asignaciones/**
 
+            #-- NUEVA RUTA PARA ESTADOS ---
+            - id: estado-route
+              uri: lb://estado-service
+              predicates:
+              - Path=/api/estados/**, /api/tipos/**
+
 management:
   endpoints:
     web:
