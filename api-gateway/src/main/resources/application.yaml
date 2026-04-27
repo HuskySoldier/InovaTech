@@ -52,6 +52,12 @@ spring:
               predicates:
               - Path=/api/estados/**, /api/tipos/**
 
+            #-- NUEVA RUTA PARA TAREAS ---
+            - id: tareas-route
+              uri: lb://ms-tareas
+              predicates:
+              - Path=/api/tareas/**, /api/prioridades/**, /api/historial-tareas/**
+
 management:
   endpoints:
     web:
