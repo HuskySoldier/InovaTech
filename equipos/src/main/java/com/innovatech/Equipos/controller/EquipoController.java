@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.innovatech.Equipos.model.Equipo;
+import com.innovatech.Equipos.repository.IntegranteRepository;
 import com.innovatech.Equipos.service.EquipoService;
 
 @RestController
@@ -16,6 +17,9 @@ public class EquipoController {
 
     @Autowired
     private EquipoService equipoService;
+
+    @Autowired
+    private IntegranteRepository integranteRepository;
 
     @GetMapping
     public ResponseEntity<List<Equipo>> listarEquipos() {
@@ -52,5 +56,13 @@ public class EquipoController {
     public ResponseEntity<Void> eliminarEquipo(@PathVariable Long id) {
         equipoService.eliminarEquipo(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Agrega este endpoint para que otros microservicios puedan validar integrantes
+    @GetMapping("/integrante/{idIntegrante}")
+    public ResponseEntity<?> obtenerIntegrante(@PathVariable Long idIntegrante) {
+        return integranteRepository.findById(idIntegrante)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
     }
 }

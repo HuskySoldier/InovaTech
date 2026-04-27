@@ -74,6 +74,16 @@
             "projectName": "privilegios-service",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AsignacionesApplication<asignaciones>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.innovatech.asignaciones.AsignacionesApplication",
+            "projectName": "asignaciones",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

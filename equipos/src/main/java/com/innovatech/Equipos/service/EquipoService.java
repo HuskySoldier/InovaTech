@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.innovatech.Equipos.client.UsuarioClient;
 import com.innovatech.Equipos.model.Equipo;
 import com.innovatech.Equipos.model.Integrante;
 import com.innovatech.Equipos.repository.EquipoRepository;
@@ -38,21 +39,28 @@ public class EquipoService {
         return equipoRepository.save(equipo);
     }
 
-    public Equipo agregarIntegrante(Long idEquipo, Long idUser) {
-        Equipo equipo = equipoRepository.findById(idEquipo)
-                .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
-        
-        Integrante nuevoIntegrante = new Integrante();
-        nuevoIntegrante.setEquipo(equipo);
-        nuevoIntegrante.setIdUser(idUser);
-        
-        // 1. Guarda el integrante en la base de datos
-        integranteRepository.save(nuevoIntegrante);
+    @Autowired
+    private UsuarioClient usuarioClient;
 
-        // 2. Lo agrega a la lista en memoria para que el JSON lo muestre al instante
-        equipo.getIntegrantes().add(nuevoIntegrante);
-        
-        return equipo;
+    public Equipo agregarIntegrante(Long idEquipo, Long idUser) {
+    // 1. Llamada interna a MS Usuarios
+    try {
+        usuarioClient.obtenerUsuarioPorId(idUser);
+    } catch (Exception e) {
+        throw new RuntimeException("Error: El usuario con ID " + idUser + " no existe.");
+    }
+
+    // 2. Lógica de guardado habitual
+    Equipo equipo = equipoRepository.findById(idEquipo)
+            .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
+    
+    Integrante nuevoIntegrante = new Integrante();
+    nuevoIntegrante.setEquipo(equipo);
+    nuevoIntegrante.setIdUser(idUser);
+    
+    integranteRepository.save(nuevoIntegrante);
+    equipo.getIntegrantes().add(nuevoIntegrante);
+    return equipo;
     }
 
     public void eliminarEquipo(Long id) {

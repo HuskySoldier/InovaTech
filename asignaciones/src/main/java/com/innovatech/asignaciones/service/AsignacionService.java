@@ -31,27 +31,24 @@ public class AsignacionService {
     }
 
     public Asignacion crearAsignacion(Long idTarea, Long idIntegrante) {
-        // 1. Validar existencia de la Tarea (Cuando MS Tareas esté listo)
-        try {
-            tareaClient.obtenerTareaPorId(idTarea);
-        } catch (Exception e) {
-            throw new RuntimeException("La tarea especificada no existe.");
-        }
+        // // 1. Validar Tarea (COMENTADO HASTA CREAR MS TAREAS)
+        // try {
+        //     tareaClient.obtenerTareaPorId(idTarea);
+        // } catch (Exception e) {
+        //     throw new RuntimeException("La tarea especificada no existe.");
+        // }
 
-        // 2. Validar existencia del Integrante en el MS Equipos
-        /* Nota: Para que esto funcione 100%, deberás agregar el endpoint 
-           GET /api/equipos/integrante/{id} en tu MS Equipos posteriormente.
+        // 2. Validar Integrante
         try {
             equipoClient.obtenerIntegrantePorId(idIntegrante);
         } catch (Exception e) {
-            throw new RuntimeException("El integrante especificado no existe.");
+            throw new RuntimeException("No se puede asignar: El integrante " + idIntegrante + " no existe.");
         }
-        */
 
         Asignacion nuevaAsignacion = new Asignacion();
         nuevaAsignacion.setIdTarea(idTarea);
         nuevaAsignacion.setIdIntegrante(idIntegrante);
-        nuevaAsignacion.setFecha_asignacion(LocalDateTime.now()); // Automático
+        nuevaAsignacion.setFecha_asignacion(LocalDateTime.now());
 
         return asignacionRepository.save(nuevaAsignacion);
     }
