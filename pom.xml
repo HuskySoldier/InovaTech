@@ -33,6 +33,7 @@
         <module>privilegios-service</module>
         <module>asignaciones</module>
         <module>estado-service</module>
+        <module>ms-tareas</module>
     </modules>
 
     <dependencies>
