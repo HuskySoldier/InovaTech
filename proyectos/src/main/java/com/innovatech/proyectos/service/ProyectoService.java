@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.innovatech.proyectos.client.EstadoClient;
 import com.innovatech.proyectos.model.HistorialProyecto;
 import com.innovatech.proyectos.model.Proyecto;
 import com.innovatech.proyectos.repository.HistorialProyectoRepository;
@@ -23,6 +24,9 @@ public class ProyectoService {
     @Autowired
     private HistorialProyectoRepository historialRepository;
 
+    @Autowired
+    private EstadoClient estadoClient;
+
     public List<Proyecto> listarProyectos() {
         return proyectoRepository.findAll();
     }
@@ -32,6 +36,14 @@ public class ProyectoService {
     }
 
     public Proyecto crearProyecto(Proyecto proyecto) {
+
+        // Validar que el estado existe en MS Estado
+        try {
+            estadoClient.obtenerEstadoPorId(proyecto.getIdEstado());
+        } catch (Exception e) {
+            throw new RuntimeException("Estado no encontrado con id: " + proyecto.getIdEstado());
+        }
+
         Proyecto nuevoProyecto = proyectoRepository.save(proyecto);
         registrarHistorial(nuevoProyecto, "Creación inicial del proyecto.");
         return nuevoProyecto;
@@ -51,10 +63,16 @@ public class ProyectoService {
         existente.setPresupReal(proyectoActualizado.getPresupReal());
         
         if (!existente.getIdEstado().equals(proyectoActualizado.getIdEstado())) {
-            existente.setIdEstado(proyectoActualizado.getIdEstado());
-            registrarHistorial(existente, "Cambio de estado del proyecto al ID: " + proyectoActualizado.getIdEstado());
+        // Validar que el nuevo estado existe
+            try {
+                estadoClient.obtenerEstadoPorId(proyectoActualizado.getIdEstado());
+            } catch (Exception e) {
+                throw new RuntimeException("Estado no encontrado con id: " + proyectoActualizado.getIdEstado());
+            }
+                existente.setIdEstado(proyectoActualizado.getIdEstado());
+                registrarHistorial(existente, "Cambio de estado del proyecto al ID: " + proyectoActualizado.getIdEstado());
         } else {
-            registrarHistorial(existente, "Actualización de información del proyecto.");
+                registrarHistorial(existente, "Actualización de información del proyecto.");
         }
 
         return proyectoRepository.save(existente);

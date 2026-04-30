@@ -21,4 +21,5 @@ public class UsuarioResponseDTO {
     private String nombreCargo; // Ya no enviamos el objeto Cargo, solo su nombre
     private Long idRol;
     private Long idEstado;
+    private String nombreEstado;
 }
