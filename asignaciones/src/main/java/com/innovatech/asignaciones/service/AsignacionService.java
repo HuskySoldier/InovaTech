@@ -32,11 +32,11 @@ public class AsignacionService {
 
     public Asignacion crearAsignacion(Long idTarea, Long idIntegrante) {
         // // 1. Validar Tarea (COMENTADO HASTA CREAR MS TAREAS)
-        // try {
-        //     tareaClient.obtenerTareaPorId(idTarea);
-        // } catch (Exception e) {
-        //     throw new RuntimeException("La tarea especificada no existe.");
-        // }
+         try {
+             tareaClient.obtenerTareaPorId(idTarea);
+         } catch (Exception e) {
+             throw new RuntimeException("La tarea especificada no existe.");
+         }
 
         // 2. Validar Integrante
         try {

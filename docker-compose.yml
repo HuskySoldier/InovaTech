@@ -1,0 +1,155 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. INFRAESTRUCTURA BASE
+  # ==========================================
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root # Cambia esto por la contraseña que uses en tus properties
+      # No creamos una DB por defecto aquí porque Spring Boot creará las necesarias
+    ports:
+      - "3306:3306"
+    networks:
+      - innovatech-network
+
+  discovery-server:
+    build: ./discovery-server
+    container_name: discovery-server
+    ports:
+      - "8761:8761"
+    networks:
+      - innovatech-network
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080" # Toda petición desde el frontend entrará por aquí
+    depends_on:
+      - discovery-server
+    networks:
+      - innovatech-network
+
+  # ==========================================
+  # 2. MICROSERVICIOS CORE (AUTENTICACIÓN Y SEGURIDAD)
+  # ==========================================
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+    depends_on:
+      - discovery-server
+    networks:
+      - innovatech-network
+
+  privilegios-service:
+    build: ./privilegios-service
+    container_name: privilegios-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/innovatech_privilegios?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+    depends_on:
+      - mysql-db
+      - discovery-server
+    networks:
+      - innovatech-network
+
+  usuarios-service:
+    build: ./usuarios
+    container_name: usuarios-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/innovatech_usuarios?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+    depends_on:
+      - mysql-db
+      - discovery-server
+    networks:
+      - innovatech-network
+
+  # ==========================================
+  # 3. MICROSERVICIOS DE NEGOCIO (PROYECTOS Y TAREAS)
+  # ==========================================
+  estado-service:
+    build: ./estado-service
+    container_name: estado-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/innovatech_estados?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+    depends_on:
+      - mysql-db
+      - discovery-server
+    networks:
+      - innovatech-network
+
+  proyectos-service:
+    build: ./proyectos
+    container_name: proyectos-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/innovatech_proyectos?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+    depends_on:
+      - mysql-db
+      - discovery-server
+    networks:
+      - innovatech-network
+
+  equipos-service:
+    build: ./equipos
+    container_name: equipos-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/innovatech_equipos?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+    depends_on:
+      - mysql-db
+      - discovery-server
+    networks:
+      - innovatech-network
+
+  tareas-service:
+    build: ./ms-tareas
+    container_name: tareas-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/innovatech_tareas?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+    depends_on:
+      - mysql-db
+      - discovery-server
+    networks:
+      - innovatech-network
+
+  asignaciones-service:
+    build: ./asignaciones
+    container_name: asignaciones-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/innovatech_asignaciones?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+    depends_on:
+      - mysql-db
+      - discovery-server
+    networks:
+      - innovatech-network
+
+# ==========================================
+# 4. RED INTERNA
+# ==========================================
+networks:
+  innovatech-network:
+    driver: bridge

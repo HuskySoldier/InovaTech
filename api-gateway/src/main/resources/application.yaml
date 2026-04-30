@@ -10,53 +10,49 @@ spring:
   
   cloud:
     gateway:
-      server:
-        webmvc:
-          discovery:
-            locator:
-              enabled: false
-          routes:
-            - id: usuarios-route
-              uri: lb://usuarios
-              predicates:
-                - Path=/api/usuarios/**
-            # --- NUEVA RUTA PARA PROYECTOS ---
-            - id: proyectos-route
-              uri: lb://proyectos
-              predicates:
-                - Path=/api/proyectos/**
-            # --- NUEVA RUTA PARA EQUIPOS ---
-            - id: equipos-route
-              uri: lb://equipos
-              predicates:
-                - Path=/api/equipos/**
-            #-- NUEVA RUTA PARA PRIVILEGIOS ---    
-            - id: privilegios-route
-              uri: lb://privilegios-service
-              predicates:
-                - Path=/api/roles/**, /api/privilegios/**
-            #-- NUEVA RUTA PARA AUTH ---
-            - id: auth-route
-              uri: lb://auth-service
-              predicates:
-                - Path=/api/auth/**
-            #-- NUEVA RUTA PARA ASIGNACIONES ---    
-            - id: asignaciones-route
-              uri: lb://asignaciones
-              predicates:
-                - Path=/api/asignaciones/**
+      discovery:
+        locator:
+          enabled: false
+      routes:
+        - id: usuarios-route
+          uri: lb://usuarios # Asegúrate de que su spring.application.name sea 'usuarios'
+          predicates:
+            - Path=/api/usuarios/**
+            
+        - id: proyectos-route
+          uri: lb://proyectos
+          predicates:
+            - Path=/api/proyectos/**
+            
+        - id: equipos-route
+          uri: lb://equipos
+          predicates:
+            - Path=/api/equipos/**
+            
+        - id: privilegios-route
+          uri: lb://privilegios-service
+          predicates:
+            - Path=/api/roles/**, /api/privilegios/**
+            
+        - id: auth-route
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+            
+        - id: asignaciones-route
+          uri: lb://asignaciones
+          predicates:
+            - Path=/api/asignaciones/**
 
-            #-- NUEVA RUTA PARA ESTADOS ---
-            - id: estado-route
-              uri: lb://estado-service
-              predicates:
-              - Path=/api/estados/**, /api/tipos/**
+        - id: estado-route
+          uri: lb://estado-service
+          predicates:
+            - Path=/api/estados/**, /api/tipos/**
 
-            #-- NUEVA RUTA PARA TAREAS ---
-            - id: tareas-route
-              uri: lb://ms-tareas
-              predicates:
-              - Path=/api/tareas/**, /api/prioridades/**, /api/historial-tareas/**
+        - id: tareas-route
+          uri: lb://ms-tareas
+          predicates:
+            - Path=/api/tareas/**, /api/prioridades/**, /api/historial-tareas/**
 
 management:
   endpoints:
@@ -72,7 +68,6 @@ logging:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true
-    ip-address: 127.0.0.1
