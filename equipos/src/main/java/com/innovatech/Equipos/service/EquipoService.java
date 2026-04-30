@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.innovatech.Equipos.client.ProyectoClient;
 import com.innovatech.Equipos.client.UsuarioClient;
 import com.innovatech.Equipos.model.Equipo;
 import com.innovatech.Equipos.model.Integrante;
@@ -36,9 +37,16 @@ public class EquipoService {
     }
 
     public Equipo crearEquipo(Equipo equipo) {
+        try {
+            proyectoClient.obtenerProyectoPorId(equipo.getIdProyecto());
+        } catch (Exception e) {
+            throw new RuntimeException("Proyecto no encontrado con id: " + equipo.getIdProyecto());
+        }
         return equipoRepository.save(equipo);
     }
 
+    @Autowired
+    private ProyectoClient proyectoClient;
     @Autowired
     private UsuarioClient usuarioClient;
 

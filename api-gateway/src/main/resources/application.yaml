@@ -50,13 +50,13 @@ spring:
             - id: estado-route
               uri: lb://estado-service
               predicates:
-              - Path=/api/estados/**, /api/tipos/**
+                - Path=/api/estados/**, /api/tipos/**
 
             #-- NUEVA RUTA PARA TAREAS ---
             - id: tareas-route
               uri: lb://ms-tareas
               predicates:
-              - Path=/api/tareas/**, /api/prioridades/**, /api/historial-tareas/**
+                - Path=/api/tareas/**, /api/prioridades/**, /api/historial-tareas/**
 
 management:
   endpoints:
