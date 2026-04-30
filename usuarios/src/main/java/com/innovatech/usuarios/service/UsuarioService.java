@@ -7,10 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.innovatech.usuarios.DTO.EstadoDTO;
+import com.innovatech.usuarios.DTO.RolDTO;
 import com.innovatech.usuarios.DTO.UsuarioAuthDTO;
 import com.innovatech.usuarios.DTO.UsuarioRequestDTO;
 import com.innovatech.usuarios.DTO.UsuarioResponseDTO;
 import com.innovatech.usuarios.DTO.UsuarioSummaryDTO;
+import com.innovatech.usuarios.client.EstadoClient;
+import com.innovatech.usuarios.client.PrivilegiosClient;
 import com.innovatech.usuarios.model.Cargo;
 import com.innovatech.usuarios.model.Usuario;
 import com.innovatech.usuarios.repository.CargoRepository;
@@ -27,6 +31,10 @@ public class UsuarioService {
     private CargoRepository cargoRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private EstadoClient estadoClient;
+    @Autowired
+    private PrivilegiosClient privilegiosClient;
     
 
     public List<UsuarioSummaryDTO> listarUsuarios() {
@@ -80,9 +88,20 @@ public class UsuarioService {
             throw new RuntimeException("Ya existe un usuario con el correo: " + dto.getCorreo());
         }
 
+        // Validar que el estado existe en MS Estado
+        try {
+            estadoClient.obtenerEstadoPorId(1L);
+        } catch (Exception e) {
+            throw new RuntimeException("MS Estado no disponible");
+        }
+
+        
         // Buscar el cargo
         Cargo cargo = cargoRepository.findById(dto.getIdCargo())
                 .orElseThrow(() -> new RuntimeException("Cargo no encontrado con id: " + dto.getIdCargo()));
+
+        RolDTO rol = privilegiosClient.obtenerRolPorId(dto.getIdRol());
+                
 
         // Construir la entidad
         Usuario nuevoUsuario = new Usuario();
@@ -94,7 +113,7 @@ public class UsuarioService {
         nuevoUsuario.setContrasena(passwordEncoder.encode(dto.getClave())); // Hash bcrypt
         nuevoUsuario.setFotoPerfil(dto.getImgPerfil());
         nuevoUsuario.setCargo(cargo);
-        nuevoUsuario.setIdRol(dto.getIdRol());
+        nuevoUsuario.setIdRol(rol.getIdRol());
         nuevoUsuario.setIdEstado(1L); // Estado activo por defecto
 
         return toResponseDTO(usuarioRepository.save(nuevoUsuario));
@@ -180,6 +199,13 @@ public class UsuarioService {
                 : "Sin cargo");
         dto.setIdRol(usuario.getIdRol());
         dto.setIdEstado(usuario.getIdEstado());
+        try {
+            EstadoDTO estado = estadoClient.obtenerEstadoPorId(usuario.getIdEstado());
+            dto.setNombreEstado(estado.getNombre());
+        } catch (Exception e) {
+            dto.setNombreEstado("Desconocido");
+        }
+
         return dto;
     }   
 
