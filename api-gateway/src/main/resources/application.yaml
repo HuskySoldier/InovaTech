@@ -10,61 +10,51 @@ spring:
   
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: false
-      routes:
-        - id: usuarios-route
-          uri: lb://usuarios # Asegúrate de que su spring.application.name sea 'usuarios'
-          predicates:
-            - Path=/api/usuarios/**
-            
-        - id: proyectos-route
-          uri: lb://proyectos
-          predicates:
-            - Path=/api/proyectos/**
-            
-        - id: equipos-route
-          uri: lb://equipos
-          predicates:
-            - Path=/api/equipos/**
-            
-        - id: privilegios-route
-          uri: lb://privilegios-service
-          predicates:
-            - Path=/api/roles/**, /api/privilegios/**
-            
-        - id: auth-route
-          uri: lb://auth-service
-          predicates:
-            - Path=/api/auth/**
-            
-        - id: asignaciones-route
-          uri: lb://asignaciones
-          predicates:
-            - Path=/api/asignaciones/**
+      # --- CAMBIO IMPORTANTE: Agregamos 'mvc' ---
+      mvc:
+        routes:
+          - id: usuarios-route
+            uri: lb://usuarios
+            predicates:
+              - Path=/api/usuarios/**
+            filters:
+              - StripPrefix=1 # Quita '/api' antes de enviar la petición
 
-          #-- NUEVA RUTA PARA ESTADOS ---
-        - id: estado-route
-          uri: lb://estado-service
-          predicates:
-            - Path=/api/estados/**, /api/tipos/**
+          - id: privilegios-route
+            uri: lb://privilegios-service
+            predicates:
+              # Usamos una lista para múltiples paths
+              - Path=/api/roles/**, /api/privilegios/**
+            filters:
+              - StripPrefix=1
 
-            #-- NUEVA RUTA PARA TAREAS ---
-        - id: tareas-route
-          uri: lb://ms-tareas
-          predicates:
-            - Path=/api/tareas/**, /api/prioridades/**, /api/historial-tareas/**
+          - id: auth-route
+            uri: lb://auth-service
+            predicates:
+              - Path=/api/auth/**
+            filters:
+              - StripPrefix=1
 
-        - id: estado-route
-          uri: lb://estado-service
-          predicates:
-            - Path=/api/estados/**, /api/tipos/**
+          - id: proyectos-route
+            uri: lb://proyectos
+            predicates:
+              - Path=/api/proyectos/**
+            filters:
+              - StripPrefix=1
 
-        - id: tareas-route
-          uri: lb://ms-tareas
-          predicates:
-            - Path=/api/tareas/**, /api/prioridades/**, /api/historial-tareas/**
+          - id: estado-route
+            uri: lb://estado-service
+            predicates:
+              - Path=/api/estados/**, /api/tipos/**
+            filters:
+              - StripPrefix=1
+
+          - id: tareas-route
+            uri: lb://ms-tareas
+            predicates:
+              - Path=/api/tareas/**, /api/prioridades/**, /api/historial-tareas/**
+            filters:
+              - StripPrefix=1
 
 
 management:
