@@ -1,7 +1,7 @@
 package innovasync.ms_tareas.service;
 
 import innovasync.ms_tareas.client.EstadoClient;
-import innovasync.ms_tareas.client.EstadoClient.EstadoResponse;
+import innovasync.ms_tareas.dto.EstadoResponse;
 import innovasync.ms_tareas.dto.TareaDTO;
 import innovasync.ms_tareas.dto.TareaResponseDTO;
 import innovasync.ms_tareas.model.Tarea;
@@ -31,7 +31,7 @@ public class TareaService {
         return toResponseDTO(tarea);
     }
 
-    public Tarea crear(TareaDTO dto) {
+    public TareaResponseDTO crear(Tarea dto) {
         Tarea tarea = new Tarea();
         tarea.setNombre(dto.getNombre());
         tarea.setDescripcion(dto.getDescripcion());
@@ -40,10 +40,10 @@ public class TareaService {
         tarea.setPresupuestoFinal(dto.getPresupuestoFinal());
         tarea.setIdEstado(dto.getIdEstado());
         tarea.setIdPrioridad(dto.getIdPrioridad());
-        return tareaRepository.save(tarea);
+        return toResponseDTO(tareaRepository.save(tarea));
     }
 
-    public Tarea actualizar(Long id, TareaDTO dto) {
+    public TareaResponseDTO actualizar(Long id, TareaDTO dto) {
         Tarea existente = tareaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tarea no encontrada"));
         existente.setNombre(dto.getNombre());
@@ -53,7 +53,7 @@ public class TareaService {
         existente.setPresupuestoFinal(dto.getPresupuestoFinal());
         existente.setIdEstado(dto.getIdEstado());
         existente.setIdPrioridad(dto.getIdPrioridad());
-        return tareaRepository.save(existente);
+        return toResponseDTO(tareaRepository.save(existente));
     }
 
     public void eliminar(Long id) {
@@ -75,7 +75,7 @@ public class TareaService {
         // Llama al MS Estado via Feign para obtener el nombre
         try {
             EstadoResponse estado = estadoClient.obtenerEstado(tarea.getIdEstado());
-            dto.setNombreEstado(estado != null ? estado.nombre : "Sin estado");
+            dto.setNombreEstado(estado != null ? estado.getNombre() : "Sin estado");
         } catch (Exception e) {
             // Si el MS Estado no está disponible, no falla
             dto.setNombreEstado("Sin estado");

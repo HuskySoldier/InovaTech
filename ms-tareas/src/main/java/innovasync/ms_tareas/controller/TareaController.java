@@ -30,12 +30,12 @@ public class TareaController {
 
     // Ahora recibe TareaDTO en vez del modelo directo
     @PostMapping
-    public ResponseEntity<Tarea> crear(@Valid @RequestBody TareaDTO tareaDTO) {
+    public ResponseEntity<TareaResponseDTO> crear(@Valid @RequestBody Tarea tareaDTO) {
         return ResponseEntity.ok(tareaService.crear(tareaDTO));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Tarea> actualizar(@PathVariable Long id, @Valid @RequestBody TareaDTO tareaDTO) {
+    public ResponseEntity<TareaResponseDTO> actualizar(@PathVariable Long id, @Valid @RequestBody TareaDTO tareaDTO) {
         return ResponseEntity.ok(tareaService.actualizar(id, tareaDTO));
     }
 

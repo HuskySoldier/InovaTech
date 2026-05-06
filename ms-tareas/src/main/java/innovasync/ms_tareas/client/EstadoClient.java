@@ -4,15 +4,13 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "ms-estado", url = "http://localhost:8084")
+import innovasync.ms_tareas.dto.EstadoResponse;
+
+@FeignClient(name = "estado-service", url = "http://localhost:8084", fallback = EstadoClientFallback.class)
 public interface EstadoClient {
 
     @GetMapping("/api/estados/{id}")
     EstadoResponse obtenerEstado(@PathVariable Long id);
 
-    class EstadoResponse {
-        public Long id;
-        public String nombre;
-        public String descripcion;
-    }
+    
 }
