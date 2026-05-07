@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.innovatech.usuarios.DTO.RolDTO;
 
 // "ms-privilegios" debe ser el spring.application.name del otro microservicio
-@FeignClient(name = "ms-privilegios")
+@FeignClient(name = "privilegios-service", fallback = PrivilegiosClientFallback.class)
 public interface PrivilegiosClient {
 
     @GetMapping("/api/roles/{id}")

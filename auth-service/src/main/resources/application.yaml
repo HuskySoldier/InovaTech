@@ -8,6 +8,26 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 5000
+            read-timeout: 5000
+      circuitbreaker:
+        enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      usuarios:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
 
 eureka:
   client:

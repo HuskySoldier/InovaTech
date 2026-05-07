@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import lombok.Data;
 
-@FeignClient(name = "usuarios", url = "http://localhost:8081")
+@FeignClient(name = "usuarios", url = "http://localhost:8081", fallback = UsuarioClientFallback.class)
 public interface UsuarioClient {
 
     @GetMapping("/api/usuarios/auth/email/{email}")

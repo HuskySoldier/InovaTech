@@ -7,7 +7,15 @@ spring:
   threads:
     virtual:
       enabled: true # Habilitamos Virtual Threads de Java 21
-  
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connect-timeout: 5000
+            read-timeout: 5000
+      circuitbreaker:
+        enabled: true
   datasource:
     url: jdbc:mysql://localhost:3306/db_innovatech_users?createDatabaseIfNotExist=true
     username: root
@@ -22,6 +30,24 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         "[format_sql]": true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      estado-service:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+      privilegios-service:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
 
 eureka:
   client:

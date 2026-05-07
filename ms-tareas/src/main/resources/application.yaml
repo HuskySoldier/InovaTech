@@ -10,7 +10,7 @@ spring:
       password: 1234
 
   datasource:
-    url: jdbc:mysql://localhost:3306/innovasync_tareas
+    url: jdbc:mysql://localhost:3306/innovasync_tareas?createDatabaseIfNotExist=true
     username: root
     password: ""
     driver-class-name: com.mysql.cj.jdbc.Driver
