@@ -23,7 +23,7 @@ spring:
               filters:
                 - name: CircuitBreaker
                   args:
-                    name: auth-service
+                    id: auth-service
                     fallbackUri: forward:/fallback/auth
  
             - id: usuarios-route
@@ -33,7 +33,7 @@ spring:
               filters:
                 - name: CircuitBreaker
                   args:
-                    name: usuarios
+                    id: usuarios
                     fallbackUri: forward:/fallback/usuarios
  
             - id: privilegios-route
@@ -43,7 +43,7 @@ spring:
               filters:
                 - name: CircuitBreaker
                   args:
-                    name: privilegios-service
+                    id: privilegios-service
                     fallbackUri: forward:/fallback/privilegios
  
             - id: estado-route
@@ -53,7 +53,7 @@ spring:
               filters:
                 - name: CircuitBreaker
                   args:
-                    name: estado-service
+                    id: estado-service
                     fallbackUri: forward:/fallback/estado
  
             - id: proyectos-route
@@ -63,7 +63,7 @@ spring:
               filters:
                 - name: CircuitBreaker
                   args:
-                    name: proyectos
+                    id: proyectos
                     fallbackUri: forward:/fallback/proyectos
  
             - id: equipos-route
@@ -73,7 +73,7 @@ spring:
               filters:
                 - name: CircuitBreaker
                   args:
-                    name: equipos
+                    id: equipos
                     fallbackUri: forward:/fallback/equipos
  
             - id: tareas-route
@@ -83,7 +83,7 @@ spring:
               filters:
                 - name: CircuitBreaker
                   args:
-                    name: ms-tareas
+                    id: ms-tareas
                     fallbackUri: forward:/fallback/tareas
  
             - id: asignaciones-route
@@ -93,7 +93,7 @@ spring:
               filters:
                 - name: CircuitBreaker
                   args:
-                    name: asignaciones
+                    id: asignaciones
                     fallbackUri: forward:/fallback/asignaciones
 
 
