@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.innovatech.usuarios.DTO.EstadoDTO;
 
-@FeignClient(name = "estado-service")
+@FeignClient(name = "estado-service", fallback = EstadoClientFallback.class)
 public interface EstadoClient {
 
     @GetMapping("/api/estados/{id}")
