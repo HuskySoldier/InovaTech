@@ -7,6 +7,10 @@ spring:
   threads:
     virtual:
       enabled: true
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
   
   datasource:
     url: jdbc:mysql://localhost:3306/db_innovatech_equipos?createDatabaseIfNotExist=true
@@ -29,3 +33,21 @@ eureka:
   instance:
     prefer-ip-address: true
     #ip-address: 127.0.0.1
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      usuarios:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+      proyectos:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true

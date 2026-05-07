@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.innovatech.proyectos.dto.EstadoDTO;
 
-@FeignClient(name = "estado-service")
+@FeignClient(name = "estado-service", fallback = EstadoClientFallback.class) // Nombre exacto en Eureka
 public interface EstadoClient {
 
     @GetMapping("/api/estados/{id}")
