@@ -5,6 +5,6 @@ WORKDIR /app
 COPY target/*.jar app.jar
 
 # Exponemos el puerto (en el discovery-server cambia esto a EXPOSE 8761)
-EXPOSE 8080
+EXPOSE 8081
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

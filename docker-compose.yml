@@ -14,10 +14,19 @@ services:
       - "3306:3306"
     networks:
       - innovatech-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s       # Revisa cada 10 segundos
+      timeout: 5s         # Espera máximo 5 segundos por respuesta
+      retries: 5          # Falla definitivamente si no responde después de 5 intentos
+      start_period: 30s   # Le da 30 segundos de gracia la primera vez que arranca para crear las DBs
 
   discovery-server:
     build: ./discovery-server
     container_name: discovery-server
+    environment:
+      # Inyectamos el hostname para que no use 'localhost' dentro de la red Docker
+      - EUREKA_HOSTNAME=discovery-server
     ports:
       - "8761:8761"
     networks:
@@ -28,6 +37,9 @@ services:
     container_name: api-gateway
     ports:
       - "8080:8080" # Toda petición desde el frontend entrará por aquí
+    environment:
+      # Le indicamos explícitamente cómo encontrar a Eureka
+      - EUREKA_URL=http://discovery-server:8761/eureka/
     depends_on:
       - discovery-server
     networks:
@@ -55,8 +67,10 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     depends_on:
-      - mysql-db
-      - discovery-server
+      mysql-db:
+        condition: service_healthy   # Espera a que MySQL esté 100% listo para recibir conexiones
+      discovery-server:
+        condition: service_started   # Arranca en cuanto el contenedor de Eureka encienda
     networks:
       - innovatech-network
 
@@ -64,13 +78,15 @@ services:
     build: ./usuarios
     container_name: usuarios-service
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/innovatech_usuarios?createDatabaseIfNotExist=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - DB_URL=jdbc:mysql://mysql-db:3306/db_innovatech_users?createDatabaseIfNotExist=true
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - EUREKA_URL=http://discovery-server:8761/eureka/
     depends_on:
-      - mysql-db
-      - discovery-server
+      mysql-db:
+        condition: service_healthy
+      discovery-server:
+        condition: service_started
     networks:
       - innovatech-network
 
@@ -86,8 +102,10 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     depends_on:
-      - mysql-db
-      - discovery-server
+      mysql-db:
+        condition: service_healthy
+      discovery-server:
+        condition: service_started
     networks:
       - innovatech-network
 
@@ -100,8 +118,10 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     depends_on:
-      - mysql-db
-      - discovery-server
+      mysql-db:
+        condition: service_healthy
+      discovery-server:
+        condition: service_started
     networks:
       - innovatech-network
 
@@ -114,8 +134,10 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     depends_on:
-      - mysql-db
-      - discovery-server
+      mysql-db:
+        condition: service_healthy
+      discovery-server:
+        condition: service_started
     networks:
       - innovatech-network
 
@@ -128,8 +150,10 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     depends_on:
-      - mysql-db
-      - discovery-server
+      mysql-db:
+        condition: service_healthy
+      discovery-server:
+        condition: service_started
     networks:
       - innovatech-network
 
@@ -142,8 +166,10 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     depends_on:
-      - mysql-db
-      - discovery-server
+      mysql-db:
+        condition: service_healthy
+      discovery-server:
+        condition: service_started
     networks:
       - innovatech-network
 
