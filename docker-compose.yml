@@ -38,8 +38,8 @@ services:
     ports:
       - "8080:8080" # Toda petición desde el frontend entrará por aquí
     environment:
-      # Le indicamos explícitamente cómo encontrar a Eureka
-      - EUREKA_URL=http://discovery-server:8761/eureka/
+      # Usamos la variable estándar de Spring Boot para Eureka
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     depends_on:
       - discovery-server
     networks:
@@ -78,10 +78,11 @@ services:
     build: ./usuarios
     container_name: usuarios-service
     environment:
-      - DB_URL=jdbc:mysql://mysql-db:3306/db_innovatech_users?createDatabaseIfNotExist=true
-      - DB_USER=root
-      - DB_PASSWORD=root
-      - EUREKA_URL=http://discovery-server:8761/eureka/
+      # Variables estandarizadas a las propiedades nativas de Spring
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/db_innovatech_users?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     depends_on:
       mysql-db:
         condition: service_healthy

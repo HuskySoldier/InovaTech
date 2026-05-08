@@ -30,10 +30,9 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
   instance:
-    prefer-ip-address: true
-    #ip-address: 127.0.0.1
+    prefer-ip-address: true # ¡ESTO ES VITAL EN DOCKER!
 
 resilience4j:
   circuitbreaker:

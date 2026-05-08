@@ -53,7 +53,7 @@ resilience4j:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
   instance:
-    prefer-ip-address: true
+    prefer-ip-address: true # ¡ESTO ES VITAL EN DOCKER!
     #ip-address: 127.0.0.1
