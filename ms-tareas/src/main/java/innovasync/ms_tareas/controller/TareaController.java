@@ -2,10 +2,15 @@ package innovasync.ms_tareas.controller;
 
 import innovasync.ms_tareas.dto.TareaDTO;
 import innovasync.ms_tareas.dto.TareaResponseDTO;
-import innovasync.ms_tareas.model.Tarea;
 import innovasync.ms_tareas.service.TareaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -14,33 +19,60 @@ import java.util.List;
 @RequestMapping("/api/tareas")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
+@Tag(name = "Tareas", description = "API para la gestión de tareas del sistema")
 public class TareaController {
 
     private final TareaService tareaService;
 
+    @Operation(summary = "Obtener todas las tareas", description = "Retorna una lista completa de todas las tareas registradas con sus estados.")
     @GetMapping
     public ResponseEntity<List<TareaResponseDTO>> obtenerTodas() {
         return ResponseEntity.ok(tareaService.obtenerTodas());
     }
 
+    @Operation(summary = "Obtener una tarea por ID", description = "Busca y retorna los detalles de una tarea específica.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Tarea encontrada exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Tarea no encontrada")
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<TareaResponseDTO> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<TareaResponseDTO> obtenerPorId(
+            @Parameter(description = "ID de la tarea a buscar", example = "1") @PathVariable Long id) {
         return ResponseEntity.ok(tareaService.obtenerPorId(id));
     }
 
-    // Ahora recibe TareaDTO en vez del modelo directo
+    @Operation(summary = "Crear una nueva tarea", description = "Registra una nueva tarea en el sistema a partir de los datos proporcionados.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Tarea creada exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
+    })
     @PostMapping
-    public ResponseEntity<TareaResponseDTO> crear(@Valid @RequestBody Tarea tareaDTO) {
-        return ResponseEntity.ok(tareaService.crear(tareaDTO));
+    public ResponseEntity<TareaResponseDTO> crear(@Valid @RequestBody TareaDTO tareaDTO) {
+        // Nota: Cambié el tipo de parámetro a TareaDTO según tu comentario original
+        // y ajusté el return a 201 Created que es una buena práctica en POST
+        return ResponseEntity.status(HttpStatus.CREATED).body(tareaService.crear(tareaDTO));
     }
 
+    @Operation(summary = "Actualizar una tarea", description = "Modifica los datos de una tarea existente según su ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Tarea actualizada exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Tarea no encontrada")
+    })
     @PutMapping("/{id}")
-    public ResponseEntity<TareaResponseDTO> actualizar(@PathVariable Long id, @Valid @RequestBody TareaDTO tareaDTO) {
+    public ResponseEntity<TareaResponseDTO> actualizar(
+            @Parameter(description = "ID de la tarea a actualizar", example = "1") @PathVariable Long id, 
+            @Valid @RequestBody TareaDTO tareaDTO) {
         return ResponseEntity.ok(tareaService.actualizar(id, tareaDTO));
     }
 
+    @Operation(summary = "Eliminar una tarea", description = "Elimina permanentemente una tarea del sistema por su ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Tarea eliminada con éxito (Sin contenido)"),
+        @ApiResponse(responseCode = "404", description = "Tarea no encontrada")
+    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminar(
+            @Parameter(description = "ID de la tarea a eliminar", example = "1") @PathVariable Long id) {
         tareaService.eliminar(id);
         return ResponseEntity.noContent().build();
     }

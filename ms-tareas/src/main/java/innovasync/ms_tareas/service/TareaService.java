@@ -31,7 +31,7 @@ public class TareaService {
         return toResponseDTO(tarea);
     }
 
-    public TareaResponseDTO crear(Tarea dto) {
+    public TareaResponseDTO crear(TareaDTO dto) {
         Tarea tarea = new Tarea();
         tarea.setNombre(dto.getNombre());
         tarea.setDescripcion(dto.getDescripcion());
