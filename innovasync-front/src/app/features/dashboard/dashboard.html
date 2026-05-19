@@ -1,0 +1,92 @@
+<div class="d-flex flex-column h-100">
+
+  <!-- Topbar -->
+  <div class="d-flex justify-content-between align-items-center px-4 py-3 bg-white border-bottom">
+    <span class="fw-semibold text-muted">
+      <i class="bi bi-person-circle me-2"></i>Bienvenida, {{ nombreUsuario }} — {{ rol }}
+    </span>
+    <button class="btn btn-sm text-white fw-bold px-3" style="background: #00A8E8;">
+      <i class="bi bi-plus-lg me-1"></i>Nuevo Proyecto
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="p-4 overflow-auto flex-grow-1" style="background: #F4F7F6;">
+    <h2 class="fw-bold mb-4" style="color: #1A2B4C;">Dashboard</h2>
+
+    <!-- KPI Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3" *ngFor="let kpi of kpis">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
+          <div class="card-body">
+            <p class="text-muted small mb-1">{{ kpi.titulo }}</p>
+            <h3 class="fw-bold" [style.color]="kpi.color">{{ kpi.valor }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos -->
+<div class="row g-3 mb-4">
+  <!-- Gráfico de líneas -->
+  <div class="col-12 col-md-8">
+    <div class="card border-0 shadow-sm rounded-3">
+      <div class="card-body">
+        <canvas baseChart
+          [data]="lineChartData"
+          [options]="lineChartOptions"
+          type="line">
+        </canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráfico de torta -->
+  <div class="col-12 col-md-4">
+    <div class="card border-0 shadow-sm rounded-3">
+      <div class="card-body">
+        <canvas baseChart
+          [data]="pieChartData"
+          [options]="pieChartOptions"
+          type="pie">
+        </canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!-- Tabla Proyectos -->
+    <div class="card border-0 shadow-sm rounded-3">
+      <div class="card-body">
+        <h5 class="fw-bold mb-3" style="color: #1A2B4C;">
+          <i class="bi bi-clock-history me-2"></i>Proyectos Recientes
+        </h5>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Nombre</th>
+                <th>Gestor</th>
+                <th>Fecha Inicio</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let proyecto of proyectos">
+                <td class="fw-semibold">{{ proyecto.nombre }}</td>
+                <td class="text-muted">{{ proyecto.gestor }}</td>
+                <td class="text-muted">{{ proyecto.fecha }}</td>
+                <td>
+                  <span class="badge rounded-pill px-3 py-2 badge-{{ proyecto.badge }}">
+                    {{ proyecto.estado }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,159 @@
+<div class="d-flex" style="height: 100vh;">
+  
+
+  <!-- Main -->
+  <div class="d-flex flex-column flex-grow-1 overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center px-4 py-3 bg-white shadow-sm">
+      <span class="fw-semibold text-muted">
+        <i class="bi bi-gear me-2"></i>Configuración
+      </span>
+      <button class="btn btn-sm text-white fw-bold px-3" style="background: #00A8E8;" (click)="guardarCambios()">
+        <i class="bi bi-floppy me-1"></i>Guardar Cambios
+      </button>
+    </div>
+
+    <div class="p-4 overflow-auto" style="background: #F4F7F6;">
+      <h2 class="fw-bold mb-4" style="color: #1A2B4C;">Configuración</h2>
+
+      <div class="d-flex gap-4">
+        <div class="card border-0 shadow-sm rounded-3 p-2 config-menu" style="width: 200px; height: fit-content;">
+          <button class="btn text-start rounded-2 mb-1"
+            [class.active-link]="pestanaActiva === 'perfil'"
+            [class.text-white]="pestanaActiva === 'perfil'"
+            (click)="cambiarPestana('perfil')">
+            <i class="bi bi-person me-2"></i>Perfil
+          </button>
+          <button class="btn text-start rounded-2 mb-1"
+            [class.active-link]="pestanaActiva === 'apariencia'"
+            [class.text-white]="pestanaActiva === 'apariencia'"
+            (click)="cambiarPestana('apariencia')">
+            <i class="bi bi-palette me-2"></i>Apariencia
+          </button>
+          <button class="btn text-start rounded-2 mb-1"
+            [class.active-link]="pestanaActiva === 'notificaciones'"
+            [class.text-white]="pestanaActiva === 'notificaciones'"
+            (click)="cambiarPestana('notificaciones')">
+            <i class="bi bi-bell me-2"></i>Notificaciones
+          </button>
+          <button class="btn text-start rounded-2"
+            *ngIf="rolUsuario === 'Directivo'"
+            [class.active-link]="pestanaActiva === 'roles'"
+            [class.text-white]="pestanaActiva === 'roles'"
+            (click)="cambiarPestana('roles')">
+            <i class="bi bi-shield-lock me-2"></i>Gestión de Roles
+          </button>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-3 p-4 flex-grow-1 config-content">
+
+          <div *ngIf="pestanaActiva === 'perfil'">
+            <h5 class="fw-bold mb-4" style="color: #1A2B4C;">
+              <i class="bi bi-person-circle me-2"></i>Mi Perfil
+            </h5>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Nombre completo</label>
+              <input type="text" [(ngModel)]="nombre" class="form-control"/>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Correo electrónico</label>
+              <input type="email" [(ngModel)]="email" class="form-control"/>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Cargo</label>
+              <input type="text" [(ngModel)]="cargo" class="form-control" [disabled]="rolUsuario !== 'Directivo'"/>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Nueva contraseña</label>
+              <input type="password" placeholder="••••••••" class="form-control"/>
+            </div>
+          </div>
+
+          <div *ngIf="pestanaActiva === 'apariencia'">
+            <h5 class="fw-bold mb-4" style="color: #1A2B4C;">
+              <i class="bi bi-palette me-2"></i>Apariencia
+            </h5>
+            <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+              <span><i class="bi bi-moon me-2"></i>Tema oscuro</span>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" 
+                      [(ngModel)]="temaOscuro"
+                      (change)="cambiarTema()"/>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="pestanaActiva === 'notificaciones'">
+            <h5 class="fw-bold mb-4" style="color: #1A2B4C;">
+              <i class="bi bi-bell me-2"></i>Notificaciones
+            </h5>
+            <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+              <span><i class="bi bi-envelope me-2"></i>Notificaciones por email</span>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" [(ngModel)]="notifEmail"/>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+              <span><i class="bi bi-bell me-2"></i>Notificaciones del sistema</span>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" [(ngModel)]="notifSistema"/>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="pestanaActiva === 'roles' && rolUsuario === 'Directivo'">
+            <h5 class="fw-bold mb-4" style="color: #1A2B4C;">
+              <i class="bi bi-shield-lock me-2"></i>Gestión de Roles
+            </h5>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Usuario</th>
+                    <th>Rol Actual</th>
+                    <th>Cambiar Rol</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><i class="bi bi-person me-2"></i>Alejandro M.</td>
+                    <td><span class="badge rounded-pill px-3 badge-directivo">Directivo</span></td>
+                    <td>
+                      <select class="form-select form-select-sm" style="width: 150px;">
+                        <option>Directivo</option>
+                        <option>Gestor</option>
+                        <option>Colaborador</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-person me-2"></i>Bastian G.</td>
+                    <td><span class="badge rounded-pill px-3 badge-gestor">Gestor</span></td>
+                    <td>
+                      <select class="form-select form-select-sm" style="width: 150px;">
+                        <option>Directivo</option>
+                        <option>Gestor</option>
+                        <option>Colaborador</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-person me-2"></i>Ivan H.</td>
+                    <td><span class="badge rounded-pill px-3 badge-colaborador">Colaborador</span></td>
+                    <td>
+                      <select class="form-select form-select-sm" style="width: 150px;">
+                       <option>Directivo</option>
+                        <option>Gestor</option>
+                        <option>Colaborador</option>
+                      </select>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

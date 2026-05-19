@@ -1,0 +1,65 @@
+<div class="login-wrapper d-flex align-items-center justify-content-center min-vh-100">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+        
+        <div class="card shadow-lg border-0 rounded-4 login-card">
+          <div class="card-body p-5">
+
+            <!-- Logo -->
+            <div class="text-center mb-4">
+              <h1 class="fw-bold" style="color: #1A2B4C;"> InnovaSync</h1>
+              <p class="text-muted">Gestión de proyectos y equipos</p>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold" style="color: #1A2B4C;">
+                Correo electrónico
+              </label>
+              <input 
+                type="email"
+                class="form-control form-control-lg"
+                [(ngModel)]="email"
+                placeholder="admin@innovasync.com"
+              />
+            </div>
+
+            <!-- Contraseña -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold" style="color: #1A2B4C;">
+                Contraseña
+              </label>
+              <input 
+                type="password"
+                class="form-control form-control-lg"
+                [(ngModel)]="password"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <!-- Error -->
+            <div class="alert alert-danger py-2" *ngIf="errorMsg">
+              {{ errorMsg }}
+            </div>
+
+            <!-- Botón -->
+            <button 
+              class="btn btn-lg w-100 mt-2 fw-bold text-white"
+              style="background: #00A8E8;"
+              (click)="login()"
+              [disabled]="cargando">
+              <span *ngIf="cargando">
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Cargando...
+                </span>
+              <span *ngIf="!cargando">Ingresar</span>
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

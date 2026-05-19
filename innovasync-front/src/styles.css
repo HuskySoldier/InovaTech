@@ -1,0 +1,221 @@
+body { font-family: Arial, sans-serif; }
+
+/* ===== SIDEBAR ===== */
+.nav-link {
+  color: rgba(255,255,255,0.7) !important;
+  text-decoration: none;
+  padding: 12px 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: 0.2s;
+  display: block;
+}
+
+.nav-link:hover, .active-link {
+  background: #00A8E8 !important;
+  color: white !important;
+}
+
+/* ===== ICONOS ===== */
+.bi { font-size: 1.2rem; }
+
+/* ===== TIPOGRAFÍA ===== */
+h2 { font-size: 2rem !important; }
+h4 { font-size: 1.4rem !important; }
+h5 { font-size: 1.2rem !important; }
+.fw-semibold { font-size: 16px; }
+
+/* ===== TABLA ===== */
+.table { font-size: 15px; }
+th { font-size: 15px; }
+
+/* ===== CARDS KPI ===== */
+.card-body h3 { font-size: 2.2rem !important; }
+.card-body p { font-size: 15px !important; }
+
+/* ===== BADGES ===== */
+.badge { font-size: 13px !important; padding: 7px 14px !important; }
+.badge-verde { background: #d4edda; color: #28A745; }
+.badge-amarillo { background: #fff3cd; color: #e6a817; }
+.badge-rojo { background: #f8d7da; color: #DC3545; }
+
+/* ===== BOTONES ===== */
+.btn { font-size: 15px !important; }
+
+/* ===== FORMULARIOS ===== */
+.form-check-input:checked {
+  background-color: #00A8E8;
+  border-color: #00A8E8;
+}
+
+
+
+/* ===== TEMA OSCURO ===== */
+.tema-oscuro,
+.tema-oscuro * {
+  color: #ffffff !important;
+}
+
+.tema-oscuro {
+  background: #1a1a2e !important;
+}
+
+/* Cards */
+.tema-oscuro .card,
+.tema-oscuro .card-body {
+  background: #0f3460 !important;
+  border-color: #1a3a6e !important;
+}
+
+/* Topbar */
+.tema-oscuro .bg-white,
+.tema-oscuro .border-bottom {
+  background: #0f3460 !important;
+  border-color: #333 !important;
+}
+
+/* Contenido general */
+.tema-oscuro .p-4,
+.tema-oscuro .overflow-auto {
+  background: #1a1a2e !important;
+}
+
+/* Tabla */
+.tema-oscuro .table,
+.tema-oscuro tbody tr td {
+  background: #0f3460 !important;
+  color: #ffffff !important;
+  border-color: #1a3a6e !important;
+}
+
+.tema-oscuro .table-light th {
+  background: #1a3a6e !important;
+  color: #ffffff !important;
+}
+
+.tema-oscuro .table-hover tbody tr:hover td {
+  background: #1a3a6e !important;
+}
+
+/* Kanban tarjetas */
+.tema-oscuro .tarea-card {
+  background: #1a3a6e !important;
+}
+
+/* Badges colores */
+.tema-oscuro .badge-verde {
+  background: #1a5c2a !important;
+  color: #51cf66 !important;
+}
+
+.tema-oscuro .badge-amarillo {
+  background: #5c4a00 !important;
+  color: #ffd43b !important;
+}
+
+.tema-oscuro .badge-rojo {
+  background: #5c1a1a !important;
+  color: #ff6b6b !important;
+}
+
+/* Formularios */
+.tema-oscuro .form-control,
+.tema-oscuro .form-select {
+  background: #1a3a6e !important;
+  border-color: #333 !important;
+}
+
+/* bg-light */
+.tema-oscuro .bg-light {
+  background: #1a3a6e !important;
+}
+
+/* Hover kanban */
+.tema-oscuro .tarea-card:hover {
+  background: #1a3a6e !important;
+  transition: 0.2s;
+}
+
+/* Puntitos de prioridad kanban tema oscuro */
+.tema-oscuro span.prioridad-texto[style*="color: rgb(220, 53, 69)"],
+.tema-oscuro span.prioridad-texto[style*="color: rgb(255, 193, 7)"],
+.tema-oscuro span.prioridad-texto[style*="color: rgb(40, 167, 69)"] {
+  filter: brightness(1.8) !important;
+}
+
+/* Cards menu configuracion */
+.tema-oscuro .config-menu,
+.tema-oscuro .config-content {
+  background: #0f3460 !important;
+}
+
+.tema-oscuro .config-menu button {
+  color: #ffffff !important;
+}
+
+.tema-oscuro .config-menu button:hover,
+.tema-oscuro .config-menu button.active-link {
+  background: #1a3a6e !important;
+}
+
+.tema-oscuro .avatar-circle {
+  background: #00A8E8 !important;
+}
+
+/* ===== PRIORIDADES ===== */
+.prioridad-alta { color: #DC3545; }
+.prioridad-media { color: #FFC107; }
+.prioridad-baja { color: #28A745; }
+
+/* Prioridades tema oscuro */
+.tema-oscuro .prioridad-alta { color: #ff6b6b !important; }
+.tema-oscuro .prioridad-media { color: #ffd43b !important; }
+.tema-oscuro .prioridad-baja { color: #51cf66 !important; }
+
+/* Puntito de prioridad tema oscuro */
+.tema-oscuro .prioridad-alta i,
+.tema-oscuro .prioridad-media i,
+.tema-oscuro .prioridad-baja i {
+  color: inherit !important;
+}
+
+/* Card contenido configuracion tema oscuro */
+.tema-oscuro .config-content {
+  background: #0f3460 !important;
+  border: 1px solid #1a3a6e !important;
+}
+
+.tema-oscuro .config-menu {
+  background: #0f3460 !important;
+  border: 1px solid #1a3a6e !important;
+}
+
+/* Badges roles modo claro */
+.badge-directivo { background: #cce5ff; color: #1A2B4C; }
+.badge-gestor { background: #d4edda; color: #28A745; }
+.badge-colaborador { background: #fff3cd; color: #e6a817; }
+
+/* Badges roles modo oscuro */
+.tema-oscuro .badge-directivo { background: #1a3a6e !important; color: #00A8E8 !important; }
+.tema-oscuro .badge-gestor { background: #1a5c2a !important; color: #51cf66 !important; }
+.tema-oscuro .badge-colaborador { background: #5c4a00 !important; color: #ffd43b !important; }
+
+/* ===== LOGIN TEMA OSCURO ===== */
+.tema-oscuro .card.login-card {
+  background: #0f3460 !important;
+  border-radius: 1.5rem !important;
+}
+
+.tema-oscuro .login-card label {
+  color: #ffffff !important;
+}
+
+.tema-oscuro .login-card input {
+  background: #1a3a6e !important;
+  color: #ffffff !important;
+  border-color: #333 !important;
+}
+
+.tema-oscuro .login-card input::placeholder {
+  color: #aaaaaa !important;
+}

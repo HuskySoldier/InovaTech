@@ -1,0 +1,92 @@
+<div class="d-flex" style="height: 100vh;">
+  
+
+  <!-- Main -->
+  <div class="d-flex flex-column flex-grow-1 overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center px-4 py-3 bg-white shadow-sm">
+      <span class="fw-semibold text-muted">
+        <i class="bi bi-people me-2"></i>Gestión de Capacidad del Equipo
+      </span>
+      <button class="btn btn-sm text-white fw-bold px-3" style="background: #00A8E8;">
+        <i class="bi bi-plus-lg me-1"></i>Nuevo Proyecto
+      </button>
+    </div>
+
+    <div class="p-4 overflow-auto" style="background: #F4F7F6;">
+      <h2 class="fw-bold mb-4" style="color: #1A2B4C;">Capacidad del Equipo</h2>
+
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="fw-bold mb-1" style="color: #1A2B4C;">
+              <i class="bi bi-bar-chart me-2"></i>Resumen de Utilización Global
+            </h5>
+            <p class="text-muted small mb-0">
+              <i class="bi bi-calendar me-1"></i>Período: Último mes
+            </p>
+          </div>
+          <div class="d-flex align-items-center justify-content-center rounded-circle text-white fw-bold"
+               style="width: 80px; height: 80px; background: #00A8E8; font-size: 20px;">
+            {{ utilizacionGlobal }}%
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Especialista</th>
+                  <th *ngFor="let semana of semanas">{{ semana }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let profesional of profesionales">
+                  <td style="min-width: 200px;">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="d-flex align-items-center justify-content-center rounded-circle text-white fw-bold"
+                           style="width: 38px; height: 38px; background: #1A2B4C; font-size: 12px; flex-shrink: 0;">
+                        {{ profesional.avatar }}
+                      </div>
+                      <div>
+                        <p class="mb-0 fw-semibold" style="font-size: 14px;">{{ profesional.nombre }}</p>
+                        <p class="mb-0 text-muted" style="font-size: 12px;">{{ profesional.cargo }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td *ngFor="let asignacion of profesional.asignaciones">
+                    <div class="rounded-2 text-white text-center fw-bold py-1 px-2"
+                         *ngIf="asignacion.proyecto"
+                         [style.backgroundColor]="asignacion.color"
+                         style="font-size: 12px;">
+                      {{ asignacion.proyecto }}
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body d-flex gap-4">
+          <span class="d-flex align-items-center gap-2 text-muted small">
+            <span class="rounded-circle" style="width:12px; height:12px; background:#28A745; display:inline-block;"></span>
+            Disponible (≤40h)
+          </span>
+          <span class="d-flex align-items-center gap-2 text-muted small">
+            <span class="rounded-circle" style="width:12px; height:12px; background:#FFC107; display:inline-block;"></span>
+            Al límite (40-50h)
+          </span>
+          <span class="d-flex align-items-center gap-2 text-muted small">
+            <span class="rounded-circle" style="width:12px; height:12px; background:#DC3545; display:inline-block;"></span>
+            Sobrecargado (>50h)
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

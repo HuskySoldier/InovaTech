@@ -1,0 +1,31 @@
+<div class="d-flex flex-column p-3 h-100" style="background: #1A2B4C;">
+  <div class="mb-4">
+    <h4 class="fw-bold" style="color: #00A8E8;">
+      <i class="bi bi-lightning-fill"></i> InnovaSync
+    </h4>
+  </div>
+  <nav class="d-flex flex-column gap-2">
+    <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-link">
+      <i class="bi bi-speedometer2 me-2"></i>
+      <span class="nav-text">Dashboard</span>
+    </a>
+    <a routerLink="/projects" routerLinkActive="active-link" class="nav-link">
+      <i class="bi bi-kanban me-2"></i>
+      <span class="nav-text">Proyectos</span>
+    </a>
+    <a routerLink="/capacity" routerLinkActive="active-link" class="nav-link">
+      <i class="bi bi-people me-2"></i>
+      <span class="nav-text">Equipo (Capacity)</span>
+    </a>
+    <a routerLink="/configuration" routerLinkActive="active-link" class="nav-link">
+      <i class="bi bi-gear me-2"></i>
+      <span class="nav-text">Configuración</span>
+    </a>
+  </nav>
+  <!-- Botón cerrar sesión al fondo -->
+  <div class="mt-auto">
+    <a routerLink="/login" class="nav-link text-danger">
+      <i class="bi bi-box-arrow-left me-2"></i>Cerrar Sesión
+    </a>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+.login-wrapper {
+  background: #1A2B4C;
+}
+
+.form-control:focus {
+  border-color: #00A8E8;
+  box-shadow: 0 0 0 0.2rem rgba(0, 168, 232, 0.25);
+}
+
+.btn:hover {
+  background: #1A2B4C !important;
+  transition: 0.3s;
+}
