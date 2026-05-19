@@ -3,6 +3,7 @@ package com.innovatech.asignaciones.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.amqp.rabbit.annotation.RabbitListener; // Importación de RabbitMQ
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +32,7 @@ public class AsignacionService {
     }
 
     public Asignacion crearAsignacion(Long idTarea, Long idIntegrante) {
-        // // 1. Validar Tarea (COMENTADO HASTA CREAR MS TAREAS)
+        // 1. Validar Tarea
          try {
              tareaClient.obtenerTareaPorId(idTarea);
          } catch (Exception e) {
@@ -51,5 +52,19 @@ public class AsignacionService {
         nuevaAsignacion.setFecha_asignacion(LocalDateTime.now());
 
         return asignacionRepository.save(nuevaAsignacion);
+    }
+
+    // ==========================================
+    // CONSUMIDOR DE RABBITMQ
+    // ==========================================
+    @RabbitListener(queues = "tarea.creada.queue")
+    public void recibirNotificacionTareaCreada(String mensaje) {
+        System.out.println("\n=========================================================");
+        System.out.println(" EVENTO ASÍNCRONO RECIBIDO EN ASIGNACIONES-SERVICE ");
+        System.out.println("Mensaje: " + mensaje);
+        System.out.println("=========================================================\n");
+        
+        // Aquí se puede agregar lógica asíncrona en el futuro. 
+        
     }
 }

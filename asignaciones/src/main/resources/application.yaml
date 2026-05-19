@@ -18,6 +18,13 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+  rabbitmq:
+    host: rabbitmq # Cambia a 'rabbitmq' cuando levantes con docker-compose
+    port: 5672
+    username: admin
+    password: admin123
+
   cloud:
     openfeign:
       client:
