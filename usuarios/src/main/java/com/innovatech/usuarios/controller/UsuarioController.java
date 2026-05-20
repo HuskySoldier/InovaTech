@@ -21,6 +21,8 @@ import com.innovatech.usuarios.DTO.UsuarioResponseDTO;
 import com.innovatech.usuarios.DTO.UsuarioSummaryDTO;
 import com.innovatech.usuarios.service.UsuarioService;
 
+import feign.Response;
+
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
@@ -108,5 +110,11 @@ public class UsuarioController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping("/auth/login2")
+    public ResponseEntity<UsuarioAuthDTO> iniciarSesion(@RequestBody UsuarioRequestDTO inicio){
+        UsuarioAuthDTO response = usuarioService.iniciarSesion(inicio.getCorreo(), inicio.getClave());
+        return ResponseEntity.ok(response);
     }
 }

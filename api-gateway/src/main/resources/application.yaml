@@ -10,6 +10,21 @@ spring:
   
   cloud:
     gateway:
+      # --- INICIO CONFIGURACIÓN CORS CENTRALIZADA ---
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+      # --- FIN CONFIGURACIÓN CORS ---
+
       server:
         webmvc:
           discovery:
@@ -95,8 +110,6 @@ spring:
                   args:
                     id: asignaciones
                     fallbackUri: forward:/fallback/asignaciones
-
-
 
 management:
   endpoints:

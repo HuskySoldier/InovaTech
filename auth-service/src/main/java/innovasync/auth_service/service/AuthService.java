@@ -20,7 +20,7 @@ public class AuthService {
     public LoginResponseDTO login(LoginRequestDTO request) {
 
         // 1. Busca usuario en MS Usuarios via Feign
-        UsuarioResponseFeign usuario = usuarioClient.obtenerPorEmail(request.getCorreo());
+        UsuarioResponseFeign usuario = usuarioClient.obtenerPorEmail(request);
 
         // 2. Si no existe lanza error
         if (usuario == null) {

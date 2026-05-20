@@ -35,7 +35,6 @@ public class UsuarioService {
     private EstadoClient estadoClient;
     @Autowired
     private PrivilegiosClient privilegiosClient;
-    
 
     public List<UsuarioSummaryDTO> listarUsuarios() {
         return usuarioRepository.findAll().stream()
@@ -77,6 +76,29 @@ public class UsuarioService {
         return dto;
     }
 
+    public UsuarioAuthDTO iniciarSesion(String email, String pass) {
+        Usuario user = usuarioRepository.findByEmail(email);
+
+        // 1. Validar que el usuario realmente se encontró en la base de datos
+        if (user == null) {
+            return null; // El usuario no existe
+        }
+
+        // 2. Si el usuario existe, ahora es seguro verificar la contraseña
+        if (passwordEncoder.matches(pass, user.getContrasena())) {
+            UsuarioAuthDTO dto = new UsuarioAuthDTO();
+            dto.setIdUser(user.getIdUsuario());
+            dto.setEmail(user.getEmail());
+            dto.setContrasena(user.getContrasena());
+            dto.setIdRol(user.getIdRol());
+            dto.setIdEstado(user.getIdEstado());
+            return dto;
+        }
+
+        // 3. La contraseña es incorrecta
+        return null;
+    }
+
     public UsuarioResponseDTO crearUsuario(UsuarioRequestDTO dto) {
         // Validar que el RUN no esté duplicado
         if (usuarioRepository.existsByRun(dto.getRun())) {
@@ -95,13 +117,11 @@ public class UsuarioService {
             throw new RuntimeException("MS Estado no disponible");
         }
 
-        
         // Buscar el cargo
         Cargo cargo = cargoRepository.findById(dto.getIdCargo())
                 .orElseThrow(() -> new RuntimeException("Cargo no encontrado con id: " + dto.getIdCargo()));
 
         RolDTO rol = privilegiosClient.obtenerRolPorId(dto.getIdRol());
-                
 
         // Construir la entidad
         Usuario nuevoUsuario = new Usuario();
@@ -119,10 +139,9 @@ public class UsuarioService {
         return toResponseDTO(usuarioRepository.save(nuevoUsuario));
     }
 
-
     public UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO dto) {
         Usuario usuarioExistente = usuarioRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
         if (usuarioExistente != null) {
             // Validar que el RUN no esté duplicado (si se está actualizando el RUN)
             if (!usuarioExistente.getRun().equals(dto.getRun()) && usuarioRepository.existsByRun(dto.getRun())) {
@@ -130,7 +149,8 @@ public class UsuarioService {
             }
 
             // Validar que el correo no esté duplicado (si se está actualizando el correo)
-            if (!usuarioExistente.getEmail().equals(dto.getCorreo()) && usuarioRepository.existsByEmail(dto.getCorreo())) {
+            if (!usuarioExistente.getEmail().equals(dto.getCorreo())
+                    && usuarioRepository.existsByEmail(dto.getCorreo())) {
                 throw new RuntimeException("Ya existe un usuario con el correo: " + dto.getCorreo());
             }
 
@@ -155,14 +175,12 @@ public class UsuarioService {
         return null;
     }
 
-   
     public void eliminarUsuario(Long id) {
         if (!usuarioRepository.existsById(id)) {
             throw new RuntimeException("Usuario no encontrado con id: " + id);
         }
         usuarioRepository.deleteById(id);
     }
-
 
     public UsuarioResponseDTO cambiarEstadoUsuario(Long id, Long nuevoEstado) {
         Usuario usuarioExistente = usuarioRepository.findById(id)
@@ -171,15 +189,14 @@ public class UsuarioService {
         return toResponseDTO(usuarioRepository.save(usuarioExistente));
     }
 
-    
-    //Metodos para convertir Usuario a las diferentes DTOs
+    // Metodos para convertir Usuario a las diferentes DTOs
     private UsuarioSummaryDTO toSummaryDTO(Usuario usuario) {
-    UsuarioSummaryDTO dto = new UsuarioSummaryDTO();
+        UsuarioSummaryDTO dto = new UsuarioSummaryDTO();
         dto.setIdUser(usuario.getIdUsuario());
         dto.setNombreCompleto(usuario.getNombre() + " " + usuario.getApellido());
         dto.setEmail(usuario.getEmail());
-        dto.setNombreCargo(usuario.getCargo() != null 
-                ? usuario.getCargo().getNombreCargo() 
+        dto.setNombreCargo(usuario.getCargo() != null
+                ? usuario.getCargo().getNombreCargo()
                 : "Sin cargo");
         return dto;
     }
@@ -194,8 +211,8 @@ public class UsuarioService {
         dto.setEmail(usuario.getEmail());
         dto.setFechaNacimiento(usuario.getFechaNacimiento());
         dto.setImgPerfil(usuario.getFotoPerfil());
-        dto.setNombreCargo(usuario.getCargo() != null 
-                ? usuario.getCargo().getNombreCargo() 
+        dto.setNombreCargo(usuario.getCargo() != null
+                ? usuario.getCargo().getNombreCargo()
                 : "Sin cargo");
         dto.setIdRol(usuario.getIdRol());
         dto.setIdEstado(usuario.getIdEstado());
@@ -207,7 +224,6 @@ public class UsuarioService {
         }
 
         return dto;
-    }   
+    }
 
-    
 }

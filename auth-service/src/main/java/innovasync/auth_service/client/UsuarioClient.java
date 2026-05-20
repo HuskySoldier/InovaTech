@@ -2,14 +2,16 @@ package innovasync.auth_service.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import innovasync.auth_service.dto.LoginRequestDTO;
 import lombok.Data;
 
-@FeignClient(name = "usuarios", url = "http://localhost:8081", fallback = UsuarioClientFallback.class)
+@FeignClient(name = "usuarios", fallback = UsuarioClientFallback.class)
 public interface UsuarioClient {
 
-    @GetMapping("/api/usuarios/auth/email/{email}")
-    UsuarioResponseFeign obtenerPorEmail(@PathVariable String email);
+    @GetMapping("/api/usuarios/auth/login2")
+    UsuarioResponseFeign obtenerPorEmail(@RequestBody LoginRequestDTO login);
 
     @Data
     class UsuarioResponseFeign {
@@ -17,5 +19,6 @@ public interface UsuarioClient {
         private String email;
         private String contrasena;
         private Long idRol;
+        private Long idEstado;
     }
 }
