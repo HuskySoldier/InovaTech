@@ -57,7 +57,7 @@ public class AsignacionService {
     // ==========================================
     // CONSUMIDOR DE RABBITMQ
     // ==========================================
-    @RabbitListener(queues = "tarea.creada.queue")
+    @RabbitListener(queuesToDeclare = @org.springframework.amqp.rabbit.annotation.Queue("tarea.creada.queue"))
     public void recibirNotificacionTareaCreada(String mensaje) {
         System.out.println("\n=========================================================");
         System.out.println(" EVENTO ASÍNCRONO RECIBIDO EN ASIGNACIONES-SERVICE ");
@@ -66,5 +66,11 @@ public class AsignacionService {
         
         // Aquí se puede agregar lógica asíncrona en el futuro. 
         
+    }
+    @RabbitListener(queuesToDeclare = @org.springframework.amqp.rabbit.annotation.Queue("usuario.desactivado.queue.asignaciones"))
+    public void limpiarAsignacionesDeUsuario(String mensaje) {
+    // 1. Extraer ID del mensaje (ej: "Usuario desactivado con ID: 123")
+    // 2. asignacionRepository.deleteByIdIntegrante(idUsuario);
+    System.out.println("🔄 ASIGNACIONES: Limpiando tareas del usuario desactivado.");
     }
 }

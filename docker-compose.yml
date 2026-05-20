@@ -173,6 +173,8 @@ services:
         condition: service_healthy
       discovery-server:
         condition: service_started
+      rabbitmq:                        
+        condition: service_healthy
     networks:
       - innovatech-network
 
@@ -189,6 +191,8 @@ services:
         condition: service_healthy
       discovery-server:
         condition: service_started
+      rabbitmq:                        
+        condition: service_healthy
     networks:
       - innovatech-network
 

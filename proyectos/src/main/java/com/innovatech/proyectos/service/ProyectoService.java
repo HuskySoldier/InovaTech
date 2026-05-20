@@ -3,10 +3,12 @@ package com.innovatech.proyectos.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate; 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.innovatech.proyectos.client.EstadoClient;
+import com.innovatech.proyectos.config.RabbitMQConfig; 
 import com.innovatech.proyectos.model.HistorialProyecto;
 import com.innovatech.proyectos.model.Proyecto;
 import com.innovatech.proyectos.repository.HistorialProyectoRepository;
@@ -27,6 +29,10 @@ public class ProyectoService {
     @Autowired
     private EstadoClient estadoClient;
 
+    // Inyectamos RabbitTemplate para enviar los eventos
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
     public List<Proyecto> listarProyectos() {
         return proyectoRepository.findAll();
     }
@@ -46,6 +52,17 @@ public class ProyectoService {
 
         Proyecto nuevoProyecto = proyectoRepository.save(proyecto);
         registrarHistorial(nuevoProyecto, "Creación inicial del proyecto.");
+
+        // ==========================================
+        // EMISIÓN DE EVENTO A RABBITMQ
+        // ==========================================
+        System.out.println("Enviando evento de nuevo proyecto a RabbitMQ...");
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE_PROYECTOS, 
+                RabbitMQConfig.ROUTING_KEY_PROYECTO_CREADO, 
+                "Nuevo proyecto creado con ID: " + nuevoProyecto.getIdProyecto()
+        );
+
         return nuevoProyecto;
     }
 

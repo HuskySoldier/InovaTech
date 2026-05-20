@@ -2,6 +2,7 @@ package com.innovatech.Equipos.service;
 
 import java.util.List;
 
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -73,5 +74,25 @@ public class EquipoService {
 
     public void eliminarEquipo(Long id) {
         equipoRepository.deleteById(id);
+    }
+
+    @RabbitListener(queuesToDeclare = @org.springframework.amqp.rabbit.annotation.Queue("proyecto.creado.queue"))
+    public void procesarProyectoCreado(String mensaje) {
+        System.out.println("\n---------------------------------------------------------");
+        System.out.println(" EQUIPOS: Evento recibido -> " + mensaje);
+        System.out.println("Iniciando lógica de asignación o revisión de equipos...");
+        System.out.println("---------------------------------------------------------\n");
+        
+        // AQUÍ PUEDES PONER TU LÓGICA:
+        // 1. Extraer el ID del proyecto del mensaje
+        // 2. Verificar disponibilidad de los equipos
+        // 3. Vincular equipos al proyecto mediante un repositorio
+    }
+
+    @RabbitListener(queuesToDeclare = @org.springframework.amqp.rabbit.annotation.Queue("usuario.desactivado.queue.equipos"))
+    public void removerIntegranteDeEquipo(String mensaje) {
+    // 1. Extraer ID
+    // 2. integranteRepository.deleteByIdUsuario(idUsuario);
+    System.out.println("👥 EQUIPOS: Removiendo usuario desactivado de los equipos.");
     }
 }
