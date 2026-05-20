@@ -18,6 +18,12 @@ spring:
     password: ""
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: admin
+    password: admin123
+
   jpa:
     hibernate:
       ddl-auto: update

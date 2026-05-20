@@ -14,6 +14,13 @@ spring:
     username: root
     password: ""
     driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  
+  rabbitmq:
+    host: rabbitmq        # Nombre del contenedor en la red Docker
+    port: 5672
+    username: admin
+    password: admin123
 
   jpa:
     hibernate:

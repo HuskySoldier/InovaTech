@@ -32,6 +32,24 @@ services:
     networks:
       - innovatech-network
 
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    ports:
+      - "5672:5672"   # Puerto de comunicación para microservicios
+      - "15672:15672" # Interfaz gráfica de administración
+    networks:
+      - innovatech-network
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
   api-gateway:
     build: ./api-gateway
     container_name: api-gateway
@@ -155,6 +173,8 @@ services:
         condition: service_healthy
       discovery-server:
         condition: service_started
+      rabbitmq:                        
+        condition: service_healthy
     networks:
       - innovatech-network
 
@@ -171,6 +191,8 @@ services:
         condition: service_healthy
       discovery-server:
         condition: service_started
+      rabbitmq:                        
+        condition: service_healthy
     networks:
       - innovatech-network
 

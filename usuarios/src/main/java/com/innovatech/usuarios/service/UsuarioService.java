@@ -3,6 +3,7 @@ package com.innovatech.usuarios.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import com.innovatech.usuarios.DTO.UsuarioResponseDTO;
 import com.innovatech.usuarios.DTO.UsuarioSummaryDTO;
 import com.innovatech.usuarios.client.EstadoClient;
 import com.innovatech.usuarios.client.PrivilegiosClient;
+import com.innovatech.usuarios.config.RabbitMQConfig;
 import com.innovatech.usuarios.model.Cargo;
 import com.innovatech.usuarios.model.Usuario;
 import com.innovatech.usuarios.repository.CargoRepository;
@@ -224,6 +226,23 @@ public class UsuarioService {
         }
 
         return dto;
+    }  
+    
+    @Autowired
+    private RabbitTemplate rabbitTemplate; // Inyectar
+
+    public void desactivarUsuario(Long id) {
+        Usuario usuario = usuarioRepository.findById(id).orElseThrow();
+        usuario.setIdEstado(2L); // Asumiendo 2L es el ID para "desactivado"
+        usuarioRepository.save(usuario);
+
+        // Emitir evento
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE_USUARIOS,
+                RabbitMQConfig.ROUTING_KEY_USUARIO_DESACTIVADO,
+                "Usuario desactivado con ID: " + id
+        );
     }
 
+    
 }
