@@ -196,6 +196,20 @@ services:
     networks:
       - innovatech-network
 
+
+  # ==========================================
+  # 4. FRONTEND (ANGULAR + NGINX)
+  # ==========================================
+  frontend-app:
+    build: ./innovasync-front # <- Asegúrate de que este sea el nombre exacto de la carpeta de tu frontend
+    container_name: frontend-app
+    ports:
+      - "80:80" # El frontend estará disponible en http://localhost
+    depends_on:
+      - api-gateway # Espera a que el gateway esté listo antes de levantar el front
+    networks:
+      - innovatech-network
+
 # ==========================================
 # 4. RED INTERNA
 # ==========================================
