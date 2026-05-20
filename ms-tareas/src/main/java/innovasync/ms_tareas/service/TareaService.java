@@ -1,13 +1,16 @@
 package innovasync.ms_tareas.service;
 
 import innovasync.ms_tareas.client.EstadoClient;
+import innovasync.ms_tareas.config.RabbitMQConfig; // Agregado
 import innovasync.ms_tareas.dto.EstadoResponse;
 import innovasync.ms_tareas.dto.TareaDTO;
 import innovasync.ms_tareas.dto.TareaResponseDTO;
 import innovasync.ms_tareas.model.Tarea;
 import innovasync.ms_tareas.repository.TareaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate; // Agregado
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +20,7 @@ public class TareaService {
 
     private final TareaRepository tareaRepository;
     private final EstadoClient estadoClient;
+    private final RabbitTemplate rabbitTemplate; // Inyectamos RabbitTemplate para enviar mensajes
 
     public List<TareaResponseDTO> obtenerTodas() {
         return tareaRepository.findAll()
@@ -40,7 +44,21 @@ public class TareaService {
         tarea.setPresupuestoFinal(dto.getPresupuestoFinal());
         tarea.setIdEstado(dto.getIdEstado());
         tarea.setIdPrioridad(dto.getIdPrioridad());
-        return toResponseDTO(tareaRepository.save(tarea));
+        
+        Tarea tareaGuardada = tareaRepository.save(tarea);
+        TareaResponseDTO response = toResponseDTO(tareaGuardada);
+
+        // ==========================================
+        // EMISIÓN DE EVENTO A RABBITMQ
+        // ==========================================
+        System.out.println("Enviando evento de nueva tarea a RabbitMQ...");
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE_TAREAS, 
+                RabbitMQConfig.ROUTING_KEY_TAREA_CREADA, 
+                "Nueva tarea creada con ID: " + tareaGuardada.getId()
+        );
+
+        return response;
     }
 
     public TareaResponseDTO actualizar(Long id, TareaDTO dto) {
