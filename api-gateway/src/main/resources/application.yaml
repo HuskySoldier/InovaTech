@@ -1,16 +1,37 @@
 server:
   port: 8080
 
+# 1. Mover springdoc a nivel raíz
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: Auth Service
+        url: /v3/api-docs/auth-service
+      - name: Usuarios
+        url: /v3/api-docs/usuarios
+      - name: Privilegios
+        url: /v3/api-docs/privilegios-service
+      - name: Estado
+        url: /v3/api-docs/estado-service
+      - name: Proyectos
+        url: /v3/api-docs/proyectos
+      - name: Equipos
+        url: /v3/api-docs/equipos
+      - name: Tareas
+        url: /v3/api-docs/ms-tareas
+      - name: Asignaciones
+        url: /v3/api-docs/asignaciones
+
 spring:
   application:
     name: api-gateway
   threads:
     virtual:
       enabled: true
-  
+
   cloud:
     gateway:
-      # --- INICIO CONFIGURACIÓN CORS CENTRALIZADA ---
       globalcors:
         corsConfigurations:
           '[/**]':
@@ -23,7 +44,6 @@ spring:
               - OPTIONS
             allowedHeaders: "*"
             allowCredentials: true
-      # --- FIN CONFIGURACIÓN CORS ---
 
       server:
         webmvc:
@@ -31,6 +51,64 @@ spring:
             locator:
               enabled: false
           routes:
+            # --- RUTAS PARA AGREGAR SWAGGER (PROXY) ---
+            - id: auth-docs
+              uri: lb://auth-service
+              predicates:
+                - Path=/v3/api-docs/auth-service
+              filters:
+                - RewritePath=/v3/api-docs/auth-service, /v3/api-docs
+
+            - id: usuarios-docs
+              uri: lb://usuarios
+              predicates:
+                - Path=/v3/api-docs/usuarios
+              filters:
+                - RewritePath=/v3/api-docs/usuarios, /v3/api-docs
+
+            - id: privilegios-docs
+              uri: lb://privilegios-service
+              predicates:
+                - Path=/v3/api-docs/privilegios-service
+              filters:
+                - RewritePath=/v3/api-docs/privilegios-service, /v3/api-docs
+
+            - id: estado-docs
+              uri: lb://estado-service
+              predicates:
+                - Path=/v3/api-docs/estado-service
+              filters:
+                - RewritePath=/v3/api-docs/estado-service, /v3/api-docs
+
+            - id: proyectos-docs
+              uri: lb://proyectos
+              predicates:
+                - Path=/v3/api-docs/proyectos
+              filters:
+                - RewritePath=/v3/api-docs/proyectos, /v3/api-docs
+
+            - id: equipos-docs
+              uri: lb://equipos
+              predicates:
+                - Path=/v3/api-docs/equipos
+              filters:
+                - RewritePath=/v3/api-docs/equipos, /v3/api-docs
+
+            - id: tareas-docs
+              uri: lb://ms-tareas
+              predicates:
+                - Path=/v3/api-docs/ms-tareas
+              filters:
+                - RewritePath=/v3/api-docs/ms-tareas, /v3/api-docs
+
+            - id: asignaciones-docs
+              uri: lb://asignaciones
+              predicates:
+                - Path=/v3/api-docs/asignaciones
+              filters:
+                - RewritePath=/v3/api-docs/asignaciones, /v3/api-docs
+
+            # --- RUTAS DE NEGOCIO ---
             - id: auth-route
               uri: lb://auth-service
               predicates:
@@ -40,7 +118,7 @@ spring:
                   args:
                     id: auth-service
                     fallbackUri: forward:/fallback/auth
- 
+
             - id: usuarios-route
               uri: lb://usuarios
               predicates:
@@ -50,7 +128,7 @@ spring:
                   args:
                     id: usuarios
                     fallbackUri: forward:/fallback/usuarios
- 
+
             - id: privilegios-route
               uri: lb://privilegios-service
               predicates:
@@ -60,7 +138,7 @@ spring:
                   args:
                     id: privilegios-service
                     fallbackUri: forward:/fallback/privilegios
- 
+
             - id: estado-route
               uri: lb://estado-service
               predicates:
@@ -70,7 +148,7 @@ spring:
                   args:
                     id: estado-service
                     fallbackUri: forward:/fallback/estado
- 
+
             - id: proyectos-route
               uri: lb://proyectos
               predicates:
@@ -80,7 +158,7 @@ spring:
                   args:
                     id: proyectos
                     fallbackUri: forward:/fallback/proyectos
- 
+
             - id: equipos-route
               uri: lb://equipos
               predicates:
@@ -90,7 +168,7 @@ spring:
                   args:
                     id: equipos
                     fallbackUri: forward:/fallback/equipos
- 
+
             - id: tareas-route
               uri: lb://ms-tareas
               predicates:
@@ -100,7 +178,7 @@ spring:
                   args:
                     id: ms-tareas
                     fallbackUri: forward:/fallback/tareas
- 
+
             - id: asignaciones-route
               uri: lb://asignaciones
               predicates:
@@ -132,6 +210,7 @@ eureka:
 resilience4j:
   circuitbreaker:
     instances:
+      # ... (mantiene el resto de tu config de resilience4j igual)
       auth-service:
         sliding-window-size: 10
         failure-rate-threshold: 50

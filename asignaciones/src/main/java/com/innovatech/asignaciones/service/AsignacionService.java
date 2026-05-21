@@ -57,20 +57,29 @@ public class AsignacionService {
     // ==========================================
     // CONSUMIDOR DE RABBITMQ
     // ==========================================
-    @RabbitListener(queuesToDeclare = @org.springframework.amqp.rabbit.annotation.Queue("tarea.creada.queue"))
+    
+    @RabbitListener(bindings = @org.springframework.amqp.rabbit.annotation.QueueBinding(
+        // 1. Crea una cola exclusiva para este microservicio
+        value = @org.springframework.amqp.rabbit.annotation.Queue(value = "tarea.creada.queue.asignaciones", durable = "true"),
+        // 2. La enlaza al Exchange donde ms-tareas publica
+        exchange = @org.springframework.amqp.rabbit.annotation.Exchange(value = "tareas.exchange", type = org.springframework.amqp.core.ExchangeTypes.TOPIC),
+        // 3. Escucha la llave de ruteo específica
+        key = "tarea.creada.routing.key"
+    ))
     public void recibirNotificacionTareaCreada(String mensaje) {
         System.out.println("\n=========================================================");
         System.out.println(" EVENTO ASÍNCRONO RECIBIDO EN ASIGNACIONES-SERVICE ");
         System.out.println("Mensaje: " + mensaje);
         System.out.println("=========================================================\n");
-        
-        // Aquí se puede agregar lógica asíncrona en el futuro. 
-        
     }
-    @RabbitListener(queuesToDeclare = @org.springframework.amqp.rabbit.annotation.Queue("usuario.desactivado.queue.asignaciones"))
+
+    @RabbitListener(bindings = @org.springframework.amqp.rabbit.annotation.QueueBinding(
+        value = @org.springframework.amqp.rabbit.annotation.Queue(value = "usuario.desactivado.queue.asignaciones", durable = "true"),
+        // Enlaza la cola al exchange del microservicio usuarios
+        exchange = @org.springframework.amqp.rabbit.annotation.Exchange(value = "usuarios.exchange", type = org.springframework.amqp.core.ExchangeTypes.TOPIC),
+        key = "usuario.desactivado.routing.key"
+    ))
     public void limpiarAsignacionesDeUsuario(String mensaje) {
-    // 1. Extraer ID del mensaje (ej: "Usuario desactivado con ID: 123")
-    // 2. asignacionRepository.deleteByIdIntegrante(idUsuario);
-    System.out.println("🔄 ASIGNACIONES: Limpiando tareas del usuario desactivado.");
+        System.out.println(" ASIGNACIONES: Limpiando tareas del usuario desactivado. Mensaje: " + mensaje);
     }
 }

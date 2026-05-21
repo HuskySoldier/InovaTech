@@ -5,11 +5,17 @@ spring:
   application:
     name: discovery-server
 
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
 eureka:
   instance:
     hostname: ${EUREKA_HOSTNAME:localhost}
   client:
-    # Como él es el servidor, le decimos que no se registre a sí mismo
     register-with-eureka: false
     fetch-registry: false
     service-url:

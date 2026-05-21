@@ -8,29 +8,33 @@ services:
     image: mysql:8.0
     container_name: mysql-db
     environment:
-      MYSQL_ROOT_PASSWORD: root # Cambia esto por la contraseña que uses en tus properties
-      # No creamos una DB por defecto aquí porque Spring Boot creará las necesarias
+      MYSQL_ROOT_PASSWORD: root
     ports:
       - "3306:3306"
     networks:
       - innovatech-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
-      interval: 10s       # Revisa cada 10 segundos
-      timeout: 5s         # Espera máximo 5 segundos por respuesta
-      retries: 5          # Falla definitivamente si no responde después de 5 intentos
-      start_period: 30s   # Le da 30 segundos de gracia la primera vez que arranca para crear las DBs
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   discovery-server:
     build: ./discovery-server
     container_name: discovery-server
     environment:
-      # Inyectamos el hostname para que no use 'localhost' dentro de la red Docker
       - EUREKA_HOSTNAME=discovery-server
     ports:
       - "8761:8761"
     networks:
       - innovatech-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   rabbitmq:
     image: rabbitmq:3.12-management
@@ -39,8 +43,8 @@ services:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin123
     ports:
-      - "5672:5672"   # Puerto de comunicación para microservicios
-      - "15672:15672" # Interfaz gráfica de administración
+      - "5672:5672"
+      - "15672:15672"
     networks:
       - innovatech-network
     volumes:
@@ -56,17 +60,17 @@ services:
     build: ./api-gateway
     container_name: api-gateway
     ports:
-      - "8080:8080" # Toda petición desde el frontend entrará por aquí
+      - "8080:8080"
     environment:
-      # Usamos la variable estándar de Spring Boot para Eureka
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     depends_on:
-      - discovery-server
+      discovery-server:
+        condition: service_healthy
     networks:
       - innovatech-network
 
   # ==========================================
-  # 2. MICROSERVICIOS CORE (AUTENTICACIÓN Y SEGURIDAD)
+  # 2. MICROSERVICIOS CORE
   # ==========================================
   auth-service:
     build: ./auth-service
@@ -74,7 +78,8 @@ services:
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     depends_on:
-      - discovery-server
+      discovery-server:
+        condition: service_healthy
     networks:
       - innovatech-network
 
@@ -88,9 +93,9 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
     depends_on:
       mysql-db:
-        condition: service_healthy   # Espera a que MySQL esté 100% listo para recibir conexiones
+        condition: service_healthy
       discovery-server:
-        condition: service_started   # Arranca en cuanto el contenedor de Eureka encienda
+        condition: service_healthy
     networks:
       - innovatech-network
 
@@ -98,7 +103,6 @@ services:
     build: ./usuarios
     container_name: usuarios-service
     environment:
-      # Variables estandarizadas a las propiedades nativas de Spring
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/db_innovatech_users?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
@@ -107,12 +111,12 @@ services:
       mysql-db:
         condition: service_healthy
       discovery-server:
-        condition: service_started
+        condition: service_healthy
     networks:
       - innovatech-network
 
   # ==========================================
-  # 3. MICROSERVICIOS DE NEGOCIO (PROYECTOS Y TAREAS)
+  # 3. MICROSERVICIOS DE NEGOCIO
   # ==========================================
   estado-service:
     build: ./estado-service
@@ -126,7 +130,7 @@ services:
       mysql-db:
         condition: service_healthy
       discovery-server:
-        condition: service_started
+        condition: service_healthy
     networks:
       - innovatech-network
 
@@ -142,7 +146,7 @@ services:
       mysql-db:
         condition: service_healthy
       discovery-server:
-        condition: service_started
+        condition: service_healthy
     networks:
       - innovatech-network
 
@@ -158,7 +162,7 @@ services:
       mysql-db:
         condition: service_healthy
       discovery-server:
-        condition: service_started
+        condition: service_healthy
     networks:
       - innovatech-network
 
@@ -174,8 +178,8 @@ services:
       mysql-db:
         condition: service_healthy
       discovery-server:
-        condition: service_started
-      rabbitmq:                        
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - innovatech-network
@@ -192,36 +196,27 @@ services:
       mysql-db:
         condition: service_healthy
       discovery-server:
-        condition: service_started
-      rabbitmq:                        
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - innovatech-network
 
-
-  # ==========================================
-  # 4. FRONTEND (ANGULAR + NGINX)
-  # ==========================================
   frontend-app:
-    build: ./innovasync-front # <- Asegúrate de que este sea el nombre exacto de la carpeta de tu frontend
+    build: ./innovasync-front
     container_name: frontend-app
     ports:
-      - "80:80" # El frontend estará disponible en http://localhost
+      - "80:80"
     depends_on:
-      - api-gateway # Espera a que el gateway esté listo antes de levantar el front
+      api-gateway:
+        condition: service_started
     networks:
       - innovatech-network
 
-# ==========================================
-# 4. RED INTERNA
-# ==========================================
 networks:
   innovatech-network:
     driver: bridge
 
-# ==========================================
-# VOLÚMENES
-# ==========================================
 volumes:
   rabbitmq_data:
-    driver: local 
+    driver: local

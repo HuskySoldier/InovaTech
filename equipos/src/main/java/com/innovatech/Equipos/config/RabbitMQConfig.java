@@ -7,26 +7,32 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    // Colas principales
+    // --- COLAS PRINCIPALES ---
     public static final String QUEUE_PROYECTO_CREADO = "proyecto.creado.queue";
     public static final String QUEUE_USUARIO_DESACTIVADO = "usuario.desactivado.queue.equipos";
     
-    // DLQ
-    public static final String DLX_EXCHANGE = "equipos.dlx";
+    // --- CONSTANTES DLQ (Errores) ---
+    // Usamos el DLX de Equipos para mantener los errores de este microservicio separados
+    public static final String DLX_EXCHANGE_EQUIPOS = "equipos.dlx"; 
     public static final String DLQ_PROYECTO = "proyecto.creado.dlq.equipos";
     public static final String DLQ_USUARIO = "usuario.desactivado.dlq.equipos";
 
+    // 1. Declarar el Exchange de errores local (Equipos)
     @Bean
-    public TopicExchange dlxExchange() {
-        return new TopicExchange(DLX_EXCHANGE);
+    public TopicExchange dlxExchangeEquipos() {
+        return new TopicExchange(DLX_EXCHANGE_EQUIPOS);
     }
 
-    // --- COLA PROYECTO CREADO ---
+    // ==========================================
+    // 1. CONFIGURACIÓN: PROYECTO CREADO
+    // ==========================================
+
     @Bean
     public Queue proyectoCreadoQueue() {
+        // Esta configuración es exacta a la del MS Proyectos para evitar conflictos
         return QueueBuilder.durable(QUEUE_PROYECTO_CREADO)
-                .withArgument("x-dead-letter-exchange", DLX_EXCHANGE)
-                .withArgument("x-dead-letter-routing-key", "proyecto.dead")
+                .withArgument("x-dead-letter-exchange", "proyectos.dlx") 
+                .withArgument("x-dead-letter-routing-key", "proyecto.creado.dead") 
                 .build();
     }
 
@@ -37,15 +43,20 @@ public class RabbitMQConfig {
 
     @Bean
     public Binding bindingDlqProyecto() {
-        return BindingBuilder.bind(dlqProyecto()).to(dlxExchange()).with("proyecto.dead");
+        // Enlaza la cola de errores local con el DLX de proyectos
+        return BindingBuilder.bind(dlqProyecto()).to(new TopicExchange("proyectos.dlx")).with("proyecto.creado.dead");
     }
 
-    // --- COLA USUARIO DESACTIVADO ---
+    // ==========================================
+    // 2. CONFIGURACIÓN: USUARIO DESACTIVADO 
+    // ==========================================
+
     @Bean
     public Queue usuarioDesactivadoQueue() {
         return QueueBuilder.durable(QUEUE_USUARIO_DESACTIVADO)
-                .withArgument("x-dead-letter-exchange", DLX_EXCHANGE)
-                .withArgument("x-dead-letter-routing-key", "usuario.dead")
+                // Usamos el exchange de errores de Equipos para los fallos locales
+                .withArgument("x-dead-letter-exchange", DLX_EXCHANGE_EQUIPOS)
+                .withArgument("x-dead-letter-routing-key", "usuario.desactivado.dead")
                 .build();
     }
 
@@ -56,6 +67,22 @@ public class RabbitMQConfig {
 
     @Bean
     public Binding bindingDlqUsuario() {
-        return BindingBuilder.bind(dlqUsuario()).to(dlxExchange()).with("usuario.dead");
+        return BindingBuilder.bind(dlqUsuario()).to(dlxExchangeEquipos()).with("usuario.desactivado.dead");
+    }
+
+    // --- SOLUCIÓN AL CONFLICTO 3: ENLACE (BINDING) CON EL MS USUARIOS ---
+    
+    // Referencia al exchange principal del Microservicio Usuarios
+    @Bean
+    public TopicExchange usuariosExchange() {
+        return new TopicExchange("usuarios.exchange");
+    }
+
+    // Conecta la cola de Equipos al Exchange de Usuarios para recibir los mensajes
+    @Bean
+    public Binding bindingUsuarioDesactivadoEquipos() {
+        return BindingBuilder.bind(usuarioDesactivadoQueue())
+                .to(usuariosExchange())
+                .with("usuario.desactivado.routing.key");
     }
 }
