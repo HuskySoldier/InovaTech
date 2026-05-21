@@ -13,10 +13,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Desactivamos CSRF para poder usar Postman/Frontend sin líos
+            .csrf(csrf -> csrf.disable()) 
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll() // PERMITIMOS TODO
-            );
+                // 1. Permitir acceso libre a la documentación y UI de Swagger
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                
+                // 2. Proteger el resto de la aplicación
+                .anyRequest().authenticated() );
         return http.build();
     }
 }

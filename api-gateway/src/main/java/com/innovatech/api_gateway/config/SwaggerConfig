@@ -1,0 +1,73 @@
+package com.innovatech.api_gateway.config;
+
+import org.springdoc.core.models.GroupedOpenApi;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class SwaggerConfig {
+
+    @Bean
+    public GroupedOpenApi authApi() {
+        return GroupedOpenApi.builder()
+                .group("auth-service")
+                .pathsToMatch("/api/auth/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi usuariosApi() {
+        return GroupedOpenApi.builder()
+                .group("usuarios")
+                .pathsToMatch("/api/usuarios/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi privilegiosApi() {
+        return GroupedOpenApi.builder()
+                .group("privilegios-service")
+                .pathsToMatch("/api/roles/**", "/api/privilegios/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi estadoApi() {
+        return GroupedOpenApi.builder()
+                .group("estado-service")
+                .pathsToMatch("/api/estados/**", "/api/tipos/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi proyectosApi() {
+        return GroupedOpenApi.builder()
+                .group("proyectos")
+                .pathsToMatch("/api/proyectos/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi equiposApi() {
+        return GroupedOpenApi.builder()
+                .group("equipos")
+                .pathsToMatch("/api/equipos/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi tareasApi() {
+        return GroupedOpenApi.builder()
+                .group("ms-tareas")
+                .pathsToMatch("/api/tareas/**", "/api/prioridades/**", "/api/historial-tareas/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi asignacionesApi() {
+        return GroupedOpenApi.builder()
+                .group("asignaciones")
+                .pathsToMatch("/api/asignaciones/**")
+                .build();
+    }
+}

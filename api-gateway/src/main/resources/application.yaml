@@ -7,6 +7,29 @@ spring:
   threads:
     virtual:
       enabled: true
+
+  
+  springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: Auth Service
+        url: /v3/api-docs/auth-service
+      - name: Usuarios
+        url: /v3/api-docs/usuarios
+      - name: Privilegios
+        url: /v3/api-docs/privilegios-service
+      - name: Estado
+        url: /v3/api-docs/estado-service
+      - name: Proyectos
+        url: /v3/api-docs/proyectos
+      - name: Equipos
+        url: /v3/api-docs/equipos
+      - name: Tareas
+        url: /v3/api-docs/ms-tareas
+      - name: Asignaciones
+        url: /v3/api-docs/asignaciones
+      
   
   cloud:
     gateway:
