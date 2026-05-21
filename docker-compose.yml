@@ -220,6 +220,8 @@ networks:
     driver: bridge
 
 # ==========================================
+# VOLÚMENES
+# ==========================================
 volumes:
   rabbitmq_data:
-  driver: local
+    driver: local 
