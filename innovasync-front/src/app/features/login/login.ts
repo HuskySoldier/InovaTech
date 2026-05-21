@@ -36,11 +36,7 @@ export class Login {
 
     // Llama al MS Auth via API Gateway
     this.authService.login(this.email, this.password).subscribe({
-      next: (response: any) => {
-        // Guarda el token JWT
-        if (isPlatformBrowser(this.platformId)) {
-          this.authService.guardarToken(response.token);
-        }
+      next: () => {
         this.cargando = false;
         this.router.navigate(['/dashboard']);
       },

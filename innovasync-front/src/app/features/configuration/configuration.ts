@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../core/services/auth';
 
 @Component({
   selector: 'app-configuration',
@@ -13,19 +14,27 @@ import { FormsModule } from '@angular/forms';
 })
 export class Configuration implements OnInit {
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private authService: AuthService
+  ) {}
 
-  rolUsuario = 'Directivo';
-  nombre = 'Josefa Nuñez';
-  email = 'josefa@innovasync.com';
-  cargo = 'Desarrolladora Frontend';
+  rolUsuario = '';
+  nombre = '';
+  email = '';
+  cargo = '';
   temaOscuro = false;
   notifEmail = true;
   notifSistema = true;
   pestanaActiva = 'perfil';
 
   ngOnInit() {
+    this.nombre = this.authService.obtenerNombre();
+    this.cargo = this.authService.obtenerCargo();
+    this.rolUsuario = this.authService.obtenerRol();
+
     if (isPlatformBrowser(this.platformId)) {
+      this.email = localStorage.getItem('correo') || '';
       const tema = localStorage.getItem('tema');
       if (tema === 'oscuro') {
         this.temaOscuro = true;

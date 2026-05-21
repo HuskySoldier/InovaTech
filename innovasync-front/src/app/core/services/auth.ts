@@ -1,43 +1,71 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { tap, switchMap } from 'rxjs/operators';
+import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
 
   private url = `${environment.apiUrl}/auth`;
+  private usuariosUrl = `${environment.apiUrl}/usuarios`;
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  // Llama al MS Auth para hacer login
+  private isBrowser(): boolean {
+    return isPlatformBrowser(this.platformId);
+  }
+
   login(correo: string, clave: string) {
-    return this.http.post(`${this.url}/login`, { correo, clave });
+    return this.http.post<any>(`${this.url}/login`, { correo, clave }).pipe(
+      tap(res => {
+        if (this.isBrowser()) {
+          localStorage.setItem('token', res.token);
+          localStorage.setItem('correo', res.correo);
+          localStorage.setItem('rol', res.rol);
+        }
+      }),
+      switchMap(res => {
+        return this.http.get<any[]>(this.usuariosUrl).pipe(
+          tap(usuarios => {
+            const usuario = usuarios.find(u => u.email === res.correo);
+            if (usuario && this.isBrowser()) {
+              localStorage.setItem('nombreCompleto', usuario.nombreCompleto);
+              localStorage.setItem('cargo', usuario.nombreCargo);
+            }
+          })
+        );
+      })
+    );
   }
 
-  // Guarda el token JWT en localStorage
-  guardarToken(token: string) {
-    localStorage.setItem('token', token);
-  }
-
-  // Obtiene el token guardado
   obtenerToken(): string | null {
-    return localStorage.getItem('token');
+    return this.isBrowser() ? localStorage.getItem('token') : null;
   }
 
-  // Verifica si el usuario está logueado
+  obtenerNombre(): string {
+    return this.isBrowser() ? (localStorage.getItem('nombreCompleto') ?? 'Usuario') : 'Usuario';
+  }
+
+  obtenerCargo(): string {
+    return this.isBrowser() ? (localStorage.getItem('cargo') ?? '') : '';
+  }
+
+  obtenerRol(): string {
+    return this.isBrowser() ? (localStorage.getItem('rol') ?? '') : '';
+  }
+
   estaLogueado(): boolean {
-    return !!localStorage.getItem('token');
+    return this.isBrowser() ? !!localStorage.getItem('token') : false;
   }
 
-  // Cierra sesión
   cerrarSesion() {
-    localStorage.removeItem('token');
+    if (this.isBrowser()) localStorage.clear();
     this.router.navigate(['/login']);
   }
 }

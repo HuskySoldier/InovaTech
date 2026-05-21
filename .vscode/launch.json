@@ -84,6 +84,16 @@
             "projectName": "asignaciones",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-EstadoServiceApplication<estado-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.innovatech.estado_service.EstadoServiceApplication",
+            "projectName": "estado-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

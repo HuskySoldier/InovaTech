@@ -23,6 +23,22 @@ spring:
     port: 5672
     username: admin
     password: admin123
+    # Asegura que el productor sepa si el mensaje llegó al Exchange o a la Cola
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true # Falla si el mensaje no puede enrutarse a ninguna cola
+    # Configuración de resiliencia para el consumidor
+    listener:
+      simple:
+        acknowledge-mode: auto # El framework confirma el mensaje automáticamente si no hay excepciones
+        prefetch: 1 # Procesa 1 mensaje a la vez por consumidor (balanceo de carga justo)
+        retry:
+          enabled: true # Habilita reintentos si el consumidor lanza una excepción
+          initial-interval: 2000ms # Espera 2 segundos antes del primer reintento
+          max-interval: 10000ms # Espera máxima de 10 segundos
+          multiplier: 2.0 # Incremento exponencial (2s, 4s, 8s...)
+          max-retries: 3 # Se rinde después de 3 intentos fallidos
 
   jpa:
     hibernate:
