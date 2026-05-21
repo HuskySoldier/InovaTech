@@ -6,6 +6,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
+import com.innovatech.Equipos.config.RabbitMQConfig;
 import com.innovatech.Equipos.client.ProyectoClient;
 import com.innovatech.Equipos.client.UsuarioClient;
 import com.innovatech.Equipos.model.Equipo;
@@ -24,6 +26,12 @@ public class EquipoService {
 
     @Autowired
     private IntegranteRepository integranteRepository;
+
+    @Autowired
+    private ProyectoClient proyectoClient;
+    
+    @Autowired
+    private UsuarioClient usuarioClient;
 
     public List<Equipo> listarTodos() {
         return equipoRepository.findAll();
@@ -46,53 +54,43 @@ public class EquipoService {
         return equipoRepository.save(equipo);
     }
 
-    @Autowired
-    private ProyectoClient proyectoClient;
-    @Autowired
-    private UsuarioClient usuarioClient;
-
     public Equipo agregarIntegrante(Long idEquipo, Long idUser) {
-    // 1. Llamada interna a MS Usuarios
-    try {
-        usuarioClient.obtenerUsuarioPorId(idUser);
-    } catch (Exception e) {
-        throw new RuntimeException("Error: El usuario con ID " + idUser + " no existe.");
-    }
+        // 1. Llamada interna a MS Usuarios
+        try {
+            usuarioClient.obtenerUsuarioPorId(idUser);
+        } catch (Exception e) {
+            throw new RuntimeException("Error: El usuario con ID " + idUser + " no existe.");
+        }
 
-    // 2. Lógica de guardado habitual
-    Equipo equipo = equipoRepository.findById(idEquipo)
-            .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
-    
-    Integrante nuevoIntegrante = new Integrante();
-    nuevoIntegrante.setEquipo(equipo);
-    nuevoIntegrante.setIdUser(idUser);
-    
-    integranteRepository.save(nuevoIntegrante);
-    equipo.getIntegrantes().add(nuevoIntegrante);
-    return equipo;
+        // 2. Lógica de guardado habitual
+        Equipo equipo = equipoRepository.findById(idEquipo)
+                .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
+        
+        Integrante nuevoIntegrante = new Integrante();
+        nuevoIntegrante.setEquipo(equipo);
+        nuevoIntegrante.setIdUser(idUser);
+        
+        integranteRepository.save(nuevoIntegrante);
+        equipo.getIntegrantes().add(nuevoIntegrante);
+        return equipo;
     }
 
     public void eliminarEquipo(Long id) {
         equipoRepository.deleteById(id);
     }
 
-    @RabbitListener(queuesToDeclare = @org.springframework.amqp.rabbit.annotation.Queue("proyecto.creado.queue"))
+    // Listener actualizado apuntando a la configuración centralizada
+    @RabbitListener(queues = RabbitMQConfig.QUEUE_PROYECTO_CREADO)
     public void procesarProyectoCreado(String mensaje) {
         System.out.println("\n---------------------------------------------------------");
         System.out.println(" EQUIPOS: Evento recibido -> " + mensaje);
         System.out.println("Iniciando lógica de asignación o revisión de equipos...");
         System.out.println("---------------------------------------------------------\n");
-        
-        // AQUÍ PUEDES PONER TU LÓGICA:
-        // 1. Extraer el ID del proyecto del mensaje
-        // 2. Verificar disponibilidad de los equipos
-        // 3. Vincular equipos al proyecto mediante un repositorio
     }
 
-    @RabbitListener(queuesToDeclare = @org.springframework.amqp.rabbit.annotation.Queue("usuario.desactivado.queue.equipos"))
+    // Listener actualizado apuntando a la configuración centralizada
+    @RabbitListener(queues = RabbitMQConfig.QUEUE_USUARIO_DESACTIVADO)
     public void removerIntegranteDeEquipo(String mensaje) {
-    // 1. Extraer ID
-    // 2. integranteRepository.deleteByIdUsuario(idUsuario);
-    System.out.println("👥 EQUIPOS: Removiendo usuario desactivado de los equipos.");
+        System.out.println(" EQUIPOS: Removiendo usuario desactivado de los equipos.");
     }
 }

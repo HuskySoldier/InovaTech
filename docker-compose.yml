@@ -43,6 +43,8 @@ services:
       - "15672:15672" # Interfaz gráfica de administración
     networks:
       - innovatech-network
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
@@ -202,3 +204,8 @@ services:
 networks:
   innovatech-network:
     driver: bridge
+
+# ==========================================
+volumes:
+  rabbitmq_data:
+  driver: local
