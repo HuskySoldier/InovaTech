@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';  
 import { Chart,ChartData, ChartOptions, registerables } from 'chart.js';
+import { AuthService } from '../../core/services/auth';
 
 Chart.register(...registerables);
 
@@ -16,10 +17,10 @@ Chart.register(...registerables);
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
-export class Dashboard {
+export class Dashboard implements OnInit {
 
-  nombreUsuario = 'Josefa';
-  rol = 'Directivo';
+  nombreUsuario = '';
+  rol = '';
 
   kpis = [
     { titulo: 'Proyectos Activos', valor: '12', color: '#1A2B4C' },
@@ -82,7 +83,11 @@ export class Dashboard {
     }
   };
 
-  constructor(private router: Router) {}
+  constructor(private router: Router,private authService: AuthService) {}
+  ngOnInit(): void {
+    this.nombreUsuario = this.authService.obtenerNombre();
+    this.rol = this.authService.obtenerCargo();
+  }
 
   cerrarSesion() {
     this.router.navigate(['/login']);
