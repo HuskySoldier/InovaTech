@@ -35,4 +35,7 @@ public class TareaResponseDTO {
     
     @Schema(description = "Identificador de la prioridad", example = "1")
     private Long idPrioridad;
+
+    @Schema(description = "Identificador del proyecto al que pertenece la tarea", example = "10")
+    private Long proyectoId;
 }

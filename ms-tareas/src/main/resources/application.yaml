@@ -70,4 +70,11 @@ resilience4j:
         permitted-number-of-calls-in-half-open-state: 3
         minimum-number-of-calls: 5
         automatic-transition-from-open-to-half-open-enabled: true
+      proyectos:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
 

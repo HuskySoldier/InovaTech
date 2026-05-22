@@ -32,4 +32,9 @@ public class Tarea {
     private BigDecimal presupuestoFinal;
     private Long idEstado;
     private Long idPrioridad;
+
+
+    @NotNull(message = "El ID del proyecto es obligatorio")
+    @Column(name = "proyecto_id", nullable = false)
+    private Long proyectoId;
 }

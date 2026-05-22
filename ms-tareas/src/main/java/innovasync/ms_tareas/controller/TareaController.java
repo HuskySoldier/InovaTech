@@ -46,6 +46,18 @@ public class TareaController {
         return ResponseEntity.ok(tareaService.obtenerPorId(id));
     }
 
+    @Operation(summary = "Obtener tareas por ID de proyecto", description = "Retorna una lista de tareas asociadas a un proyecto específico.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tareas encontradas exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Proyecto no encontrado")
+    })
+    @GetMapping("/proyecto/{proyectoId}")
+    public ResponseEntity<List<TareaResponseDTO>> obtenerPorProyectoId(
+            @Parameter(description = "ID del proyecto", example = "10")
+            @PathVariable Long proyectoId) {
+        return ResponseEntity.ok(tareaService.obtenerPorProyectoId(proyectoId));
+    }
+
     @Operation(summary = "Crear una nueva tarea", description = "Registra una nueva tarea en el sistema a partir de los datos proporcionados.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Tarea creada exitosamente"),

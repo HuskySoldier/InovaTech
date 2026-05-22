@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: proyectos
+    name:  proyectos
   threads:
     virtual:
       enabled: true # Habilitamos Virtual Threads de Java 21
