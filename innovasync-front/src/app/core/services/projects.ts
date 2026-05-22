@@ -12,22 +12,22 @@ export class ProyectosService {
   constructor(private http: HttpClient) {}
 
   obtenerTodos() {
-    return this.http.get(`${this.url}`);
+    return this.http.get<any[]>(`${this.url}`);
   }
 
   obtenerPorId(id: number) {
-    return this.http.get(`${this.url}/${id}`);
+    return this.http.get<any>(`${this.url}/${id}`);
   }
 
   crear(proyecto: any) {
-    return this.http.post(`${this.url}`, proyecto);
+    return this.http.post<any>(`${this.url}`, proyecto);
   }
 
   actualizar(id: number, proyecto: any) {
-    return this.http.put(`${this.url}/${id}`, proyecto);
+    return this.http.put<any>(`${this.url}/${id}`, proyecto);
   }
 
   eliminar(id: number) {
-    return this.http.delete(`${this.url}/${id}`);
+    return this.http.delete<any>(`${this.url}/${id}`);
   }
 }
