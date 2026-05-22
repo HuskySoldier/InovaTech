@@ -60,7 +60,12 @@
             </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Cargo</label>
-              <input type="text" [(ngModel)]="cargo" class="form-control"/>
+              <select [(ngModel)]="cargo" class="form-select">
+                <option  value="">-- Selecciona un cargo --</option>
+                <option *ngFor="let c of cargos" [value]="c.nombreCargo">
+                  {{ c.nombreCargo }}
+                </option>
+              </select>
             </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Nueva contraseña</label>

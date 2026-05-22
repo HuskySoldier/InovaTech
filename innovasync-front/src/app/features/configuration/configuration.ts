@@ -3,7 +3,9 @@ import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-configuration',
@@ -16,7 +18,8 @@ export class Configuration implements OnInit {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private authService: AuthService
+    private authService: AuthService,
+    private http: HttpClient
   ) {}
 
   rolUsuario = '';
@@ -27,6 +30,7 @@ export class Configuration implements OnInit {
   notifEmail = true;
   notifSistema = true;
   pestanaActiva = 'perfil';
+  cargos: any[] = [];
 
   ngOnInit() {
     this.nombre = this.authService.obtenerNombre();
@@ -41,6 +45,15 @@ export class Configuration implements OnInit {
         document.body.classList.add('tema-oscuro');
       }
     }
+
+    this.cargarCargos();
+  }
+
+  cargarCargos(): void {
+    this.http.get<any[]>(`${environment.apiUrl}/cargos`).subscribe({
+      next: (data) => this.cargos = data,
+      error: () => this.cargos = []
+    });
   }
 
   cambiarPestana(pestana: string) {

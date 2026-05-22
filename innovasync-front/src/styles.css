@@ -219,3 +219,111 @@ th { font-size: 15px; }
 .tema-oscuro .login-card input::placeholder {
   color: #aaaaaa !important;
 }
+
+/* ===== MODAL TEMA OSCURO ===== */
+.tema-oscuro .modal-box {
+  background: #0f3460 !important;
+  border: 1px solid #1a3a6e !important;
+}
+
+.tema-oscuro .modal-box input,
+.tema-oscuro .modal-box textarea,
+.tema-oscuro .modal-box select {
+  background: #1a3a6e !important;
+  color: #ffffff !important;
+  border-color: #333 !important;
+}
+
+.tema-oscuro .modal-box .form-label {
+  color: #ffffff !important;
+}
+
+.tema-oscuro .modal-box h5 {
+  color: #ffffff !important;
+}
+
+.tema-oscuro .modal-box .btn-light {
+  background: #1a3a6e !important;
+  color: #ffffff !important;
+  border-color: #333 !important;
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-box {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  color: #1A2B4C;
+}
+
+.modal-box input,
+.modal-box textarea,
+.modal-box select {
+  background: white !important;
+  color: #1A2B4C !important;
+  border: 1px solid #dee2e6 !important;
+}
+
+.modal-box .form-label {
+  color: #1A2B4C;
+  font-weight: 600;
+}
+
+/* Modal inputs modo oscuro */
+.tema-oscuro .modal-overlay .modal-box {
+  background: #0f3460 !important;
+}
+
+.tema-oscuro .modal-overlay .modal-box input,
+.tema-oscuro .modal-overlay .modal-box textarea,
+.tema-oscuro .modal-overlay .modal-box select {
+  background: #ffffff !important;
+  color: #1A2B4C !important;
+  border: 1px solid #dee2e6 !important;
+}
+
+.tema-oscuro .modal-overlay .modal-box .form-label {
+  color: #ffffff !important;
+}
+
+.tema-oscuro .modal-overlay .modal-box h5 {
+  color: #ffffff !important;
+}
+
+.tema-oscuro .modal-overlay .modal-box .btn-light {
+  background: #1a3a6e !important;
+  color: #ffffff !important;
+}
+
+/* Inputs perfil modo oscuro */
+.tema-oscuro .config-content input,
+.tema-oscuro .config-content textarea {
+  background: #ffffff !important;
+  color: #1A2B4C !important;
+  border: 1px solid #dee2e6 !important;
+}
+
+/* Select modo oscuro */
+.tema-oscuro .config-content select {
+  background: #ffffff !important;
+  color: #1A2B4C !important;
+  border: 1px solid #dee2e6 !important;
+}
+
+.tema-oscuro .config-content select option {
+  background: #ffffff !important;
+  color: #000000 !important;
+}

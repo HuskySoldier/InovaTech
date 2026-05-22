@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProyectosService } from '../../core/services/projects';
@@ -14,7 +14,7 @@ import { ProyectosService } from '../../core/services/projects';
 export class Projects implements OnInit {
 
   mostrarModal = false;
-  cargando = false;
+  cargando = true;
   guardando = false;
   error = '';
   exito = '';
@@ -35,10 +35,17 @@ export class Projects implements OnInit {
     { titulo: 'Terminado',   color: '#28A745', idEstado: 4, tareas: [] as any[] }
   ];
 
-  constructor(private proyectosService: ProyectosService) {}
+  constructor(
+    private proyectosService: ProyectosService, 
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnInit(): void {
-    this.cargarProyectos();
+    if (isPlatformBrowser(this.platformId)) {
+      this.cargarProyectos();
+    } else {
+      this.cargando = false;
+    }
   }
 
   cargarProyectos(): void {
@@ -61,10 +68,12 @@ export class Projects implements OnInit {
           }
         });
         this.cargando = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.error = 'No se pudieron cargar los proyectos.';
         this.cargando = false;
+        this.cdr.detectChanges();
       }
     });
   }
