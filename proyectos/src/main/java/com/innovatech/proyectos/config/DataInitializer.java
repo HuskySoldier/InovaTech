@@ -26,7 +26,7 @@ public class DataInitializer {
                 p1.setFechaInicio(LocalDate.now().minusDays(10));
                 p1.setFechaTerminoEsti(LocalDate.now().plusMonths(3));
                 p1.setPresuEstimado(new BigDecimal("15000000"));
-                p1.setIdEstado(1L); // Asumiendo que 1 es "Activo" o "En progreso"
+                p1.setIdEstado(4L); // Asumiendo que 1 es "Activo" o "En progreso"
 
                 Proyecto p2 = new Proyecto();
                 p2.setNombre("Actualización de Infraestructura Cloud");
@@ -34,7 +34,7 @@ public class DataInitializer {
                 p2.setFechaInicio(LocalDate.now().minusDays(5));
                 p2.setFechaTerminoEsti(LocalDate.now().plusMonths(1));
                 p2.setPresuEstimado(new BigDecimal("8500000"));
-                p2.setIdEstado(1L);
+                p2.setIdEstado(5L);
 
                 proyectoRepository.saveAll(Arrays.asList(p1, p2));
                 System.out.println("Proyectos creados exitosamente.");
