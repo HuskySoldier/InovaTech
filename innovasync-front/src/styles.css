@@ -327,3 +327,69 @@ th { font-size: 15px; }
   background: #ffffff !important;
   color: #000000 !important;
 }
+
+/* Lista integrantes modal */
+.tema-oscuro .integrante-item {
+  color: #ffffff !important;
+}
+
+.tema-oscuro .integrante-item:hover {
+  background: #1a3a6e !important;
+}
+
+.tema-oscuro .integrante-item.seleccionado {
+  background: #00A8E8 !important;
+  color: #ffffff !important;
+}
+
+.tema-oscuro .integrante-lista {
+  background: #0f3460 !important;
+  border-color: #1a3a6e !important;
+}
+
+/* ===== INTEGRANTES MODAL ===== */
+.integrante-item {
+  transition: background 0.2s;
+  color: #1A2B4C;
+}
+
+.integrante-item:hover {
+  background: #f0f8ff !important;
+}
+
+.integrante-item.seleccionado {
+  background: #00A8E8 !important;
+}
+
+.integrante-item.seleccionado .integrante-nombre,
+.integrante-item.seleccionado .integrante-cargo {
+  color: #ffffff !important;
+}
+
+/* Modo oscuro */
+.tema-oscuro .integrante-lista {
+  background: #0f3460 !important;
+  border-color: #1a3a6e !important;
+}
+
+.tema-oscuro .integrante-item {
+  color: #ffffff !important;
+}
+
+.tema-oscuro .integrante-item:hover {
+  background: #1a3a6e !important;
+}
+
+.tema-oscuro .integrante-item.seleccionado {
+  background: #00A8E8 !important;
+}
+
+.modal-box select option {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+.tema-oscuro .card .badge {
+  background: #1a3a6e !important;
+  color: #00A8E8 !important;
+}

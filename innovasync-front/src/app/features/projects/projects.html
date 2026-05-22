@@ -1,94 +1,147 @@
 <div class="d-flex" style="min-height: 100vh;">
-
-  <!-- Main -->
   <div class="d-flex flex-column flex-grow-1 overflow-hidden">
+
+    <!-- Topbar -->
     <div class="d-flex justify-content-between align-items-center px-4 py-3 bg-white shadow-sm">
       <span class="fw-semibold text-muted">
         <i class="bi bi-kanban me-2"></i>Gestión de Proyectos
       </span>
-      <button class="btn btn-sm text-white fw-bold px-3" style="background: #00A8E8;" (click)="abrirModal()">
-        <i class="bi bi-plus-lg me-1"></i>Nuevo Proyecto
-      </button>
+      <div class="d-flex gap-2">
+        <button *ngIf="proyectoSeleccionado" class="btn btn-sm text-white fw-bold px-3"
+          style="background: #28A745;" (click)="abrirModalTarea()">
+          <i class="bi bi-plus-lg me-1"></i>Nueva Tarea
+        </button>
+        <button class="btn btn-sm text-white fw-bold px-3" style="background: #00A8E8;"
+          (click)="abrirModalProyecto()">
+          <i class="bi bi-plus-lg me-1"></i>Nuevo Proyecto
+        </button>
+      </div>
     </div>
 
-    <!-- Alerta éxito -->
+    <!-- Alertas -->
     <div *ngIf="exito" class="alert alert-success mx-4 mt-3 mb-0">{{ exito }}</div>
-    <div *ngIf="error && !mostrarModal" class="alert alert-danger mx-4 mt-3 mb-0">{{ error }}</div>
+    <div *ngIf="error && !mostrarModalProyecto && !mostrarModalTarea" class="alert alert-danger mx-4 mt-3 mb-0">{{ error }}</div>
 
     <div class="p-4 overflow-auto" style="background: #F4F7F6;">
-      <h2 class="fw-bold mb-4" style="color: #1A2B4C;">Tablero Kanban</h2>
 
-      <!-- Cargando -->
-      <div *ngIf="cargando" class="text-center py-5">
+      <!-- ===== SECCIÓN PROYECTOS ===== -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold mb-0" style="color: #1A2B4C;">Proyectos</h2>
+      </div>
+
+      <div *ngIf="cargando" class="text-center py-4">
         <div class="spinner-border" style="color: #00A8E8;"></div>
         <p class="mt-2 text-muted">Cargando proyectos...</p>
       </div>
 
-      <div class="row g-3" *ngIf="!cargando">
-        <div class="col-12 col-md-3" *ngFor="let columna of columnas">
-          <div class="card border-0 shadow-sm rounded-3">
+      <div class="row g-3 mb-4" *ngIf="!cargando">
+        <div *ngIf="proyectos.length === 0" class="text-center text-muted py-4 col-12">
+          <i class="bi bi-folder2-open fs-1 d-block mb-2"></i>
+          No hay proyectos registrados aún.
+        </div>
+        <div class="col-12 col-md-4" *ngFor="let p of proyectos">
+          <div class="card border-0 shadow-sm rounded-3 h-100 proyecto-card"
+               [class.proyecto-activo]="proyectoSeleccionado?.idProyecto === p.idProyecto"
+               (click)="seleccionarProyecto(p)"
+               style="cursor: pointer; transition: 0.2s;">
             <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center mb-3 ps-2"
-                [style.borderLeft]="'4px solid ' + columna.color">
-                <span class="fw-bold" [style.color]="columna.color">{{ columna.titulo }}</span>
-                <span class="badge rounded-pill bg-light text-dark">{{ columna.tareas.length }}</span>
-              </div>
-
-              <!-- Sin tareas -->
-              <div *ngIf="columna.tareas.length === 0" class="text-center text-muted py-3" style="font-size: 13px;">
-                <i class="bi bi-inbox fs-4 d-block mb-1"></i>Sin proyectos
-              </div>
-
-              <div class="rounded-3 p-3 tarea-card mb-2" *ngFor="let tarea of columna.tareas">
-                <p class="fw-bold mb-2 tarea-titulo" style="font-size: 14px;">{{ tarea.titulo }}</p>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="text-muted" style="font-size: 12px;">
-                    <i class="bi bi-calendar me-1"></i>{{ tarea.fecha }}
-                  </span>
-                  <div class="avatar-circle text-white fw-bold rounded-circle d-flex align-items-center justify-content-center"
-                    style="width: 28px; height: 28px; font-size: 10px; background: #1A2B4C;">
-                    {{ tarea.responsable }}
-                  </div>
-                </div>
-                <span class="fw-bold" [style.color]="tarea.colorPrioridad" style="font-size: 12px;">
-                  <i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i>{{ tarea.prioridad }}
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <p class="fw-bold mb-0" style="color: #1A2B4C; font-size: 15px;">{{ p.nombre }}</p>
+                <span class="badge rounded-pill px-2"
+                  [style.background]="getColorEstadoProyecto(p.idEstado) + '22'"
+                  [style.color]="getColorEstadoProyecto(p.idEstado)"
+                  style="font-size: 11px;">
+                  {{ getEstadoProyecto(p.idEstado) }}
                 </span>
               </div>
-
+              <p class="text-muted small mb-2" style="font-size: 12px;">{{ p.descripcion }}</p>
+              <div class="d-flex gap-3" style="font-size: 11px; color: #6c757d;">
+                <span><i class="bi bi-calendar me-1"></i>{{ p.fechaInicio }}</span>
+                <span><i class="bi bi-calendar-check me-1"></i>{{ p.fechaTerminoEsti }}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- ===== SECCIÓN KANBAN TAREAS ===== -->
+      <div *ngIf="proyectoSeleccionado">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <h2 class="fw-bold mb-0" style="color: #1A2B4C;">Tablero Kanban</h2>
+          <span class="badge rounded-pill px-3" style="background: #00A8E8; color: white; font-size: 13px;">
+            {{ proyectoSeleccionado.nombre }}
+          </span>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-12 col-md-3" *ngFor="let columna of columnas">
+            <div class="card border-0 shadow-sm rounded-3 kanban-col"
+                 (dragover)="onDragOver($event)"
+                 (drop)="onDrop(columna)">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3 ps-2"
+                  [style.borderLeft]="'4px solid ' + columna.color">
+                  <span class="fw-bold" [style.color]="columna.color">{{ columna.titulo }}</span>
+                  <span class="badge rounded-pill bg-light text-dark">{{ columna.tareas.length }}</span>
+                </div>
+
+                <div *ngIf="columna.tareas.length === 0" class="text-center text-muted py-3" style="font-size: 13px;">
+                  <i class="bi bi-inbox fs-4 d-block mb-1"></i>Sin tareas
+                </div>
+
+                <div class="rounded-3 p-3 tarea-card mb-2"
+                     *ngFor="let tarea of columna.tareas"
+                     draggable="true"
+                     (dragstart)="onDragStart(tarea, columna)"
+                     style="cursor: grab;">
+                  <p class="fw-bold mb-2 tarea-titulo" style="font-size: 14px;">{{ tarea.titulo }}</p>
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted" style="font-size: 12px;">
+                      <i class="bi bi-calendar me-1"></i>{{ tarea.fecha }}
+                    </span>
+                  </div>
+                  <span class="fw-bold" [style.color]="tarea.colorPrioridad" style="font-size: 12px;">
+                    <i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i>{{ tarea.prioridad }}
+                  </span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mensaje si no hay proyecto seleccionado -->
+      <div *ngIf="!proyectoSeleccionado && !cargando && proyectos.length > 0"
+           class="text-center text-muted py-5">
+        <i class="bi bi-hand-index fs-1 d-block mb-2"></i>
+        Selecciona un proyecto para ver su tablero Kanban
+      </div>
+
     </div>
   </div>
 </div>
 
 <!-- ===== MODAL NUEVO PROYECTO ===== -->
-<div *ngIf="mostrarModal" class="modal-overlay" (click)="cerrarModal()">
+<div *ngIf="mostrarModalProyecto" class="modal-overlay" (click)="cerrarModalProyecto()">
   <div class="modal-box" (click)="$event.stopPropagation()">
-
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h5 class="fw-bold mb-0" style="color: #1A2B4C;">
         <i class="bi bi-plus-circle me-2"></i>Nuevo Proyecto
       </h5>
-      <button class="btn btn-sm btn-light" (click)="cerrarModal()">
+      <button class="btn btn-sm btn-light" (click)="cerrarModalProyecto()">
         <i class="bi bi-x-lg"></i>
       </button>
     </div>
-
     <div *ngIf="error" class="alert alert-danger py-2">{{ error }}</div>
-
     <div class="mb-3">
       <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
       <input type="text" [(ngModel)]="nuevoProyecto.nombre" class="form-control" placeholder="Ej: Sistema de pagos"/>
     </div>
-
     <div class="mb-3">
       <label class="form-label fw-semibold">Descripción</label>
-      <textarea [(ngModel)]="nuevoProyecto.descripcion" class="form-control" rows="3"
-        placeholder="Describe brevemente el proyecto..."></textarea>
+      <textarea [(ngModel)]="nuevoProyecto.descripcion" class="form-control" rows="3"></textarea>
     </div>
-
     <div class="row g-3 mb-3">
       <div class="col-6">
         <label class="form-label fw-semibold">Fecha inicio <span class="text-danger">*</span></label>
@@ -99,41 +152,78 @@
         <input type="date" [(ngModel)]="nuevoProyecto.fTerminoEsti" class="form-control"/>
       </div>
     </div>
-
     <div class="mb-4">
       <label class="form-label fw-semibold">Presupuesto estimado ($)</label>
       <input type="number" [(ngModel)]="nuevoProyecto.presuEstimado" class="form-control" placeholder="0"/>
     </div>
-
     <div class="d-flex justify-content-end gap-2">
-      <button class="btn btn-light" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn btn-light" (click)="cerrarModalProyecto()">Cancelar</button>
       <button class="btn text-white fw-bold" style="background: #00A8E8;"
         (click)="crearProyecto()" [disabled]="guardando">
         <span *ngIf="guardando" class="spinner-border spinner-border-sm me-1"></span>
         {{ guardando ? 'Guardando...' : 'Crear Proyecto' }}
       </button>
     </div>
+  </div>
+</div>
 
+<!-- ===== MODAL NUEVA TAREA ===== -->
+<div *ngIf="mostrarModalTarea" class="modal-overlay" (click)="cerrarModalTarea()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h5 class="fw-bold mb-0" style="color: #1A2B4C;">
+        <i class="bi bi-check2-square me-2"></i>Nueva Tarea
+        <small class="text-muted ms-2" style="font-size: 13px;">— {{ proyectoSeleccionado?.nombre }}</small>
+      </h5>
+      <button class="btn btn-sm btn-light" (click)="cerrarModalTarea()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div *ngIf="error" class="alert alert-danger py-2">{{ error }}</div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+      <input type="text" [(ngModel)]="nuevaTarea.nombre" class="form-control" placeholder="Ej: Diseñar base de datos"/>
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Descripción</label>
+      <textarea [(ngModel)]="nuevaTarea.descripcion" class="form-control" rows="2"></textarea>
+    </div>
+    <div class="row g-3 mb-3">
+      <div class="col-6">
+        <label class="form-label fw-semibold">Fecha límite <span class="text-danger">*</span></label>
+        <input type="date" [(ngModel)]="nuevaTarea.fLimiteTerm" class="form-control"/>
+      </div>
+      <div class="col-6">
+        <label class="form-label fw-semibold">Prioridad</label>
+        <select [(ngModel)]="nuevaTarea.idPrioridad" class="form-select">
+          <option *ngFor="let p of prioridades" [ngValue]="p.id">{{ p.nombre }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="mb-4">
+      <label class="form-label fw-semibold">Presupuesto asignado ($)</label>
+      <input type="number" [(ngModel)]="nuevaTarea.presupuestoAsignado" class="form-control" placeholder="0"/>
+    </div>
+    <div class="d-flex justify-content-end gap-2">
+      <button class="btn btn-light" (click)="cerrarModalTarea()">Cancelar</button>
+      <button class="btn text-white fw-bold" style="background: #28A745;"
+        (click)="crearTarea()" [disabled]="guardando">
+        <span *ngIf="guardando" class="spinner-border spinner-border-sm me-1"></span>
+        {{ guardando ? 'Guardando...' : 'Crear Tarea' }}
+      </button>
+    </div>
   </div>
 </div>
 
 <style>
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 1050;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.proyecto-card:hover { box-shadow: 0 4px 20px rgba(0,168,232,0.2) !important; }
+.proyecto-activo { border: 2px solid #00A8E8 !important; }
+.kanban-col { min-height: 200px; }
+.tarea-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  transition: box-shadow 0.2s;
 }
-
-.modal-box {
-  background: white;
-  border-radius: 16px;
-  padding: 2rem;
-  width: 100%;
-  max-width: 520px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-}
+.tarea-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.tarea-titulo { color: #1A2B4C; }
 </style>

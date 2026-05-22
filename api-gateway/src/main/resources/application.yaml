@@ -242,23 +242,23 @@ resilience4j:
       proyectos:
         sliding-window-size: 10
         failure-rate-threshold: 50
-        wait-duration-in-open-state: 10s
+        wait-duration-in-open-state: 2s
         permitted-number-of-calls-in-half-open-state: 3
-        minimum-number-of-calls: 5
+        minimum-number-of-calls: 3
         automatic-transition-from-open-to-half-open-enabled: true
       equipos:
         sliding-window-size: 10
         failure-rate-threshold: 50
-        wait-duration-in-open-state: 10s
+        wait-duration-in-open-state: 2s
         permitted-number-of-calls-in-half-open-state: 3
-        minimum-number-of-calls: 5
+        minimum-number-of-calls: 3
         automatic-transition-from-open-to-half-open-enabled: true
       ms-tareas:
         sliding-window-size: 10
         failure-rate-threshold: 50
-        wait-duration-in-open-state: 10s
+        wait-duration-in-open-state: 2s
         permitted-number-of-calls-in-half-open-state: 3
-        minimum-number-of-calls: 5
+        minimum-number-of-calls: 3
         automatic-transition-from-open-to-half-open-enabled: true
       asignaciones:
         sliding-window-size: 10

@@ -42,7 +42,7 @@
         <p class="mt-2 text-muted">Cargando equipo...</p>
       </div>
 
-      <!-- Tabla -->
+      <!-- Tabla especialistas -->
       <div class="card border-0 shadow-sm rounded-3 mb-4" *ngIf="!cargando">
         <div class="card-body">
           <div class="table-responsive">
@@ -78,6 +78,44 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SECCIÓN EQUIPOS (solo admin) ===== -->
+      <div *ngIf="!cargando && esAdmin">
+        <h4 class="fw-bold mb-3" style="color: #1A2B4C;">
+          <i class="bi bi-diagram-3 me-2"></i>Equipos registrados
+        </h4>
+
+        <div *ngIf="equipos.length === 0" class="text-center text-muted py-4">
+          <i class="bi bi-people fs-1 d-block mb-2"></i>
+          No hay equipos registrados aún.
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-md-4" *ngFor="let equipo of equipos">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+              <div class="card-body">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <div class="d-flex align-items-center justify-content-center rounded-circle text-white fw-bold"
+                       style="width: 40px; height: 40px; background: #00A8E8; font-size: 14px; flex-shrink: 0;">
+                    <i class="bi bi-people-fill"></i>
+                  </div>
+                  <div>
+                    <p class="mb-0 fw-bold" style="color: #1A2B4C;">{{ equipo.nombre }}</p>
+                    <p class="mb-0 text-muted small">{{ equipo.nombreProyecto }}</p>
+                  </div>
+                </div>
+                <div class="mt-2">
+                  <span class="badge rounded-pill px-3"
+                    style="background: #e8f4fd; color: #00A8E8; font-size: 12px;">
+                    <i class="bi bi-person me-1"></i>
+                    {{ equipo.integrantes?.length ?? 0 }} integrantes
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -124,9 +162,41 @@
       <input type="text" [(ngModel)]="nuevoEquipo.nombre" class="form-control" placeholder="Ej: Equipo Backend"/>
     </div>
 
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Proyecto asociado <span class="text-danger">*</span></label>
+      <select [(ngModel)]="nuevoEquipo.idProyecto" class="form-select">
+        <option [ngValue]="null" disabled>-- Selecciona un proyecto --</option>
+        <option *ngFor="let p of proyectos" [ngValue]="p.idProyecto">
+          {{ p.nombre }}
+        </option>
+      </select>
+    </div>
+
     <div class="mb-4">
-  <label class="form-label fw-semibold">Proyecto asociado <span class="text-danger">*</span></label>
-  <input type="number" [(ngModel)]="nuevoEquipo.idProyecto" class="form-control" placeholder="ID del proyecto"/>
+      <label class="form-label fw-semibold">Especialistas <span class="text-muted small">(opcional)</span></label>
+      <div class="border rounded-3 p-2 integrante-lista" style="max-height: 180px; overflow-y: auto;">
+        <div *ngIf="profesionales.length === 0" class="text-muted small text-center py-2">
+          No hay especialistas disponibles
+        </div>
+        <div *ngFor="let p of profesionales"
+             class="d-flex align-items-center gap-2 p-2 rounded-2 mb-1 integrante-item"
+             [class.seleccionado]="estaSeleccionado(p.idUser)"
+             style="cursor: pointer;"
+             (click)="toggleIntegrante(p.idUser)">
+          <input type="checkbox" class="form-check-input mt-0"
+                 [checked]="estaSeleccionado(p.idUser)"
+                 (click)="$event.stopPropagation()"/>
+          <div class="d-flex align-items-center justify-content-center rounded-circle text-white fw-bold"
+               style="width: 30px; height: 30px; background: #1A2B4C; font-size: 11px; flex-shrink: 0;">
+            {{ p.avatar }}
+          </div>
+          <div>
+            <p class="mb-0 fw-semibold integrante-nombre" style="font-size: 13px;">{{ p.nombre }}</p>
+            <p class="mb-0 text-muted integrante-cargo" style="font-size: 11px;">{{ p.cargo }}</p>
+          </div>
+        </div>
+      </div>
+      <small class="text-muted">{{ integrantesSeleccionados.length }} seleccionado(s)</small>
     </div>
 
     <div class="d-flex justify-content-end gap-2">
