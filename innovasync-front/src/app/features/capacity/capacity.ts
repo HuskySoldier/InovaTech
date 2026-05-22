@@ -1,11 +1,11 @@
 import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { UserService } from '../../core/services/users';
-import {NgZone} from '@angular/core';
+import { retry } from 'rxjs/operators';
 
 @Component({
   selector: 'app-capacity',
@@ -37,25 +37,26 @@ export class Capacity implements OnInit {
   private proyectosUrl = `${environment.apiUrl}/proyectos`;
 
   constructor(
-  private userService: UserService,
-  private http: HttpClient,
-  private cdr: ChangeDetectorRef,
-  private ngZone: NgZone,
-  @Inject(PLATFORM_ID) private platformId: Object
-) {}
+    private userService: UserService,
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   ngOnInit(): void {
-  setTimeout(() => {
-    this.cargarUsuarios();
-    this.cargarProyectos();
-  });
-}
+    setTimeout(() => {
+      this.cargando = true;
+      this.cdr.detectChanges();
+      this.cargarUsuarios();
+      this.cargarProyectos();
+    }, 100);
+  }
 
   cargarUsuarios(): void {
-  this.cargando = true;
-  this.userService.obtenerTodos().subscribe({
-    next: (data: any[]) => {
-      this.ngZone.run(() => {
+    this.userService.obtenerTodos().pipe(
+      retry(3)
+    ).subscribe({
+      next: (data: any[]) => {
         this.profesionales = data.map(u => ({
           nombre: u.nombreCompleto,
           cargo: u.nombreCargo,
@@ -64,25 +65,26 @@ export class Capacity implements OnInit {
         }));
         this.utilizacionGlobal = this.calcularUtilizacion();
         this.cargando = false;
-        
-      });
-    },
-    error: () => {
-      this.ngZone.run(() => {
+        this.cdr.detectChanges();
+      },
+      error: () => {
         this.error = 'No se pudieron cargar los usuarios.';
         this.cargando = false;
-      });
-    }
-  });
-}
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
   cargarProyectos(): void {
     this.http.get<any[]>(this.proyectosUrl).subscribe({
       next: (data) => {
         this.proyectos = data;
-        
+        this.cdr.detectChanges();
       },
-      error: () => this.proyectos = []
+      error: () => {
+        this.proyectos = [];
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -100,17 +102,18 @@ export class Capacity implements OnInit {
   }
 
   abrirModal(): void {
-  setTimeout(() => {
-    this.mostrarModal = true;
-    this.errorModal = '';
-    this.exito = '';
-    this.nuevoEquipo = { nombre: '', idProyecto: null };
-    
-  });
-}
+    setTimeout(() => {
+      this.mostrarModal = true;
+      this.errorModal = '';
+      this.exito = '';
+      this.nuevoEquipo = { nombre: '', idProyecto: null };
+      this.cdr.detectChanges();
+    });
+  }
 
   cerrarModal(): void {
     this.mostrarModal = false;
+    this.cdr.detectChanges();
   }
 
   crearEquipo(): void {
@@ -127,12 +130,12 @@ export class Capacity implements OnInit {
         this.guardando = false;
         this.exito = '¡Equipo creado correctamente!';
         this.cerrarModal();
-        
+        this.cdr.detectChanges();
       },
       error: () => {
         this.errorModal = 'Error al crear el equipo. Intenta de nuevo.';
         this.guardando = false;
-        
+        this.cdr.detectChanges();
       }
     });
   }
