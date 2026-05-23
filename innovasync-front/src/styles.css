@@ -393,3 +393,14 @@ th { font-size: 15px; }
   background: #1a3a6e !important;
   color: #00A8E8 !important;
 }
+
+/* Toggle tema oscuro */
+.tema-oscuro .form-check-input[type="checkbox"] {
+  background-color: #1a3a6e !important;
+  border-color: #00A8E8 !important;
+}
+
+.tema-oscuro .form-check-input[type="checkbox"]:checked {
+  background-color: #00A8E8 !important;
+  border-color: #00A8E8 !important;
+}

@@ -6,7 +6,7 @@
       <span class="fw-semibold text-muted">
         <i class="bi bi-people me-2"></i>Gestión de Capacidad del Equipo
       </span>
-      <button class="btn btn-sm text-white fw-bold px-3" style="background: #00A8E8;" (click)="abrirModal()">
+      <button *ngIf="puedeCrear" class="btn btn-sm text-white fw-bold px-3" style="background: #00A8E8;" (click)="abrirModal()">
         <i class="bi bi-plus-lg me-1"></i>Nuevo Equipo
       </button>
     </div>
@@ -45,7 +45,7 @@
       <!-- Tabla especialistas -->
       <div class="card border-0 shadow-sm rounded-3 mb-4" *ngIf="!cargando">
         <div class="card-body">
-          <div class="table-responsive">
+             <div class="table-responsive">
             <table class="table table-hover align-middle">
               <thead class="table-light">
                 <tr>
@@ -81,6 +81,38 @@
           </div>
         </div>
       </div>
+      <!-- ===== MIS EQUIPOS (solo colaborador) ===== -->
+      <div *ngIf="!cargando && esColaborador">
+        <h4 class="fw-bold mb-3" style="color: #1A2B4C;">
+          <i class="bi bi-people me-2"></i>Mis Equipos
+        </h4>
+          <div *ngIf="misEquipos.length === 0" class="text-center text-muted py-4">
+            <i class="bi bi-people fs-1 d-block mb-2"></i>
+            No estás asignado a ningún equipo aún.
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-md-4" *ngFor="let equipo of misEquipos">
+              <div class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-body">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle text-white fw-bold"
+                          style="width: 40px; height: 40px; background: #00A8E8; font-size: 14px;">
+                      <i class="bi bi-people-fill"></i>
+                  </div>
+                  <div>
+                    <p class="mb-0 fw-bold" style="color: #1A2B4C;">{{ equipo.nombre }}</p>
+                    <p class="mb-0 text-muted small">{{ equipo.nombreProyecto }}</p>
+                 </div>
+              </div>
+              <span class="badge rounded-pill px-3" style="background: #e8f4fd; color: #00A8E8; font-size: 12px;">
+                <i class="bi bi-person me-1"></i>
+                {{ equipo.integrantes?.length ?? 0 }} integrantes
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
       <!-- ===== SECCIÓN EQUIPOS (solo admin) ===== -->
       <div *ngIf="!cargando && esAdmin">

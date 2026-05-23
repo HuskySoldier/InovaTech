@@ -7,11 +7,11 @@
         <i class="bi bi-kanban me-2"></i>Gestión de Proyectos
       </span>
       <div class="d-flex gap-2">
-        <button *ngIf="proyectoSeleccionado" class="btn btn-sm text-white fw-bold px-3"
+        <button *ngIf="proyectoSeleccionado && puedeCrear" class="btn btn-sm text-white fw-bold px-3"
           style="background: #28A745;" (click)="abrirModalTarea()">
           <i class="bi bi-plus-lg me-1"></i>Nueva Tarea
         </button>
-        <button class="btn btn-sm text-white fw-bold px-3" style="background: #00A8E8;"
+        <button *ngIf="puedeCrear" class="btn btn-sm text-white fw-bold px-3" style="background: #00A8E8;"
           (click)="abrirModalProyecto()">
           <i class="bi bi-plus-lg me-1"></i>Nuevo Proyecto
         </button>

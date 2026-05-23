@@ -6,7 +6,6 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { UserService } from '../../core/services/users';
 import { AuthService } from '../../core/services/auth';
-import { retry } from 'rxjs/operators';
 
 @Component({
   selector: 'app-capacity',
@@ -21,11 +20,15 @@ export class Capacity implements OnInit {
   profesionales: any[] = [];
   proyectos: any[] = [];
   equipos: any[] = [];
+  misEquipos: any[] = [];
   utilizacionGlobal = 0;
   cargando = false;
   error = '';
   exito = '';
   esAdmin = false;
+  esColaborador = false;
+  puedeCrear = false;
+  idUserActual = 0;
 
   mostrarModal = false;
   guardando = false;
@@ -50,22 +53,21 @@ export class Capacity implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const rol = this.authService.obtenerRol();
-    this.esAdmin = rol === '1';
-
     setTimeout(() => {
+      const rol = this.authService.obtenerRol();
+      this.esAdmin = rol === '1';
+      this.esColaborador = rol === '3';
+      this.puedeCrear = rol === '1' || rol === '2';
+      this.idUserActual = this.authService.obtenerIdUser();
       this.cargando = true;
       this.cdr.detectChanges();
       this.cargarUsuarios();
       this.cargarProyectos();
-      if (this.esAdmin) {
-        this.cargarEquipos();
-      }
-    }, 100);
+    }, 300);
   }
 
   cargarUsuarios(): void {
-    this.userService.obtenerTodos().pipe(retry(3)).subscribe({
+    this.userService.obtenerTodos().subscribe({
       next: (data: any[]) => {
         this.profesionales = data.map(u => ({
           nombre: u.nombreCompleto,
@@ -91,10 +93,12 @@ export class Capacity implements OnInit {
       next: (data) => {
         this.proyectos = data;
         this.cdr.detectChanges();
+        setTimeout(() => this.cargarEquipos(), 800);
       },
       error: () => {
         this.proyectos = [];
         this.cdr.detectChanges();
+        setTimeout(() => this.cargarEquipos(), 800);
       }
     });
   }
@@ -102,14 +106,19 @@ export class Capacity implements OnInit {
   cargarEquipos(): void {
     this.http.get<any[]>(this.equiposUrl).subscribe({
       next: (data) => {
-        this.equipos = data.map(e => ({
+        const equiposMapeados = data.map(e => ({
           ...e,
           nombreProyecto: this.proyectos.find(p => p.idProyecto === e.idProyecto)?.nombre ?? `Proyecto ${e.idProyecto}`
         }));
+        this.equipos = equiposMapeados;
+        this.misEquipos = equiposMapeados.filter(e =>
+          e.integrantes?.some((i: any) => i.idUser === this.idUserActual)
+        );
         this.cdr.detectChanges();
       },
       error: () => {
         this.equipos = [];
+        this.misEquipos = [];
         this.cdr.detectChanges();
       }
     });
@@ -142,6 +151,7 @@ export class Capacity implements OnInit {
   }
 
   abrirModal(): void {
+    if (!this.puedeCrear) return;
     setTimeout(() => {
       this.mostrarModal = true;
       this.errorModal = '';
@@ -174,39 +184,39 @@ export class Capacity implements OnInit {
           this.guardando = false;
           this.exito = '¡Equipo creado correctamente!';
           this.cerrarModal();
-          this.cargarUsuarios();
-          if (this.esAdmin) this.cargarEquipos();
+          this.cargarProyectos();
           this.cdr.detectChanges();
           return;
         }
 
-        // Agregar integrantes uno por uno
-        let completados = 0;
-        this.integrantesSeleccionados.forEach(idUser => {
-          this.http.post(`${this.equiposUrl}/${idEquipo}/integrantes/${idUser}`, {}).subscribe({
-            next: () => {
-              completados++;
-              if (completados === this.integrantesSeleccionados.length) {
-                this.guardando = false;
-                this.exito = '¡Equipo creado con integrantes!';
-                this.cerrarModal();
-                this.cargarUsuarios();
-                if (this.esAdmin) this.cargarEquipos();
-                this.cdr.detectChanges();
+        // Esperar 1 segundo antes de agregar integrantes
+        setTimeout(() => {
+          let completados = 0;
+          this.integrantesSeleccionados.forEach(idUser => {
+            this.http.post(`${this.equiposUrl}/${idEquipo}/integrantes/${idUser}`, {}).subscribe({
+              next: () => {
+                completados++;
+                if (completados === this.integrantesSeleccionados.length) {
+                  this.guardando = false;
+                  this.exito = '¡Equipo creado con integrantes!';
+                  this.cerrarModal();
+                  this.cargarProyectos();
+                  this.cdr.detectChanges();
+                }
+              },
+              error: () => {
+                completados++;
+                if (completados === this.integrantesSeleccionados.length) {
+                  this.guardando = false;
+                  this.exito = '¡Equipo creado! (algunos integrantes no se pudieron agregar)';
+                  this.cerrarModal();
+                  this.cargarProyectos();
+                  this.cdr.detectChanges();
+                }
               }
-            },
-            error: () => {
-              completados++;
-              if (completados === this.integrantesSeleccionados.length) {
-                this.guardando = false;
-                this.exito = '¡Equipo creado! (algunos integrantes no se pudieron agregar)';
-                this.cerrarModal();
-                if (this.esAdmin) this.cargarEquipos();
-                this.cdr.detectChanges();
-              }
-            }
+            });
           });
-        });
+        }, 1000);
       },
       error: () => {
         this.errorModal = 'Error al crear el equipo. Intenta de nuevo.';

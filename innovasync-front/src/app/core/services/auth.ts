@@ -37,6 +37,7 @@ export class AuthService {
             if (usuario && this.isBrowser()) {
               localStorage.setItem('nombreCompleto', usuario.nombreCompleto);
               localStorage.setItem('cargo', usuario.nombreCargo);
+              localStorage.setItem('idUser', String(usuario.idUser));
             }
           })
         );
@@ -58,6 +59,26 @@ export class AuthService {
 
   obtenerRol(): string {
     return this.isBrowser() ? (localStorage.getItem('rol') ?? '') : '';
+  }
+
+  obtenerIdUser(): number {
+    return this.isBrowser() ? Number(localStorage.getItem('idUser') ?? 0) : 0;
+  }
+
+  esAdmin(): boolean {
+    return this.obtenerRol() === '1';
+  }
+
+  esGestor(): boolean {
+    return this.obtenerRol() === '2';
+  }
+
+  esColaborador(): boolean {
+    return this.obtenerRol() === '3';
+  }
+
+  esAdminOGestor(): boolean {
+    return this.esAdmin() || this.esGestor();
   }
 
   estaLogueado(): boolean {

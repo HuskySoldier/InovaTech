@@ -16,22 +16,23 @@ import { environment } from '../../../environments/environment';
 })
 export class Projects implements OnInit {
 
-  // Estado general
   cargando = true;
   guardando = false;
   error = '';
   exito = '';
-  esAdmin = false;
 
-  // Proyectos
+  // Roles
+  esAdmin = false;
+  esGestor = false;
+  esColaborador = false;
+  puedeCrear = false;
+
   proyectos: any[] = [];
   proyectoSeleccionado: any = null;
 
-  // Modales
   mostrarModalProyecto = false;
   mostrarModalTarea = false;
 
-  // Nuevo proyecto
   nuevoProyecto = {
     nombre: '',
     descripcion: '',
@@ -41,7 +42,6 @@ export class Projects implements OnInit {
     idEstado: 4
   };
 
-  // Nueva tarea
   nuevaTarea = {
     nombre: '',
     descripcion: '',
@@ -54,15 +54,13 @@ export class Projects implements OnInit {
 
   prioridades: any[] = [];
 
-  // Kanban de tareas
   columnas = [
-    { titulo: 'Pendiente',   color: '#6c757d', idEstado: 8,  tareas: [] as any[] },
-    { titulo: 'En Progreso', color: '#FFC107', idEstado: 9,  tareas: [] as any[] },
+    { titulo: 'Pendiente',   color: '#6c757d', idEstado: 1,  tareas: [] as any[] },
+    { titulo: 'En Progreso', color: '#FFC107', idEstado: 2,  tareas: [] as any[] },
     { titulo: 'Completada',  color: '#28A745', idEstado: 10, tareas: [] as any[] },
     { titulo: 'Bloqueada',   color: '#DC3545', idEstado: 11, tareas: [] as any[] }
   ];
 
-  // Drag & Drop
   draggingTarea: any = null;
   draggingFromCol: any = null;
 
@@ -78,16 +76,24 @@ export class Projects implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.esAdmin = this.authService.obtenerRol() === '1';
+  setTimeout(() => {
+    const rol = this.authService.obtenerRol();
+    this.esAdmin = rol === '1';
+    this.esGestor = rol === '2';
+    this.esColaborador = rol === '3';
+    this.puedeCrear = this.esAdmin || this.esGestor;
+
     if (isPlatformBrowser(this.platformId)) {
-      this.cargarProyectos();
-      this.cargarPrioridades();
+      setTimeout(() => {
+        this.cargarProyectos();
+        this.cargarPrioridades();
+      }, 500);
     } else {
       this.cargando = false;
     }
-  }
+  }, 100);
+}
 
-  // ===== PROYECTOS =====
   cargarProyectos(): void {
     this.cargando = true;
     this.proyectosService.obtenerTodos().subscribe({
@@ -119,7 +125,6 @@ export class Projects implements OnInit {
     return colores[idEstado] ?? '#6c757d';
   }
 
-  // ===== TAREAS =====
   cargarTareas(idProyecto: number): void {
     this.columnas.forEach(col => col.tareas = []);
     this.http.get<any[]>(`${this.tareasUrl}/proyecto/${idProyecto}`).subscribe({
@@ -134,7 +139,8 @@ export class Projects implements OnInit {
               fecha: t.fLimiteTerm ?? '—',
               prioridad: this.getPrioridad(t.idPrioridad),
               colorPrioridad: this.getColorPrioridad(t.idPrioridad),
-              idEstado: t.idEstado
+              idEstado: t.idEstado,
+              idPrioridad: t.idPrioridad
             });
           }
         });
@@ -161,31 +167,30 @@ export class Projects implements OnInit {
     return colores[idPrioridad] ?? '#FFC107';
   }
 
-  // ===== DRAG & DROP =====
   onDragStart(tarea: any, columna: any): void {
+    if (!this.puedeCrear) return;
     this.draggingTarea = tarea;
     this.draggingFromCol = columna;
   }
 
   onDragOver(event: DragEvent): void {
+    if (!this.puedeCrear) return;
     event.preventDefault();
   }
 
   onDrop(columnaDestino: any): void {
-    if (!this.draggingTarea || this.draggingFromCol === columnaDestino) return;
+    if (!this.draggingTarea || this.draggingFromCol === columnaDestino || !this.puedeCrear) return;
 
-    // Actualizar en el backend
     this.http.put(`${this.tareasUrl}/${this.draggingTarea.id}`, {
       nombre: this.draggingTarea.titulo,
       descripcion: this.draggingTarea.descripcion,
       fLimiteTerm: this.draggingTarea.fecha,
       presupuestoAsignado: 0,
-      idPrioridad: 1,
+      idPrioridad: this.draggingTarea.idPrioridad ?? 1,
       idEstado: columnaDestino.idEstado,
-      idProyecto: this.proyectoSeleccionado.idProyecto
+      proyectoId: this.proyectoSeleccionado.idProyecto
     }).subscribe({
       next: () => {
-        // Mover visualmente
         this.draggingFromCol.tareas = this.draggingFromCol.tareas.filter((t: any) => t.id !== this.draggingTarea.id);
         this.draggingTarea.idEstado = columnaDestino.idEstado;
         columnaDestino.tareas.push(this.draggingTarea);
@@ -202,8 +207,8 @@ export class Projects implements OnInit {
     });
   }
 
-  // ===== MODAL PROYECTO =====
   abrirModalProyecto(): void {
+    if (!this.puedeCrear) return;
     this.mostrarModalProyecto = true;
     this.exito = '';
     this.error = '';
@@ -235,8 +240,8 @@ export class Projects implements OnInit {
     });
   }
 
-  // ===== MODAL TAREA =====
   abrirModalTarea(): void {
+    if (!this.puedeCrear) return;
     this.mostrarModalTarea = true;
     this.error = '';
     this.nuevaTarea = {
