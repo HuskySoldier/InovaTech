@@ -49,7 +49,7 @@ export class Projects implements OnInit {
     presupuestoAsignado: 0,
     idPrioridad: 1,
     idEstado: 8,
-    idProyecto: null as number | null
+    proyectoId: null as number | null
   };
 
   prioridades: any[] = [];
@@ -248,7 +248,7 @@ export class Projects implements OnInit {
       presupuestoAsignado: 0,
       idPrioridad: 1,
       idEstado: 8,
-      idProyecto: this.proyectoSeleccionado?.idProyecto ?? null
+      proyectoId: this.proyectoSeleccionado?.idProyecto ?? null
     };
   }
 
