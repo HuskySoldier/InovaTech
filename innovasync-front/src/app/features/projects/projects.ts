@@ -80,8 +80,10 @@ export class Projects implements OnInit {
   ngOnInit(): void {
     this.esAdmin = this.authService.obtenerRol() === '1';
     if (isPlatformBrowser(this.platformId)) {
-      this.cargarProyectos();
-      this.cargarPrioridades();
+      setTimeout(() => {
+        this.cargarProyectos();
+        this.cargarPrioridades();
+      }, 300);
     } else {
       this.cargando = false;
     }

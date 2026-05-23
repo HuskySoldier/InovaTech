@@ -58,9 +58,7 @@ export class Capacity implements OnInit {
       this.cdr.detectChanges();
       this.cargarUsuarios();
       this.cargarProyectos();
-      if (this.esAdmin) {
-        this.cargarEquipos();
-      }
+  
     }, 100);
   }
 
@@ -91,6 +89,8 @@ export class Capacity implements OnInit {
       next: (data) => {
         this.proyectos = data;
         this.cdr.detectChanges();
+        if (this.esAdmin) 
+          this.cargarEquipos();
       },
       error: () => {
         this.proyectos = [];
