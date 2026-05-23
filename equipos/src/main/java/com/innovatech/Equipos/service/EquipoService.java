@@ -74,6 +74,21 @@ public class EquipoService {
         equipo.getIntegrantes().add(nuevoIntegrante);
         return equipo;
     }
+    
+    public Equipo eliminarIntegrante(Long idEquipo, Long idUser) {
+        // 1. Buscamos el equipo
+        Equipo equipo = equipoRepository.findById(idEquipo)
+            .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
+    
+        
+        boolean removido = equipo.getIntegrantes().removeIf(i -> i.getIdUser().equals(idUser));
+    
+        if (!removido) {
+            throw new RuntimeException("El usuario no es integrante de este equipo");
+        }
+    
+        return equipoRepository.save(equipo);
+    }
 
     public void eliminarEquipo(Long id) {
         equipoRepository.deleteById(id);

@@ -105,4 +105,20 @@ public class EquipoController {
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
     }
+    
+    @Operation(summary = "Eliminar integrante de un equipo", description = "Desasocia un usuario de un equipo específico mediante sus IDs.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Integrante eliminado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "No se pudo eliminar el integrante (error de validación)")
+    })
+    @PutMapping("/{idEquipo}/integrantes/{idUser}")
+    public ResponseEntity<Equipo> eliminarIntegrante(
+            @Parameter(description = "ID del equipo", example = "1") @PathVariable Long idEquipo,
+            @Parameter(description = "ID del usuario a eliminar", example = "10") @PathVariable Long idUser) {
+        try {
+            return ResponseEntity.ok(equipoService.eliminarIntegrante(idEquipo, idUser));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
