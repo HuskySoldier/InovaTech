@@ -56,12 +56,12 @@ public class ProyectoService {
         // ==========================================
         // EMISIÓN DE EVENTO A RABBITMQ
         // ==========================================
-        System.out.println("Enviando evento de nuevo proyecto a RabbitMQ...");
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.EXCHANGE_PROYECTOS, 
-                RabbitMQConfig.ROUTING_KEY_PROYECTO_CREADO, 
-                "Nuevo proyecto creado con ID: " + nuevoProyecto.getIdProyecto()
-        );
+        //System.out.println("Enviando evento de nuevo proyecto a RabbitMQ...");
+        //rabbitTemplate.convertAndSend(
+        //        RabbitMQConfig.EXCHANGE_PROYECTOS, 
+        //        RabbitMQConfig.ROUTING_KEY_PROYECTO_CREADO, 
+        //        "Nuevo proyecto creado con ID: " + nuevoProyecto.getIdProyecto()
+        //);
 
         return nuevoProyecto;
     }

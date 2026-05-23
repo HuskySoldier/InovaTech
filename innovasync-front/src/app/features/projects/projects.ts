@@ -184,7 +184,7 @@ export class Projects implements OnInit {
       presupuestoAsignado: 0,
       idPrioridad: 1,
       idEstado: columnaDestino.idEstado,
-      idProyecto: this.proyectoSeleccionado.idProyecto
+      proyectoId: this.proyectoSeleccionado.idProyecto
     }).subscribe({
       next: () => {
         // Mover visualmente
@@ -219,6 +219,10 @@ export class Projects implements OnInit {
   crearProyecto(): void {
     if (!this.nuevoProyecto.nombre || !this.nuevoProyecto.fInicio || !this.nuevoProyecto.fTerminoEsti) {
       this.error = 'Por favor completa los campos obligatorios.';
+      return;
+    }
+    if (this.nuevoProyecto.presuEstimado < 0 || !Number.isInteger(this.nuevoProyecto.presuEstimado)) {
+      this.error = 'El presupuesto debe ser un número entero positivo.';
       return;
     }
     this.guardando = true;
@@ -259,6 +263,11 @@ export class Projects implements OnInit {
   crearTarea(): void {
     if (!this.nuevaTarea.nombre || !this.nuevaTarea.fLimiteTerm) {
       this.error = 'Por favor completa los campos obligatorios.';
+      return;
+    }
+
+    if (this.nuevaTarea.presupuestoAsignado < 0 || !Number.isInteger (this.nuevaTarea.presupuestoAsignado)) {
+      this.error ='El presupuesto deber ser número entero positivo.';
       return;
     }
     this.guardando = true;

@@ -19,7 +19,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/historial-tareas")
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 @Tag(name = "Historial de Tareas", description = "API para registrar y consultar los eventos o cambios de estado de las tareas")
 public class HistorialTareaController {

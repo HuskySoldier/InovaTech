@@ -77,4 +77,10 @@ resilience4j:
         permitted-number-of-calls-in-half-open-state: 3
         minimum-number-of-calls: 5
         automatic-transition-from-open-to-half-open-enabled: true
+    
+  timelimiter:
+    instances:
+      # Puedes aplicar una regla general para todos los microservicios
+      default:
+        timeoutDuration: 10s # Le damos 5 segundos de paciencia en lugar de 1
 

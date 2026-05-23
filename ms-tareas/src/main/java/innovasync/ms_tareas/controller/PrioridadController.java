@@ -17,7 +17,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/prioridades")
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 @Tag(name = "Prioridades", description = "API para la gestión de los niveles de prioridad de las tareas")
 public class PrioridadController {
