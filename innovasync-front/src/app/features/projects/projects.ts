@@ -35,8 +35,8 @@ export class Projects implements OnInit {
   nuevoProyecto = {
     nombre: '',
     descripcion: '',
-    fInicio: '',
-    fTerminoEsti: '',
+    fechaInicio: '',
+    fechaTerminoEsti: '',
     presuEstimado: 0,
     idEstado: 4
   };
@@ -209,7 +209,7 @@ export class Projects implements OnInit {
     this.mostrarModalProyecto = true;
     this.exito = '';
     this.error = '';
-    this.nuevoProyecto = { nombre: '', descripcion: '', fInicio: '', fTerminoEsti: '', presuEstimado: 0, idEstado: 4 };
+    this.nuevoProyecto = { nombre: '', descripcion: '', fechaInicio: '', fechaTerminoEsti: '', presuEstimado: 0, idEstado: 4 };
   }
 
   cerrarModalProyecto(): void {
@@ -217,7 +217,7 @@ export class Projects implements OnInit {
   }
 
   crearProyecto(): void {
-    if (!this.nuevoProyecto.nombre || !this.nuevoProyecto.fInicio || !this.nuevoProyecto.fTerminoEsti) {
+    if (!this.nuevoProyecto.nombre || !this.nuevoProyecto.fechaInicio || !this.nuevoProyecto.fechaTerminoEsti) {
       this.error = 'Por favor completa los campos obligatorios.';
       return;
     }
