@@ -16,4 +16,5 @@ public class UsuarioSummaryDTO {
     private String nombreCompleto;
     private String email;
     private String nombreCargo;
+    private Long idRol;
 }

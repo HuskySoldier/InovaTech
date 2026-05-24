@@ -1,5 +1,4 @@
 <div class="d-flex" style="height: 100vh;">
-  
 
   <!-- Main -->
   <div class="d-flex flex-column flex-grow-1 overflow-hidden">
@@ -36,7 +35,7 @@
             <i class="bi bi-bell me-2"></i>Notificaciones
           </button>
           <button class="btn text-start rounded-2"
-            *ngIf="rolUsuario === 'Directivo'"
+            *ngIf="rolUsuario === '1'"
             [class.active-link]="pestanaActiva === 'roles'"
             [class.text-white]="pestanaActiva === 'roles'"
             (click)="cambiarPestana('roles')">
@@ -46,6 +45,7 @@
 
         <div class="card border-0 shadow-sm rounded-3 p-4 flex-grow-1 config-content">
 
+          <!-- PERFIL -->
           <div *ngIf="pestanaActiva === 'perfil'">
             <h5 class="fw-bold mb-4" style="color: #1A2B4C;">
               <i class="bi bi-person-circle me-2"></i>Mi Perfil
@@ -61,7 +61,7 @@
             <div class="mb-3">
               <label class="form-label fw-semibold">Cargo</label>
               <select [(ngModel)]="cargo" class="form-select">
-                <option  value="">-- Selecciona un cargo --</option>
+                <option value="">-- Selecciona un cargo --</option>
                 <option *ngFor="let c of cargos" [value]="c.nombreCargo">
                   {{ c.nombreCargo }}
                 </option>
@@ -73,6 +73,7 @@
             </div>
           </div>
 
+          <!-- APARIENCIA -->
           <div *ngIf="pestanaActiva === 'apariencia'">
             <h5 class="fw-bold mb-4" style="color: #1A2B4C;">
               <i class="bi bi-palette me-2"></i>Apariencia
@@ -80,13 +81,14 @@
             <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
               <span><i class="bi bi-moon me-2"></i>Tema oscuro</span>
               <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" 
+                <input class="form-check-input" type="checkbox"
                       [(ngModel)]="temaOscuro"
                       (change)="cambiarTema()"/>
               </div>
             </div>
           </div>
 
+          <!-- NOTIFICACIONES -->
           <div *ngIf="pestanaActiva === 'notificaciones'">
             <h5 class="fw-bold mb-4" style="color: #1A2B4C;">
               <i class="bi bi-bell me-2"></i>Notificaciones
@@ -105,11 +107,18 @@
             </div>
           </div>
 
-          <div *ngIf="pestanaActiva === 'roles' && rolUsuario === 'Directivo'">
+          <!-- GESTIÓN DE ROLES -->
+          <div *ngIf="pestanaActiva === 'roles' && rolUsuario === '1'">
             <h5 class="fw-bold mb-4" style="color: #1A2B4C;">
               <i class="bi bi-shield-lock me-2"></i>Gestión de Roles
             </h5>
-            <div class="table-responsive">
+
+            <div *ngIf="cargandoRoles" class="text-center py-4">
+              <div class="spinner-border" style="color: #00A8E8;"></div>
+              <p class="mt-2 text-muted">Cargando usuarios...</p>
+            </div>
+
+            <div class="table-responsive" *ngIf="!cargandoRoles">
               <table class="table table-hover align-middle">
                 <thead class="table-light">
                   <tr>
@@ -119,36 +128,23 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td><i class="bi bi-person me-2"></i>Alejandro M.</td>
-                    <td><span class="badge rounded-pill px-3 badge-directivo">Directivo</span></td>
+                  <tr *ngFor="let u of usuarios">
+                    <td><i class="bi bi-person me-2"></i>{{ u.nombreCompleto }}</td>
                     <td>
-                      <select class="form-select form-select-sm" style="width: 150px;">
-                        <option>Directivo</option>
-                        <option>Gestor</option>
-                        <option>Colaborador</option>
-                      </select>
+                      <span class="badge rounded-pill px-3"
+                        [style.background]="getColorRol(u.idRol)"
+                        style="color: white;">
+                        {{ getNombreRol(u.idRol) }}
+                      </span>
                     </td>
-                  </tr>
-                  <tr>
-                    <td><i class="bi bi-person me-2"></i>Bastian G.</td>
-                    <td><span class="badge rounded-pill px-3 badge-gestor">Gestor</span></td>
                     <td>
-                      <select class="form-select form-select-sm" style="width: 150px;">
-                        <option>Directivo</option>
-                        <option>Gestor</option>
-                        <option>Colaborador</option>
-                      </select>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><i class="bi bi-person me-2"></i>Ivan H.</td>
-                    <td><span class="badge rounded-pill px-3 badge-colaborador">Colaborador</span></td>
-                    <td>
-                      <select class="form-select form-select-sm" style="width: 150px;">
-                       <option>Directivo</option>
-                        <option>Gestor</option>
-                        <option>Colaborador</option>
+                      <span *ngIf="u.idRol === 1" class="text-muted" style="font-size: 13px;">
+                        No modificable
+                      </span>
+                      <select *ngIf="u.idRol !== 1" class="form-select form-select-sm" style="width: 150px;"
+                        [(ngModel)]="u.idRol"
+                        (change)="cambiarRolUsuario(u)">
+                        <option *ngFor="let r of roles" [ngValue]="r.idRol">{{ r.nombre }}</option>
                       </select>
                     </td>
                   </tr>

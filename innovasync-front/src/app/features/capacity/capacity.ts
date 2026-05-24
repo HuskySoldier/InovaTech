@@ -26,6 +26,7 @@ export class Capacity implements OnInit {
   error = '';
   exito = '';
   esAdmin = false;
+  puedeCrear = false;
 
   mostrarModal = false;
   guardando = false;
@@ -52,6 +53,7 @@ export class Capacity implements OnInit {
   ngOnInit(): void {
     const rol = this.authService.obtenerRol();
     this.esAdmin = rol === '1';
+    this.puedeCrear = rol === '1' || rol === '2';
 
     setTimeout(() => {
       this.cargando = true;

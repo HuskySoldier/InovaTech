@@ -21,6 +21,8 @@ export class Dashboard implements OnInit {
 
   nombreUsuario = '';
   rol = '';
+  esAdmin = false;
+  esGestor = false;
 
   kpis = [
     { titulo: 'Proyectos Activos', valor: '12', color: '#1A2B4C' },
@@ -85,8 +87,11 @@ export class Dashboard implements OnInit {
 
   constructor(private router: Router,private authService: AuthService) {}
   ngOnInit(): void {
-    this.nombreUsuario = this.authService.obtenerNombre();
-    this.rol = this.authService.obtenerCargo();
+  this.nombreUsuario = this.authService.obtenerNombre();
+  this.rol = this.authService.obtenerCargo();
+  const rolId = this.authService.obtenerRol();
+  this.esAdmin = rolId === '1';
+  this.esGestor = rolId === '2';
   }
 
   cerrarSesion() {

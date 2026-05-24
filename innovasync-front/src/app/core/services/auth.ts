@@ -37,6 +37,7 @@ export class AuthService {
             if (usuario && this.isBrowser()) {
               localStorage.setItem('nombreCompleto', usuario.nombreCompleto);
               localStorage.setItem('cargo', usuario.nombreCargo);
+              localStorage.setItem('idUser', String(usuario.idUser));
             }
           })
         );
@@ -46,6 +47,10 @@ export class AuthService {
 
   obtenerToken(): string | null {
     return this.isBrowser() ? localStorage.getItem('token') : null;
+  }
+
+  obtenerIdUser(): number {
+  return this.isBrowser() ? Number(localStorage.getItem('idUser') ?? 0) : 0;
   }
 
   obtenerNombre(): string {

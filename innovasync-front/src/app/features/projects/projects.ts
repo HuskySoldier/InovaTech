@@ -22,6 +22,9 @@ export class Projects implements OnInit {
   error = '';
   exito = '';
   esAdmin = false;
+  esGestor = false;
+  esColaborador = false;
+  puedeCrear = false;
 
   // Proyectos
   proyectos: any[] = [];
@@ -78,8 +81,15 @@ export class Projects implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.esAdmin = this.authService.obtenerRol() === '1';
+  setTimeout(() => {
     if (isPlatformBrowser(this.platformId)) {
+      const rol = this.authService.obtenerRol();
+      this.esAdmin = rol === '1';
+      this.esGestor = rol === '2';
+      this.esColaborador = rol === '3';
+      this.puedeCrear = rol === '1' || rol === '2';
+      this.cdr.detectChanges();
+      
       setTimeout(() => {
         this.cargarProyectos();
         this.cargarPrioridades();
@@ -87,24 +97,46 @@ export class Projects implements OnInit {
     } else {
       this.cargando = false;
     }
-  }
+  }, 100);
+}
 
   // ===== PROYECTOS =====
   cargarProyectos(): void {
-    this.cargando = true;
-    this.proyectosService.obtenerTodos().subscribe({
-      next: (data: any[]) => {
+  this.cargando = true;
+  this.proyectosService.obtenerTodos().subscribe({
+    next: (data: any[]) => {
+      if (this.esColaborador) {
+        // Cargar equipos para filtrar proyectos del colaborador
+        const idUser = this.authService.obtenerIdUser();
+        this.http.get<any[]>(`${environment.apiUrl}/equipos`).subscribe({
+          next: (equipos) => {
+            const misEquipos = equipos.filter(e =>
+              e.integrantes?.some((i: any) => i.idUser === idUser)
+            );
+            const misIdProyectos = misEquipos.map(e => e.idProyecto);
+            this.proyectos = data.filter(p => misIdProyectos.includes(p.idProyecto));
+            this.cargando = false;
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            this.proyectos = data;
+            this.cargando = false;
+            this.cdr.detectChanges();
+          }
+        });
+      } else {
         this.proyectos = data;
         this.cargando = false;
         this.cdr.detectChanges();
-      },
-      error: () => {
-        this.error = 'No se pudieron cargar los proyectos.';
-        this.cargando = false;
-        this.cdr.detectChanges();
       }
-    });
-  }
+    },
+    error: () => {
+      this.error = 'No se pudieron cargar los proyectos.';
+      this.cargando = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
 
   seleccionarProyecto(proyecto: any): void {
     this.proyectoSeleccionado = proyecto;

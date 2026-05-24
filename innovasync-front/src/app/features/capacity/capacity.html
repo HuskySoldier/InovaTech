@@ -6,7 +6,7 @@
       <span class="fw-semibold text-muted">
         <i class="bi bi-people me-2"></i>Gestión de Capacidad del Equipo
       </span>
-      <button class="btn btn-sm text-white fw-bold px-3" style="background: #00A8E8;" (click)="abrirModal()">
+      <button *ngIf="puedeCrear" class="btn btn-sm text-white fw-bold px-3" style="background: #00A8E8;" (click)="abrirModal()">
         <i class="bi bi-plus-lg me-1"></i>Nuevo Equipo
       </button>
     </div>
