@@ -38,6 +38,7 @@ export class AuthService {
               localStorage.setItem('nombreCompleto', usuario.nombreCompleto);
               localStorage.setItem('cargo', usuario.nombreCargo);
               localStorage.setItem('idUser', String(usuario.idUser));
+              localStorage.setItem('run', usuario.run ?? '');
             }
           })
         );
@@ -64,6 +65,8 @@ export class AuthService {
   obtenerRol(): string {
     return this.isBrowser() ? (localStorage.getItem('rol') ?? '') : '';
   }
+
+  
 
   estaLogueado(): boolean {
     return this.isBrowser() ? !!localStorage.getItem('token') : false;

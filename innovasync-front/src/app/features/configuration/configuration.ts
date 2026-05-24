@@ -32,6 +32,7 @@ export class Configuration implements OnInit {
   notifSistema = true;
   pestanaActiva = 'perfil';
   cargos: any[] = [];
+  nuevaContrasena = '';
 
   // Gestión de roles
   usuarios: any[] = [];
@@ -124,12 +125,53 @@ export class Configuration implements OnInit {
       }
     }
   }
+  actualizarCorreo(): void {
+    const partes = this.nombre.toLowerCase().split(' ');
+    if (partes.length >= 2) {
+      this.email = `${partes[0]}.${partes[1]}@innovasync.cl`;
+    }
+  }
 
   guardarCambios() {
+    console.log('Email a guardar:', this.email);
+    console.log('Nombre a guardar:', this.nombre);
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('notifEmail', String(this.notifEmail));
       localStorage.setItem('notifSistema', String(this.notifSistema));
     }
-    alert('Cambios guardados correctamente');
+
+    const idUser = this.authService.obtenerIdUser();
+    const run = localStorage.getItem('run') ?? '';
+    const cargoSeleccionado = this.cargos.find(c => c.nombreCargo === this.cargo);
+    const idCargo = cargoSeleccionado?.idCargo ?? 1;
+
+    const partes = this.nombre.split(' ');
+    const nombre = partes[0];
+    const apellido = partes.slice(1).join(' ') || '.';
+
+    const body : any = {
+      run: run,
+      nombre: nombre,
+      apellido: apellido,
+      correo: this.email,
+      idCargo: idCargo,
+      idRol: Number(this.rolUsuario),
+      idEstado: 1
+    };
+
+    if (this.nuevaContrasena) {
+      body.clave = this.nuevaContrasena;
+    }
+
+    this.http.put(`${environment.apiUrl}/usuarios/${idUser}`, body).subscribe({
+      next: () => {
+        localStorage.setItem('nombreCompleto', this.nombre);
+        localStorage.setItem('cargo', this.cargo);
+        localStorage.setItem('correo', this.email);
+        this.nuevaContrasena = '';
+        alert('Cambios guardados correctamente');
+      },
+      error: () => alert('Error al guardar los cambios')
+    });
   }
 }

@@ -6,7 +6,6 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { UserService } from '../../core/services/users';
 import { AuthService } from '../../core/services/auth';
-import { retry } from 'rxjs/operators';
 
 @Component({
   selector: 'app-capacity',
@@ -19,14 +18,19 @@ export class Capacity implements OnInit {
 
   semanas = ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4', 'Semana 5'];
   profesionales: any[] = [];
+  todosProfesionales: any[] = [];
   proyectos: any[] = [];
   equipos: any[] = [];
+  misEquipos: any[] = [];
   utilizacionGlobal = 0;
   cargando = false;
   error = '';
   exito = '';
   esAdmin = false;
+  esGestor = false;
+  esColaborador = false;
   puedeCrear = false;
+  idUserActual = 0;
 
   mostrarModal = false;
   guardando = false;
@@ -41,6 +45,7 @@ export class Capacity implements OnInit {
 
   private equiposUrl = `${environment.apiUrl}/equipos`;
   private proyectosUrl = `${environment.apiUrl}/proyectos`;
+  private tareasUrl = `${environment.apiUrl}/tareas`;
 
   constructor(
     private userService: UserService,
@@ -51,29 +56,35 @@ export class Capacity implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const rol = this.authService.obtenerRol();
-    this.esAdmin = rol === '1';
-    this.puedeCrear = rol === '1' || rol === '2';
-
     setTimeout(() => {
+      const rol = this.authService.obtenerRol();
+      this.esAdmin = rol === '1';
+      this.esGestor = rol === '2';
+      this.esColaborador = rol === '3';
+      this.puedeCrear = rol === '1' || rol === '2';
+      this.idUserActual = this.authService.obtenerIdUser();
       this.cargando = true;
       this.cdr.detectChanges();
       this.cargarUsuarios();
       this.cargarProyectos();
-  
     }, 100);
   }
 
   cargarUsuarios(): void {
-    this.userService.obtenerTodos().pipe(retry(3)).subscribe({
+    this.userService.obtenerTodos().subscribe({
       next: (data: any[]) => {
-        this.profesionales = data.map(u => ({
+        this.todosProfesionales = data.map(u => ({
           nombre: u.nombreCompleto,
           cargo: u.nombreCargo,
           avatar: this.getIniciales(u.nombreCompleto),
           idUser: u.idUser,
           asignaciones: Array(5).fill({ proyecto: '', horas: 0, color: '' })
         }));
+
+        if (this.esAdmin) {
+          this.profesionales = this.todosProfesionales;
+        }
+
         this.utilizacionGlobal = this.calcularUtilizacion();
         this.cargando = false;
         this.cdr.detectChanges();
@@ -91,8 +102,7 @@ export class Capacity implements OnInit {
       next: (data) => {
         this.proyectos = data;
         this.cdr.detectChanges();
-        if (this.esAdmin) 
-          this.cargarEquipos();
+        setTimeout(() => this.cargarEquipos(), 500);
       },
       error: () => {
         this.proyectos = [];
@@ -104,17 +114,77 @@ export class Capacity implements OnInit {
   cargarEquipos(): void {
     this.http.get<any[]>(this.equiposUrl).subscribe({
       next: (data) => {
-        this.equipos = data.map(e => ({
+        const equiposMapeados = data.map(e => ({
           ...e,
-          nombreProyecto: this.proyectos.find(p => p.idProyecto === e.idProyecto)?.nombre ?? `Proyecto ${e.idProyecto}`
+          nombreProyecto: this.proyectos.find(p => p.idProyecto === e.idProyecto)?.nombre ?? `Proyecto ${e.idProyecto}`,
+          avance: 0
         }));
+
+        this.equipos = equiposMapeados;
+
+        this.misEquipos = equiposMapeados.filter(e =>
+          e.integrantes?.some((i: any) => i.idUser === this.idUserActual)
+        );
+
+        this.misEquipos.forEach(equipo => {
+          this.calcularAvanceProyecto(equipo);
+        });
+
+        // Filtrar profesionales según equipos para gestor y colaborador
+        if (!this.esAdmin) {
+          const idsIntegrantes = this.misEquipos
+            .flatMap(e => e.integrantes?.map((i: any) => i.idUser) ?? []);
+          this.profesionales = this.todosProfesionales.filter(p =>
+            idsIntegrantes.includes(p.idUser)
+          );
+        }
+
         this.cdr.detectChanges();
       },
       error: () => {
         this.equipos = [];
+        this.misEquipos = [];
         this.cdr.detectChanges();
       }
     });
+  }
+
+  calcularAvanceProyecto(equipo: any): void {
+    this.http.get<any[]>(`${this.tareasUrl}/proyecto/${equipo.idProyecto}`).subscribe({
+      next: (tareas) => {
+        const total = tareas.length;
+        const completadas = tareas.filter(t => t.idEstado === 10).length;
+        equipo.avance = total > 0 ? Math.round((completadas / total) * 100) : 0;
+        equipo.totalTareas = total;
+        equipo.tareasCompletadas = completadas;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        equipo.avance = 0;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  getColorAvance(avance: number): string {
+    if (avance >= 75) return '#28A745';
+    if (avance >= 40) return '#FFC107';
+    return '#DC3545';
+  }
+
+  getNombreIntegrante(idUser: number): string {
+    const p = this.todosProfesionales.find(u => u.idUser === idUser);
+    return p?.nombre ?? `Usuario ${idUser}`;
+  }
+
+  getCargoIntegrante(idUser: number): string {
+    const p = this.todosProfesionales.find(u => u.idUser === idUser);
+    return p?.cargo ?? '';
+  }
+
+  getInicialesIntegrante(idUser: number): string {
+    const nombre = this.getNombreIntegrante(idUser);
+    return this.getIniciales(nombre);
   }
 
   toggleIntegrante(idUser: number): void {
@@ -144,6 +214,7 @@ export class Capacity implements OnInit {
   }
 
   abrirModal(): void {
+    if (!this.puedeCrear) return;
     setTimeout(() => {
       this.mostrarModal = true;
       this.errorModal = '';
@@ -176,13 +247,11 @@ export class Capacity implements OnInit {
           this.guardando = false;
           this.exito = '¡Equipo creado correctamente!';
           this.cerrarModal();
-          this.cargarUsuarios();
-          if (this.esAdmin) this.cargarEquipos();
+          this.cargarProyectos();
           this.cdr.detectChanges();
           return;
         }
 
-        // Agregar integrantes uno por uno
         let completados = 0;
         this.integrantesSeleccionados.forEach(idUser => {
           this.http.post(`${this.equiposUrl}/${idEquipo}/integrantes/${idUser}`, {}).subscribe({
@@ -192,8 +261,7 @@ export class Capacity implements OnInit {
                 this.guardando = false;
                 this.exito = '¡Equipo creado con integrantes!';
                 this.cerrarModal();
-                this.cargarUsuarios();
-                if (this.esAdmin) this.cargarEquipos();
+                this.cargarProyectos();
                 this.cdr.detectChanges();
               }
             },
@@ -203,7 +271,7 @@ export class Capacity implements OnInit {
                 this.guardando = false;
                 this.exito = '¡Equipo creado! (algunos integrantes no se pudieron agregar)';
                 this.cerrarModal();
-                if (this.esAdmin) this.cargarEquipos();
+                this.cargarProyectos();
                 this.cdr.detectChanges();
               }
             }

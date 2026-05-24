@@ -52,15 +52,15 @@
             </h5>
             <div class="mb-3">
               <label class="form-label fw-semibold">Nombre completo</label>
-              <input type="text" [(ngModel)]="nombre" class="form-control"/>
+              <input type="text" [(ngModel)]="nombre" class="form-control" (ngModelChange)="actualizarCorreo()"/>
             </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Correo electrónico</label>
-              <input type="email" [value]="email" class="form-control" disabled/>
+              <input type="email" [(ngModel)]="email" class="form-control" disabled/>
             </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Cargo</label>
-              <select [(ngModel)]="cargo" class="form-select">
+              <select [(ngModel)]="cargo" class="form-select" [disabled]="rolUsuario !=='1'">
                 <option value="">-- Selecciona un cargo --</option>
                 <option *ngFor="let c of cargos" [value]="c.nombreCargo">
                   {{ c.nombreCargo }}
@@ -69,7 +69,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Nueva contraseña</label>
-              <input type="password" placeholder="••••••••" class="form-control"/>
+              <input type="password"[(ngModel)]="nuevaContrasena" placeholder="••••••••" class="form-control"/>
             </div>
           </div>
 

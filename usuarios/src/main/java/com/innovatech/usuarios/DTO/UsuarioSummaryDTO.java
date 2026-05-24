@@ -17,4 +17,5 @@ public class UsuarioSummaryDTO {
     private String email;
     private String nombreCargo;
     private Long idRol;
+    private String run; // Agregado el campo run
 }

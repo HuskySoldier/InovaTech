@@ -23,7 +23,9 @@
         <div class="card-body d-flex justify-content-between align-items-center">
           <div>
             <h5 class="fw-bold mb-1" style="color: #1A2B4C;">
-              <i class="bi bi-bar-chart me-2"></i>Resumen de Utilización Global
+              <i class="bi bi-bar-chart me-2"></i>
+              <span *ngIf="esAdmin">Resumen de Utilización Global</span>
+              <span *ngIf="!esAdmin">Utilización Global de Mi Equipo</span>
             </h5>
             <p class="text-muted small mb-0">
               <i class="bi bi-calendar me-1"></i>Período: Último mes
@@ -119,6 +121,79 @@
           </div>
         </div>
       </div>
+
+      <!-- ===== MIS EQUIPOS (gestor y colaborador) ===== -->
+<div *ngIf="!cargando && (esGestor || esColaborador) && misEquipos.length > 0" class="mb-4">
+  <h4 class="fw-bold mb-3" style="color: #1A2B4C;">
+    <i class="bi bi-people me-2"></i>Mi Equipo
+  </h4>
+  <div class="row g-3">
+    <div class="col-12 col-md-6" *ngFor="let equipo of misEquipos">
+      <div class="card border-0 shadow-sm rounded-3 h-100">
+        <div class="card-body">
+          <!-- Nombre y proyecto -->
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <p class="fw-bold mb-0" style="color: #1A2B4C; font-size: 16px;">{{ equipo.nombre }}</p>
+              <p class="text-muted small mb-0">{{ equipo.nombreProyecto }}</p>
+            </div>
+            <span class="badge rounded-pill px-3" style="background: #e8f4fd; color: #00A8E8; font-size: 12px;">
+              <i class="bi bi-person me-1"></i>{{ equipo.integrantes?.length ?? 0 }} integrantes
+            </span>
+          </div>
+
+          <!-- Avance del proyecto -->
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="text-muted small">Avance del proyecto</span>
+              <span class="fw-bold" [style.color]="getColorAvance(equipo.avance)">{{ equipo.avance }}%</span>
+            </div>
+            <div class="progress" style="height: 8px; border-radius: 4px;">
+              <div class="progress-bar" role="progressbar"
+                [style.width]="equipo.avance + '%'"
+                [style.background]="getColorAvance(equipo.avance)">
+              </div>
+            </div>
+            <p class="text-muted small mt-1 mb-0">
+              {{ equipo.tareasCompletadas ?? 0 }} de {{ equipo.totalTareas ?? 0 }} tareas completadas
+            </p>
+          </div>
+
+          <!-- Integrantes -->
+          <div>
+            <p class="fw-semibold mb-2" style="font-size: 13px; color: #1A2B4C;">Integrantes:</p>
+            <div class="d-flex flex-wrap gap-2">
+              <div *ngFor="let integrante of equipo.integrantes"
+                   class="d-flex align-items-center gap-2 rounded-3 px-2 py-1"
+                   style="background: #f8f9fa; border: 1px solid #e9ecef;">
+                <div class="d-flex align-items-center justify-content-center rounded-circle text-white fw-bold"
+                     style="width: 28px; height: 28px; background: #1A2B4C; font-size: 10px; flex-shrink: 0;">
+                  {{ getInicialesIntegrante(integrante.idUser) }}
+                </div>
+                <div>
+                  <p class="mb-0" style="font-size: 12px; font-weight: 600;">{{ getNombreIntegrante(integrante.idUser) }}</p>
+                  <p class="mb-0 text-muted" style="font-size: 11px;">{{ getCargoIntegrante(integrante.idUser) }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!cargando && (esGestor || esColaborador) && misEquipos.length === 0" class="mb-4">
+  <h4 class="fw-bold mb-3" style="color: #1A2B4C;">
+    <i class="bi bi-people me-2"></i>Mi Equipo
+  </h4>
+  <div class="text-center text-muted py-4">
+    <i class="bi bi-people fs-1 d-block mb-2"></i>
+    No estás asignado a ningún equipo aún.
+  </div>
+</div>
+
 
       <!-- Leyenda -->
       <div class="card border-0 shadow-sm rounded-3">

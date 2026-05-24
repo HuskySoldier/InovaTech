@@ -201,6 +201,7 @@ public class UsuarioService {
                 ? usuario.getCargo().getNombreCargo()
                 : "Sin cargo");
         dto.setIdRol(usuario.getIdRol());
+        dto.setRun(usuario.getRun());
         return dto;
     }
 
