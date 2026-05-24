@@ -1,5 +1,6 @@
 package com.innovatech.Equipos.controller;
 
+import com.innovatech.Equipos.dto.IntegranteDetalleDTO;
 import com.innovatech.Equipos.model.Equipo;
 import com.innovatech.Equipos.repository.IntegranteRepository;
 import com.innovatech.Equipos.service.EquipoService;
@@ -31,6 +32,17 @@ public class EquipoController {
     @GetMapping
     public ResponseEntity<List<Equipo>> listarEquipos() {
         return ResponseEntity.ok(equipoService.listarTodos());
+    }
+
+    @Operation(summary = "Obtener integrantes de un equipo", description = "Retorna una lista detallada de los integrantes asociados a un equipo específico.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Integrantes recuperados exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Equipo no encontrado")
+    })
+    @GetMapping("/integrantes/{id}")
+    public ResponseEntity<List<IntegranteDetalleDTO>> obtenerIntegrantes(
+            @Parameter(description = "ID del equipo", example = "1") @PathVariable Long id) {
+        return ResponseEntity.ok(equipoService.obtenerIntegranteDetalle(id));
     }
 
     @Operation(summary = "Obtener un equipo por ID", description = "Busca y retorna los detalles de un equipo específico.")

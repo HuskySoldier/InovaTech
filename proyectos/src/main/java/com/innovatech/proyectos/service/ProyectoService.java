@@ -8,7 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.innovatech.proyectos.client.EstadoClient;
-import com.innovatech.proyectos.config.RabbitMQConfig; 
+import com.innovatech.proyectos.config.RabbitMQConfig;
+import com.innovatech.proyectos.dto.ProyectoDetalleDTO;
 import com.innovatech.proyectos.model.HistorialProyecto;
 import com.innovatech.proyectos.model.Proyecto;
 import com.innovatech.proyectos.repository.HistorialProyectoRepository;
@@ -39,6 +40,11 @@ public class ProyectoService {
 
     public Proyecto obtenerPorId(Long id) {
         return proyectoRepository.findById(id).orElse(null);
+    }
+
+    public ProyectoDetalleDTO obtenerDetallePorId(Long id) {
+        Proyecto proyecto = proyectoRepository.findById(id).orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
+        return toDetalleDTO(proyecto);
     }
 
     public Proyecto crearProyecto(Proyecto proyecto) {
@@ -111,4 +117,17 @@ public class ProyectoService {
         historial.setDescripcion(descripcion);
         historialRepository.save(historial);
     }
+
+    // Metodo para pasar el modelo de proyecto a un DTO con detalles
+    private ProyectoDetalleDTO toDetalleDTO(Proyecto proyecto) {
+        ProyectoDetalleDTO dto = new ProyectoDetalleDTO();
+        dto.setIdProyecto(proyecto.getIdProyecto());
+        dto.setNombre(proyecto.getNombre());
+        dto.setDescripcion(proyecto.getDescripcion());
+        dto.setFechaInicio(proyecto.getFechaInicio());
+        dto.setFechaTermEst(proyecto.getFechaTerminoEsti());
+        dto.setPresupuestoEst(proyecto.getPresuEstimado());
+        return dto;
+    }
+   
 }

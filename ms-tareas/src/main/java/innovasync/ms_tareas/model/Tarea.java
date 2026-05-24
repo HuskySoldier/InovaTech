@@ -31,7 +31,10 @@ public class Tarea {
     private BigDecimal presupuestoAsignado;  //bigDecimal porque es exacto sin decimales
     private BigDecimal presupuestoFinal;
     private Long idEstado;
-    private Long idPrioridad;
+    // AGREGAMOS: La relación con el objeto Prioridad
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_prioridad", nullable = false)
+    private Prioridad prioridad;
 
 
     @NotNull(message = "El ID del proyecto es obligatorio")

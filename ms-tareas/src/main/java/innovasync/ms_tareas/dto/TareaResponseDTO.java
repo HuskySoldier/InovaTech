@@ -3,6 +3,9 @@ package innovasync.ms_tareas.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
 
 @Data
@@ -18,6 +21,7 @@ public class TareaResponseDTO {
     @Schema(description = "Detalle completo de las actividades a realizar", example = "Crear CRUD completo para los productos...")
     private String descripcion;
     
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Schema(description = "Fecha límite para terminar la tarea", example = "2026-06-15")
     private LocalDate fLimiteTerm;
     

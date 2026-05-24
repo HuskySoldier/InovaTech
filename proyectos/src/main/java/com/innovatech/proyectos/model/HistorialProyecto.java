@@ -2,6 +2,7 @@ package com.innovatech.proyectos.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore; // <-- sirve para evitar la serialización del proyecto en el historial
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ public class HistorialProyecto {
     @JoinColumn(name = "id_proyecto", nullable = false)
     private Proyecto proyecto;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Column(nullable = false)
     private LocalDateTime fecha;
 

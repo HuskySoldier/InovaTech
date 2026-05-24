@@ -227,7 +227,22 @@ public class UsuarioService {
         }
 
         return dto;
-    }  
+    }
+    
+    public List<UsuarioResponseDTO> obtenerUsuariosPorIds(List<Long> ids) {
+        // findAllById hace una sola consulta a la base de datos usando "IN"
+        List<Usuario> usuarios = usuarioRepository.findAllById(ids);
+
+        // Mapeamos la lista de Entidades a DTOs
+        return usuarios.stream().map(usuario -> {
+            UsuarioResponseDTO dto = new UsuarioResponseDTO();
+            dto.setIdUser(usuario.getIdUsuario());
+            dto.setNombre(usuario.getNombre());
+            dto.setApellido(usuario.getApellido());
+            dto.setEmail(usuario.getEmail());
+            return dto;
+        }).toList();
+    }
     
     @Autowired
     private RabbitTemplate rabbitTemplate; // Inyectar

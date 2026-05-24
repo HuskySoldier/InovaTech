@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @Data
 @Entity
 @Table(name = "historial_tarea")
@@ -22,6 +24,7 @@ public class HistorialTarea {
     @Schema(description = "Tarea a la que pertenece este registro histórico")
     private Tarea tarea;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Schema(description = "Fecha y hora exacta en la que se registró el evento", example = "2026-05-19T10:30:00")
     private LocalDateTime fecha;
 

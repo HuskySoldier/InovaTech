@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore; // <-- sirve para evitar la serialización del historial en el proyecto  
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,12 +31,15 @@ public class Proyecto {
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Column(name = "f_inicio")
     private LocalDate fechaInicio;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Column(name = "f_termino_esti")
     private LocalDate fechaTerminoEsti;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Column(name = "f_termino_real")
     private LocalDate fechaTerminoReal;
 
@@ -48,5 +54,6 @@ public class Proyecto {
 
     // Relación bidireccional opcional para traer el historial
     @OneToMany(mappedBy = "proyecto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<HistorialProyecto> historiales;
 }

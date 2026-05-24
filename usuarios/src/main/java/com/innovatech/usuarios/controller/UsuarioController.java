@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/api/usuarios")
 @Tag(name = "Usuarios", description = "API para la gestión y autenticación de usuarios")
 public class UsuarioController {
-    
+
     @Autowired
     private UsuarioService usuarioService;
 
@@ -36,14 +36,22 @@ public class UsuarioController {
 
     @Operation(summary = "Obtener usuario por ID", description = "Busca un usuario específico mediante su identificador numérico.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
-        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+            @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> obtenerUsuarioPorId(
             @Parameter(description = "ID del usuario", required = true) @PathVariable Long id) {
         UsuarioResponseDTO usuario = usuarioService.obtenerUsuarioPorId(id);
         return (usuario != null) ? ResponseEntity.ok(usuario) : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/lista")
+    public ResponseEntity<List<UsuarioResponseDTO>> obtenerUsuariosBatch(@RequestParam List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return ResponseEntity.ok(List.of()); // Devuelve lista vacía si no envían IDs
+        }
+        return ResponseEntity.ok(usuarioService.obtenerUsuariosPorIds(ids));
     }
 
     @Operation(summary = "Obtener usuario por RUN", description = "Busca un usuario mediante su RUN (identificador único).")
@@ -78,8 +86,8 @@ public class UsuarioController {
 
     @Operation(summary = "Crear nuevo usuario", description = "Registra un nuevo usuario en el sistema.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Usuario creado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos inválidos")
+            @ApiResponse(responseCode = "201", description = "Usuario creado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos")
     })
     @PostMapping
     public ResponseEntity<UsuarioResponseDTO> crearUsuario(@RequestBody UsuarioRequestDTO usuario) {
@@ -93,7 +101,7 @@ public class UsuarioController {
     @Operation(summary = "Actualizar usuario", description = "Modifica los datos de un usuario existente.")
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> actualizarUsuario(
-            @Parameter(description = "ID del usuario", required = true) @PathVariable Long id, 
+            @Parameter(description = "ID del usuario", required = true) @PathVariable Long id,
             @RequestBody UsuarioRequestDTO usuario) {
         try {
             return ResponseEntity.ok(usuarioService.actualizarUsuario(id, usuario));
@@ -129,8 +137,7 @@ public class UsuarioController {
     @Operation(summary = "Inicio de sesión", description = "Valida las credenciales de un usuario y retorna los datos de sesión.")
     @PostMapping("/auth/login2")
     public ResponseEntity<UsuarioAuthDTO> iniciarSesion(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Credenciales de acceso") 
-            @RequestBody UsuarioRequestDTO inicio){
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Credenciales de acceso") @RequestBody UsuarioRequestDTO inicio) {
         return ResponseEntity.ok(usuarioService.iniciarSesion(inicio.getCorreo(), inicio.getClave()));
     }
 }

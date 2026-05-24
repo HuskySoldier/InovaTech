@@ -20,6 +20,7 @@ import innovasync.ms_tareas.config.RabbitMQConfig;
 import innovasync.ms_tareas.dto.EstadoResponse;
 import innovasync.ms_tareas.dto.TareaDTO;
 import innovasync.ms_tareas.dto.TareaResponseDTO;
+import innovasync.ms_tareas.model.Prioridad;
 import innovasync.ms_tareas.model.Tarea;
 import innovasync.ms_tareas.repository.TareaRepository;
 import innovasync.ms_tareas.service.TareaService;
@@ -40,6 +41,7 @@ class TareaServiceTest {
     private TareaService tareaService;
 
     private Tarea tareaMock;
+    private Prioridad prioridadMock;
 
     @BeforeEach
     void setUp() {
@@ -48,7 +50,10 @@ class TareaServiceTest {
         tareaMock.setNombre("Implementar Login");
         tareaMock.setDescripcion("Desarrollar el backend para inicio de sesión");
         tareaMock.setIdEstado(1L);
-        tareaMock.setIdPrioridad(2L);
+        prioridadMock = new Prioridad();
+        prioridadMock.setId(1L);
+        prioridadMock.setNombre("Alta");
+        tareaMock.setPrioridad(prioridadMock);
     }
 
     @Test
@@ -100,6 +105,7 @@ class TareaServiceTest {
         tareaGuardadaMock.setId(10L); // Simulamos que la DB le asignó el ID 10
         tareaGuardadaMock.setNombre("Nueva Tarea");
         tareaGuardadaMock.setIdEstado(1L);
+        tareaGuardadaMock.setPrioridad(prioridadMock);
 
         when(tareaRepository.save(any(Tarea.class))).thenReturn(tareaGuardadaMock);
         
@@ -114,7 +120,7 @@ class TareaServiceTest {
         assertNotNull(result);
         assertEquals(10L, result.getId());
         assertEquals("Nueva Tarea", result.getNombre());
-        
+        assertEquals("Alta", result.getNombre());
         verify(tareaRepository).save(any(Tarea.class));
         
         // Verificar que el evento de RabbitMQ se envió correctamente

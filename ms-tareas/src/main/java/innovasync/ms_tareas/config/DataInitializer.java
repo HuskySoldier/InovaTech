@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class DataInitializer {
@@ -19,7 +20,7 @@ public class DataInitializer {
     public CommandLineRunner initTareas(TareaRepository tareaRepository, PrioridadRepository prioridadRepository) {
         return args -> {
 
-            // Inicializar prioridades
+            // 1. Inicializar prioridades en la base de datos si está vacía
             if (prioridadRepository.count() == 0) {
                 Prioridad alta = new Prioridad();
                 alta.setNombre("Alta");
@@ -34,7 +35,25 @@ public class DataInitializer {
                 System.out.println("¡3 Prioridades creadas exitosamente!");
             }
 
-            // Verificamos si la tabla está vacía antes de insertar
+            // 2. Recuperar las prioridades de la base de datos para ligarlas a las tareas
+            List<Prioridad> todasLasPrioridades = prioridadRepository.findAll();
+            
+            Prioridad pAlta = todasLasPrioridades.stream()
+                    .filter(p -> p.getNombre().equalsIgnoreCase("Alta"))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Prioridad 'Alta' no encontrada en la BD"));
+                    
+            Prioridad pMedia = todasLasPrioridades.stream()
+                    .filter(p -> p.getNombre().equalsIgnoreCase("Media"))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Prioridad 'Media' no encontrada en la BD"));
+                    
+            Prioridad pBaja = todasLasPrioridades.stream()
+                    .filter(p -> p.getNombre().equalsIgnoreCase("Baja"))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Prioridad 'Baja' no encontrada en la BD"));
+
+            // 3. Verificamos si la tabla de tareas está vacía antes de insertar
             if (tareaRepository.count() == 0) {
                 System.out.println("Inicializando datos de prueba para Tareas...");
 
@@ -50,7 +69,7 @@ public class DataInitializer {
                 t1.setPresupuestoAsignado(new BigDecimal("500000"));
                 t1.setPresupuestoFinal(new BigDecimal("480000"));
                 t1.setIdEstado(10L);
-                t1.setIdPrioridad(1L);
+                t1.setPrioridad(pAlta); // <--- LIGADO AL OBJETO
                 t1.setProyectoId(1L);
 
                 // Tarea 1.2 - COMPLETADA (ID 10)
@@ -61,7 +80,7 @@ public class DataInitializer {
                 t2.setPresupuestoAsignado(new BigDecimal("800000"));
                 t2.setPresupuestoFinal(new BigDecimal("850000"));
                 t2.setIdEstado(10L);
-                t2.setIdPrioridad(1L);
+                t2.setPrioridad(pAlta); // <--- LIGADO AL OBJETO
                 t2.setProyectoId(1L);
 
                 // Tarea 1.3 - EN PROGRESO (ID 9)
@@ -71,7 +90,7 @@ public class DataInitializer {
                 t3.setFLimiteTerm(LocalDate.now().plusDays(15));
                 t3.setPresupuestoAsignado(new BigDecimal("2500000"));
                 t3.setIdEstado(9L);
-                t3.setIdPrioridad(2L);
+                t3.setPrioridad(pMedia); // <--- LIGADO AL OBJETO
                 t3.setProyectoId(1L);
 
                 // Tarea 1.4 - PENDIENTE (ID 8)
@@ -81,7 +100,7 @@ public class DataInitializer {
                 t4.setFLimiteTerm(LocalDate.now().plusDays(40));
                 t4.setPresupuestoAsignado(new BigDecimal("1200000"));
                 t4.setIdEstado(8L);
-                t4.setIdPrioridad(1L);
+                t4.setPrioridad(pAlta); // <--- LIGADO AL OBJETO
                 t4.setProyectoId(1L);
 
                 // ==========================================
@@ -96,7 +115,7 @@ public class DataInitializer {
                 t5.setPresupuestoAsignado(new BigDecimal("400000"));
                 t5.setPresupuestoFinal(new BigDecimal("400000"));
                 t5.setIdEstado(10L);
-                t5.setIdPrioridad(2L);
+                t5.setPrioridad(pMedia); // <--- LIGADO AL OBJETO
                 t5.setProyectoId(2L);
 
                 // Tarea 2.2 - EN PROGRESO (ID 9)
@@ -106,7 +125,7 @@ public class DataInitializer {
                 t6.setFLimiteTerm(LocalDate.now().plusDays(10));
                 t6.setPresupuestoAsignado(new BigDecimal("600000"));
                 t6.setIdEstado(9L);
-                t6.setIdPrioridad(1L);
+                t6.setPrioridad(pAlta); // <--- LIGADO AL OBJETO
                 t6.setProyectoId(2L);
 
                 // Tarea 2.3 - BLOQUEADA (ID 11)
@@ -116,7 +135,7 @@ public class DataInitializer {
                 t7.setFLimiteTerm(LocalDate.now().plusDays(12));
                 t7.setPresupuestoAsignado(new BigDecimal("1500000"));
                 t7.setIdEstado(11L);
-                t7.setIdPrioridad(1L);
+                t7.setPrioridad(pBaja); // <--- LIGADO AL OBJETO
                 t7.setProyectoId(2L);
 
                 // Tarea 2.4 - PENDIENTE (ID 8)
@@ -126,11 +145,11 @@ public class DataInitializer {
                 t8.setFLimiteTerm(LocalDate.now().plusDays(25));
                 t8.setPresupuestoAsignado(new BigDecimal("900000"));
                 t8.setIdEstado(8L);
-                t8.setIdPrioridad(2L);
+                t8.setPrioridad(pMedia); // <--- LIGADO AL OBJETO
                 t8.setProyectoId(2L);
 
                 tareaRepository.saveAll(Arrays.asList(t1, t2, t3, t4, t5, t6, t7, t8));
-                System.out.println("¡8 Tareas creadas y asignadas a proyectos exitosamente!");
+                System.out.println("¡8 Tareas creadas y asignadas a proyectos exitosamente con sus prioridades relacionales!");
             }
         };
     }

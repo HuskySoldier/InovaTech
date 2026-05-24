@@ -2,6 +2,8 @@ package com.innovatech.asignaciones.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,6 +26,8 @@ public class Asignacion {
     @Column(name = "id_asig")
     private Long id_asig;
 
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Column(name = "fecha_asignacion", nullable = false)
     private LocalDateTime fecha_asignacion;
 

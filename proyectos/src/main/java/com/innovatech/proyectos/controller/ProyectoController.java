@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.innovatech.proyectos.dto.ProyectoDetalleDTO;
 import com.innovatech.proyectos.model.HistorialProyecto;
 import com.innovatech.proyectos.model.Proyecto;
 import com.innovatech.proyectos.service.ProyectoService;
@@ -30,6 +31,18 @@ public class ProyectoController {
     @GetMapping
     public ResponseEntity<List<Proyecto>> listarProyectos() {
         return ResponseEntity.ok(proyectoService.listarProyectos());
+    }
+
+    @Operation(summary = "Obtener detalle de proyecto por ID", description = "Busca el detalle de un proyecto específico mediante su identificador numérico.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Detalle del proyecto encontrado"),
+            @ApiResponse(responseCode = "404", description = "Proyecto no encontrado")
+    })
+    @GetMapping("/detalle/{id}")
+    public ResponseEntity<ProyectoDetalleDTO> obtenerDetallePorId(
+            @Parameter(description = "ID del proyecto a buscar", example = "1") 
+            @PathVariable Long id) {
+        return ResponseEntity.ok(proyectoService.obtenerDetallePorId(id));
     }
 
     @Operation(summary = "Obtener proyecto por ID", description = "Busca un proyecto específico mediante su identificador único.")

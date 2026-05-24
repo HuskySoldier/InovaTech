@@ -1,6 +1,7 @@
 package innovasync.ms_tareas.controller;
 
 import innovasync.ms_tareas.dto.TareaDTO;
+import innovasync.ms_tareas.dto.TareaDetalleDTO;
 import innovasync.ms_tareas.dto.TareaResponseDTO;
 import innovasync.ms_tareas.service.TareaService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,6 +32,13 @@ public class TareaController {
     @GetMapping
     public ResponseEntity<List<TareaResponseDTO>> obtenerTodas() {
         return ResponseEntity.ok(tareaService.obtenerTodas());
+    }
+
+    @GetMapping("/detalle/{id}")
+    public ResponseEntity<TareaDetalleDTO> obtenerDetallePorId(
+            @Parameter(description = "ID de la tarea a buscar", example = "1") 
+            @PathVariable Long id) {
+        return ResponseEntity.ok(tareaService.obtenerDetalle(id));
     }
 
     @Operation(summary = "Obtener una tarea por ID", description = "Busca y retorna los detalles de una tarea específica.")

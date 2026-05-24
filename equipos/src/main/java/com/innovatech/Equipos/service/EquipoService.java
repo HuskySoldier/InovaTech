@@ -6,8 +6,9 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 import com.innovatech.Equipos.config.RabbitMQConfig;
+import com.innovatech.Equipos.dto.IntegranteDetalleDTO;
+import com.innovatech.Equipos.dto.UsuarioDTO;
 import com.innovatech.Equipos.client.ProyectoClient;
 import com.innovatech.Equipos.client.UsuarioClient;
 import com.innovatech.Equipos.model.Equipo;
@@ -29,7 +30,7 @@ public class EquipoService {
 
     @Autowired
     private ProyectoClient proyectoClient;
-    
+
     @Autowired
     private UsuarioClient usuarioClient;
 
@@ -65,33 +66,77 @@ public class EquipoService {
         // 2. Lógica de guardado habitual
         Equipo equipo = equipoRepository.findById(idEquipo)
                 .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
-        
+
         Integrante nuevoIntegrante = new Integrante();
         nuevoIntegrante.setEquipo(equipo);
         nuevoIntegrante.setIdUser(idUser);
-        
+
         integranteRepository.save(nuevoIntegrante);
         equipo.getIntegrantes().add(nuevoIntegrante);
         return equipo;
     }
-    
+
     public Equipo eliminarIntegrante(Long idEquipo, Long idUser) {
         // 1. Buscamos el equipo
         Equipo equipo = equipoRepository.findById(idEquipo)
-            .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
-    
-        
+                .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
+
         boolean removido = equipo.getIntegrantes().removeIf(i -> i.getIdUser().equals(idUser));
-    
+
         if (!removido) {
             throw new RuntimeException("El usuario no es integrante de este equipo");
         }
-    
+
         return equipoRepository.save(equipo);
     }
 
     public void eliminarEquipo(Long id) {
         equipoRepository.deleteById(id);
+    }
+
+    public List<IntegranteDetalleDTO> obtenerIntegranteDetalle(Long idEquipo) {
+        List<Integrante> integrantes = integranteRepository.findByEquipo_IdEquipo(idEquipo);
+
+        Equipo equipo = equipoRepository.findById(idEquipo)
+                .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
+        // 1. Salida rápida si el equipo no tiene integrantes
+        if (integrantes.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> idsUsuarios = integrantes.stream()
+                .map(Integrante::getIdUser)
+                .toList();
+
+        // 2. Try-catch para protegerte si ms-usuarios se cae
+        List<UsuarioDTO> usuariosTemp;
+        try {
+            usuariosTemp = usuarioClient.obtenerUsuariosBatch(idsUsuarios);
+        } catch (Exception e) {
+            System.err.println("Error al contactar ms-usuarios: " + e.getMessage());
+            usuariosTemp = List.of(); // Asignamos lista vacía para que el código siga funcionando
+        }
+        
+        final List<UsuarioDTO> usuarios = usuariosTemp;
+
+        // 3. Mapeo seguro contra valores nulos
+        List<IntegranteDetalleDTO> detalles = integrantes.stream().map(integrante -> {
+
+            UsuarioDTO usuario = usuarios.stream()
+                    .filter(u -> u.getIdUser().equals(integrante.getIdUser()))
+                    .findFirst()
+                    .orElse(null);
+
+            // Validamos si el usuario existe antes de concatenar su nombre
+            String nombreCompleto = (usuario != null)
+                    ? usuario.getNombre() + " " + usuario.getApellido()
+                    : "Usuario no encontrado o eliminado";
+
+            return new IntegranteDetalleDTO(integrante.getIdIntegrante(), nombreCompleto, equipo.getNombre());
+
+        }).toList();
+
+        return detalles;
     }
 
     // Listener actualizado apuntando a la configuración centralizada
