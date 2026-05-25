@@ -84,15 +84,17 @@ export class AuthService {
 
   // En auth.ts
 // En: src/app/core/services/auth.ts
-cerrarSesion() {
-  if (this.isBrowser()) {
-    // 1. Destruir almacenamiento
-    localStorage.clear();
-    sessionStorage.clear();
-    
-    // 2. Destruir caché de Angular y del navegador
-    // Esto recarga la app desde el servidor, eliminando todo rastro de memoria
-    window.location.href = '/login';
+  cerrarSesion() {
+    if (this.isBrowser()) {
+      // 1. Destruir almacenamiento
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // 2. Actualizar el BehaviorSubject para que el resto de la app se entere
+      this.loggedIn.next(false);
+      
+      // 3. Navegar usando Angular Router, reemplazando el historial
+      this.router.navigate(['/login'], { replaceUrl: true });
+    }
   }
-}
 }

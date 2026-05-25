@@ -82,6 +82,7 @@ export class Dashboard implements OnInit {
       title: { display: true, text: 'Distribución de Especialidades por Equipo' }
     }
   };
+  loggedIn: any;
 
   constructor(
     private router: Router,
@@ -221,6 +222,22 @@ export class Dashboard implements OnInit {
   }
 
   cerrarSesion() {
-    this.authService.cerrarSesion();
+    if (this.isBrowser()) {
+      // 1. Destruir almacenamiento
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // 2. Actualizar el BehaviorSubject para que el resto de la app se entere
+      // loggedIn may be undefined or not a Subject in some contexts, guard safely
+      if (this.loggedIn && typeof (this.loggedIn as any).next === 'function') {
+        (this.loggedIn as any).next(false);
+      }
+      
+      // 3. Navegar usando Angular Router, reemplazando el historial
+      this.router.navigate(['/login'], { replaceUrl: true });
+    }
+  }
+  isBrowser() {
+    return isPlatformBrowser(this.platformId);
   }
 }

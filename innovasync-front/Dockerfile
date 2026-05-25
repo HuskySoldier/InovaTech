@@ -4,20 +4,28 @@ WORKDIR /app
 
 # Copiar archivos de dependencias para aprovechar la caché de Docker
 COPY package*.json ./
-RUN npm install
 
-# Copiar el resto del código y compilar el proyecto
+# Instalar dependencias (se añade --legacy-peer-deps para evitar conflictos comunes en Angular)
+RUN npm install --legacy-peer-deps
+
+# Copiar el resto del código fuente
 COPY . .
-RUN npm run build -- --configuration=production
+
+# Compilar el proyecto usando directamente el CLI de Angular
+# En Angular 17+, la configuración 'production' es el por defecto
+RUN npx ng build --configuration production
 
 # === ETAPA 2: Servidor de Producción ===
 FROM nginx:1.25-alpine
 
-# Copiar los archivos compilados desde la etapa de build al directorio de Nginx
-# NOTA: Asegúrate de que la ruta 'dist/innovasync' coincida con tu angular.json
+# Limpiar el directorio HTML por defecto de Nginx
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copiar los archivos compilados del cliente (browser) al servidor Nginx
+# El builder "@angular/build:application" genera la salida en dist/[proyecto]/browser
 COPY --from=build /app/dist/innovasync/browser /usr/share/nginx/html
 
-# Copiar configuración personalizada de Nginx para manejar el enrutamiento de Angular
+# Copiar tu configuración personalizada de Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
