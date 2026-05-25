@@ -21,7 +21,11 @@ services:
       start_period: 30s
 
   discovery-server:
-    build: ./discovery-server
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: discovery-server
     container_name: discovery-server
     environment:
       - EUREKA_HOSTNAME=discovery-server
@@ -57,7 +61,11 @@ services:
       start_period: 20s
 
   api-gateway:
-    build: ./api-gateway
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: api-gateway
     container_name: api-gateway
     ports:
       - "8080:8080"
@@ -73,7 +81,11 @@ services:
   # 2. MICROSERVICIOS CORE
   # ==========================================
   auth-service:
-    build: ./auth-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: auth-service
     container_name: auth-service
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
@@ -84,7 +96,11 @@ services:
       - innovatech-network
 
   privilegios-service:
-    build: ./privilegios-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: privilegios-service
     container_name: privilegios-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/innovatech_privilegios?createDatabaseIfNotExist=true
@@ -100,7 +116,11 @@ services:
       - innovatech-network
 
   usuarios-service:
-    build: ./usuarios
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: usuarios
     container_name: usuarios-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/db_innovatech_users?createDatabaseIfNotExist=true
@@ -119,7 +139,11 @@ services:
   # 3. MICROSERVICIOS DE NEGOCIO
   # ==========================================
   estado-service:
-    build: ./estado-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: estado-service
     container_name: estado-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/innovatech_estados?createDatabaseIfNotExist=true
@@ -135,7 +159,11 @@ services:
       - innovatech-network
 
   proyectos-service:
-    build: ./proyectos
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: proyectos
     container_name: proyectos-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/innovatech_proyectos?createDatabaseIfNotExist=true
@@ -151,7 +179,11 @@ services:
       - innovatech-network
 
   equipos-service:
-    build: ./equipos
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: equipos
     container_name: equipos-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/innovatech_equipos?createDatabaseIfNotExist=true
@@ -167,7 +199,11 @@ services:
       - innovatech-network
 
   tareas-service:
-    build: ./ms-tareas
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: ms-tareas
     container_name: tareas-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/innovatech_tareas?createDatabaseIfNotExist=true
@@ -185,7 +221,11 @@ services:
       - innovatech-network
 
   asignaciones-service:
-    build: ./asignaciones
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: asignaciones
     container_name: asignaciones-service
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/innovatech_asignaciones?createDatabaseIfNotExist=true

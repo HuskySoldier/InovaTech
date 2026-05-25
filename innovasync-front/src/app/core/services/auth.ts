@@ -1,9 +1,10 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap, switchMap } from 'rxjs/operators';
+import { tap, switchMap, catchError } from 'rxjs/operators';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../environments/environment';
+import { throwError } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -40,11 +41,16 @@ export class AuthService {
               localStorage.setItem('idUser', String(usuario.idUser));
               localStorage.setItem('run', usuario.run ?? '');
             }
+          }),
+          catchError(error => {
+            console.error('Error detectado en el servicio:', error);
+            return throwError(() => error); // Esto "empuja" el error hacia el login.ts
           })
         );
       })
     );
   }
+
 
   obtenerToken(): string | null {
     return this.isBrowser() ? localStorage.getItem('token') : null;

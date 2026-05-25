@@ -1,35 +1,41 @@
 import { Routes } from '@angular/router';
 import { Capacity } from './features/capacity/capacity';
-import { Projects} from './features/projects/projects';
+import { Projects } from './features/projects/projects';
 import { Dashboard } from './features/dashboard/dashboard';
 import { Login } from './features/login/login';
 import { Configuration } from './features/configuration/configuration';
+// 1. Importa el guard que creamos
+import { authGuard } from './core/guards/auth.guard'; 
 
 export const routes: Routes = [
     {
         path: 'login',
         component: Login
     },
+    // Rutas protegidas: solo accesibles si el guard devuelve 'true'
     {
         path: 'dashboard',
-        component: Dashboard
+        component: Dashboard,
+        canActivate: [authGuard] 
     },
     {
         path: 'projects',
-        component: Projects
+        component: Projects,
+        canActivate: [authGuard]
     },
     {
         path: 'capacity',
-        component: Capacity
+        component: Capacity,
+        canActivate: [authGuard]
     },
     {
         path: 'configuration',
-        component:Configuration
+        component: Configuration,
+        canActivate: [authGuard]
     },
     {
-        path:'',
+        path: '',
         redirectTo: 'login',
         pathMatch: 'full'
-
     }
 ];
