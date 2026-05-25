@@ -93,7 +93,14 @@ export class Dashboard implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Si no hay token, recarga forzosa al login antes de que se vea nada
+    if (isPlatformBrowser(this.platformId) && !localStorage.getItem('token')) {
+       window.location.replace('/login');
+       return;
+    }
+
     console.log('📊 [DASHBOARD] Componente iniciado correctamente.');
+    // ... el resto de tu código (this.nombreUsuario = ...)
 
     this.nombreUsuario = this.authService.obtenerNombre();
     this.rol = this.authService.obtenerCargo();

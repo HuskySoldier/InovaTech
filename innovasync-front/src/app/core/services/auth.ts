@@ -31,6 +31,7 @@ export class AuthService {
           localStorage.setItem('token', res.token);
           localStorage.setItem('correo', res.correo);
           localStorage.setItem('rol', res.rol);
+          this.loggedIn.next(true);
         }
       }),
       switchMap(res => {
@@ -81,11 +82,17 @@ export class AuthService {
     return this.isBrowser() ? !!localStorage.getItem('token') : false;
   }
 
-  cerrarSesion() {
-    if (this.isBrowser()) {
-      localStorage.clear();
-    }
-    this.loggedIn.next(false); // Avisamos que la sesión cerró
-    this.router.navigate(['/login'], { replaceUrl: true }); // Redirigimos eliminando el rastro
+  // En auth.ts
+// En: src/app/core/services/auth.ts
+cerrarSesion() {
+  if (this.isBrowser()) {
+    // 1. Destruir almacenamiento
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // 2. Destruir caché de Angular y del navegador
+    // Esto recarga la app desde el servidor, eliminando todo rastro de memoria
+    window.location.href = '/login';
   }
+}
 }
