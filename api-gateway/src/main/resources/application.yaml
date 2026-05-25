@@ -114,6 +114,16 @@ spring:
               predicates:
                 - Path=/api/auth/**
               filters:
+                - name: Retry
+                  args:
+                    retries: 3 # Número máximo de reintentos
+                    statuses: BAD_GATEWAY, SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT # Solo reintenta si el error es de conexión o timeout
+                    methods: GET, POST, PUT, DELETE # En qué métodos permites el reintento
+                    backoff:
+                      firstBackoff: 500ms # Espera medio segundo antes del primer reintento
+                      maxBackoff: 2s # Tiempo máximo de espera entre intentos
+                      factor: 2 # Multiplicador: espera 500ms, luego 1s, luego 2s...
+                      basedOnPreviousValue: true
                 - name: CircuitBreaker
                   args:
                     id: auth-service
@@ -124,6 +134,16 @@ spring:
               predicates:
                 - Path=/api/usuarios/**, /api/cargos/**
               filters:
+                - name: Retry
+                  args:
+                    retries: 3 # Número máximo de reintentos
+                    statuses: BAD_GATEWAY, SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT # Solo reintenta si el error es de conexión o timeout
+                    methods: GET, POST, PUT, DELETE # En qué métodos permites el reintento
+                    backoff:
+                      firstBackoff: 500ms # Espera medio segundo antes del primer reintento
+                      maxBackoff: 2s # Tiempo máximo de espera entre intentos
+                      factor: 2 # Multiplicador: espera 500ms, luego 1s, luego 2s...
+                      basedOnPreviousValue: true
                 - name: CircuitBreaker
                   args:
                     id: usuarios
@@ -134,6 +154,16 @@ spring:
               predicates:
                 - Path=/api/roles/**, /api/privilegios/**
               filters:
+                - name: Retry
+                  args:
+                    retries: 3 # Número máximo de reintentos
+                    statuses: BAD_GATEWAY, SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT # Solo reintenta si el error es de conexión o timeout
+                    methods: GET, POST, PUT, DELETE # En qué métodos permites el reintento
+                    backoff:
+                      firstBackoff: 500ms # Espera medio segundo antes del primer reintento
+                      maxBackoff: 2s # Tiempo máximo de espera entre intentos
+                      factor: 2 # Multiplicador: espera 500ms, luego 1s, luego 2s...
+                      basedOnPreviousValue: true
                 - name: CircuitBreaker
                   args:
                     id: privilegios-service
@@ -144,6 +174,16 @@ spring:
               predicates:
                 - Path=/api/estados/**, /api/tipos/**
               filters:
+                - name: Retry
+                  args:
+                    retries: 3 # Número máximo de reintentos
+                    statuses: BAD_GATEWAY, SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT # Solo reintenta si el error es de conexión o timeout
+                    methods: GET, POST, PUT, DELETE # En qué métodos permites el reintento
+                    backoff:
+                      firstBackoff: 500ms # Espera medio segundo antes del primer reintento
+                      maxBackoff: 2s # Tiempo máximo de espera entre intentos
+                      factor: 2 # Multiplicador: espera 500ms, luego 1s, luego 2s...
+                      basedOnPreviousValue: true
                 - name: CircuitBreaker
                   args:
                     id: estado-service
@@ -154,6 +194,16 @@ spring:
               predicates:
                 - Path=/api/proyectos/**
               filters:
+                - name: Retry
+                  args:
+                    retries: 3 # Número máximo de reintentos
+                    statuses: BAD_GATEWAY, SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT # Solo reintenta si el error es de conexión o timeout
+                    methods: GET, POST, PUT, DELETE # En qué métodos permites el reintento
+                    backoff:
+                      firstBackoff: 500ms # Espera medio segundo antes del primer reintento
+                      maxBackoff: 2s # Tiempo máximo de espera entre intentos
+                      factor: 2 # Multiplicador: espera 500ms, luego 1s, luego 2s...
+                      basedOnPreviousValue: true
                 - name: CircuitBreaker
                   args:
                     id: proyectos
@@ -164,6 +214,16 @@ spring:
               predicates:
                 - Path=/api/equipos/**
               filters:
+                - name: Retry
+                  args:
+                    retries: 3 # Número máximo de reintentos
+                    statuses: BAD_GATEWAY, SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT # Solo reintenta si el error es de conexión o timeout
+                    methods: GET, POST, PUT, DELETE # En qué métodos permites el reintento
+                    backoff:
+                      firstBackoff: 500ms # Espera medio segundo antes del primer reintento
+                      maxBackoff: 2s # Tiempo máximo de espera entre intentos
+                      factor: 2 # Multiplicador: espera 500ms, luego 1s, luego 2s...
+                      basedOnPreviousValue: true
                 - name: CircuitBreaker
                   args:
                     id: equipos
@@ -174,6 +234,16 @@ spring:
               predicates:
                 - Path=/api/tareas/**, /api/prioridades/**, /api/historial-tareas/**
               filters:
+                - name: Retry
+                  args:
+                    retries: 3 # Número máximo de reintentos
+                    statuses: BAD_GATEWAY, SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT # Solo reintenta si el error es de conexión o timeout
+                    methods: GET, POST, PUT, DELETE # En qué métodos permites el reintento
+                    backoff:
+                      firstBackoff: 500ms # Espera medio segundo antes del primer reintento
+                      maxBackoff: 2s # Tiempo máximo de espera entre intentos
+                      factor: 2 # Multiplicador: espera 500ms, luego 1s, luego 2s...
+                      basedOnPreviousValue: true
                 - name: CircuitBreaker
                   args:
                     id: ms-tareas
@@ -184,6 +254,16 @@ spring:
               predicates:
                 - Path=/api/asignaciones/**
               filters:
+                - name: Retry
+                  args:
+                    retries: 3 # Número máximo de reintentos
+                    statuses: BAD_GATEWAY, SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT # Solo reintenta si el error es de conexión o timeout
+                    methods: GET, POST, PUT, DELETE # En qué métodos permites el reintento
+                    backoff:
+                      firstBackoff: 500ms # Espera medio segundo antes del primer reintento
+                      maxBackoff: 2s # Tiempo máximo de espera entre intentos
+                      factor: 2 # Multiplicador: espera 500ms, luego 1s, luego 2s...
+                      basedOnPreviousValue: true
                 - name: CircuitBreaker
                   args:
                     id: asignaciones

@@ -37,17 +37,17 @@ public class DataInitializer {
 
             // 2. Recuperar las prioridades de la base de datos para ligarlas a las tareas
             List<Prioridad> todasLasPrioridades = prioridadRepository.findAll();
-            
+
             Prioridad pAlta = todasLasPrioridades.stream()
                     .filter(p -> p.getNombre().equalsIgnoreCase("Alta"))
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("Prioridad 'Alta' no encontrada en la BD"));
-                    
+
             Prioridad pMedia = todasLasPrioridades.stream()
                     .filter(p -> p.getNombre().equalsIgnoreCase("Media"))
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("Prioridad 'Media' no encontrada en la BD"));
-                    
+
             Prioridad pBaja = todasLasPrioridades.stream()
                     .filter(p -> p.getNombre().equalsIgnoreCase("Baja"))
                     .findFirst()
@@ -131,7 +131,8 @@ public class DataInitializer {
                 // Tarea 2.3 - BLOQUEADA (ID 11)
                 Tarea t7 = new Tarea();
                 t7.setNombre("Migración de Base de Datos a RDS");
-                t7.setDescripcion("Volcado de datos. BLOQUEADA: Esperando que el cliente libere credenciales del firewall antiguo.");
+                t7.setDescripcion(
+                        "Volcado de datos. BLOQUEADA: Esperando que el cliente libere credenciales del firewall antiguo.");
                 t7.setFLimiteTerm(LocalDate.now().plusDays(12));
                 t7.setPresupuestoAsignado(new BigDecimal("1500000"));
                 t7.setIdEstado(11L);
@@ -148,8 +149,82 @@ public class DataInitializer {
                 t8.setPrioridad(pMedia); // <--- LIGADO AL OBJETO
                 t8.setProyectoId(2L);
 
-                tareaRepository.saveAll(Arrays.asList(t1, t2, t3, t4, t5, t6, t7, t8));
-                System.out.println("¡8 Tareas creadas y asignadas a proyectos exitosamente con sus prioridades relacionales!");
+                // ==========================================
+                // PROYECTO 3: Rediseño de E-commerce (ID: 3L)
+                // (Proyecto en etapa temprana / planificación)
+                // ==========================================
+
+                // Tarea 3.1 - PENDIENTE (ID 8)
+                Tarea t9 = new Tarea();
+                t9.setNombre("Diseño de Wireframes UX/UI");
+                t9.setDescripcion("Creación de prototipos en Figma para la nueva tienda y flujo de compra.");
+                t9.setFLimiteTerm(LocalDate.now().plusDays(20));
+                t9.setPresupuestoAsignado(new BigDecimal("700000"));
+                t9.setIdEstado(8L);
+                t9.setPrioridad(pAlta);
+                t9.setProyectoId(3L);
+
+                // Tarea 3.2 - EN PROGRESO (ID 9)
+                Tarea t10 = new Tarea();
+                t10.setNombre("Configuración de pasarela de pago");
+                t10.setDescripcion("Integración de la API de Webpay y pruebas en entorno sandbox.");
+                t10.setFLimiteTerm(LocalDate.now().plusDays(35));
+                t10.setPresupuestoAsignado(new BigDecimal("1200000"));
+                t10.setIdEstado(9L);
+                t10.setPrioridad(pAlta);
+                t10.setProyectoId(3L);
+
+                // Tarea 3.3 - PENDIENTE (ID 8)
+                Tarea t11 = new Tarea();
+                t11.setNombre("Maquetación del catálogo de productos");
+                t11.setDescripcion("Desarrollo de componentes en Angular para mostrar los artículos.");
+                t11.setFLimiteTerm(LocalDate.now().plusDays(50));
+                t11.setPresupuestoAsignado(new BigDecimal("950000"));
+                t11.setIdEstado(8L);
+                t11.setPrioridad(pMedia);
+                t11.setProyectoId(3L);
+
+                // ==========================================
+                // PROYECTO 4: Monitoreo de Rendimiento (ID: 4L)
+                // (Proyecto en su etapa final / completado)
+                // ==========================================
+
+                // Tarea 4.1 - COMPLETADA (ID 10)
+                Tarea t12 = new Tarea();
+                t12.setNombre("Levantamiento de métricas clave");
+                t12.setDescripcion("Definición de los KPIs de negocio a mostrar en el dashboard principal.");
+                t12.setFLimiteTerm(LocalDate.now().minusDays(40));
+                t12.setPresupuestoAsignado(new BigDecimal("400000"));
+                t12.setPresupuestoFinal(new BigDecimal("400000"));
+                t12.setIdEstado(10L);
+                t12.setPrioridad(pAlta);
+                t12.setProyectoId(4L);
+
+                // Tarea 4.2 - COMPLETADA (ID 10)
+                Tarea t13 = new Tarea();
+                t13.setNombre("Desarrollo de gráficos dinámicos");
+                t13.setDescripcion("Implementación de Chart.js para visualización de ventas en tiempo real.");
+                t13.setFLimiteTerm(LocalDate.now().minusDays(15));
+                t13.setPresupuestoAsignado(new BigDecimal("850000"));
+                t13.setPresupuestoFinal(new BigDecimal("900000")); // Gastaron un poco más
+                t13.setIdEstado(10L);
+                t13.setPrioridad(pMedia);
+                t13.setProyectoId(4L);
+
+                // Tarea 4.3 - BLOQUEADA (ID 11)
+                Tarea t14 = new Tarea();
+                t14.setNombre("Optimización de consultas SQL masivas");
+                t14.setDescripcion(
+                        "Mejora en tiempos de respuesta. BLOQUEADA: Faltan permisos de DBA para crear índices.");
+                t14.setFLimiteTerm(LocalDate.now().minusDays(2));
+                t14.setPresupuestoAsignado(new BigDecimal("600000"));
+                t14.setIdEstado(11L);
+                t14.setPrioridad(pAlta);
+                t14.setProyectoId(4L);
+
+                tareaRepository.saveAll(Arrays.asList(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14));
+                System.out.println(
+                        "¡14 Tareas creadas y asignadas a proyectos exitosamente con sus prioridades relacionales!");
             }
         };
     }
