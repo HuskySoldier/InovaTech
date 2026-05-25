@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
@@ -6,7 +6,8 @@ import { Chart, ChartData, ChartOptions, registerables } from 'chart.js';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth';
 import { environment } from '../../../environments/environment';
-import { UserService} from '../../core/services/users';
+import { UserService } from '../../core/services/users';
+import { Subscription } from 'rxjs'; // <-- Importamos Subscription
 
 Chart.register(...registerables);
 
@@ -17,7 +18,7 @@ Chart.register(...registerables);
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
-export class Dashboard implements OnInit {
+export class Dashboard implements OnInit, OnDestroy { // <-- Añadimos OnDestroy
 
   nombreUsuario = '';
   rol = '';
@@ -29,6 +30,9 @@ export class Dashboard implements OnInit {
 
   proyectos: any[] = [];
   misEquipos: any[] = [];
+
+  // Propiedad privada para guardar la suscripción
+  private authSubscription!: Subscription;
 
   kpis = [
     { titulo: 'Proyectos Activos', valor: '0', color: '#1A2B4C' },
@@ -93,6 +97,16 @@ export class Dashboard implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // 1. Nos suscribimos al estado de la sesión
+    this.authSubscription = this.authService.isLoggedIn$.subscribe({
+      next: (isLogged) => {
+        if (!isLogged) {
+          // Si la sesión se cierra, expulsamos al usuario borrando el historial
+          this.router.navigate(['/login'], { replaceUrl: true });
+        }
+      }
+    });
+
     this.nombreUsuario = this.authService.obtenerNombre();
     this.rol = this.authService.obtenerCargo();
     const rolId = this.authService.obtenerRol();
@@ -108,33 +122,37 @@ export class Dashboard implements OnInit {
     }
   }
 
+  // 2. Limpiamos la memoria al destruir el componente
+  ngOnDestroy(): void {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
+  }
+
   actualizarGraficoTorta(): void {
-  // Obtener todos los integrantes de mis equipos
     const idsIntegrantes = this.misEquipos
       .flatMap(e => e.integrantes?.map((i: any) => i.idUser) ?? []);
 
-  // Buscar sus cargos en los usuarios
-  this.userService.obtenerTodos().subscribe({
-    next: (usuarios) => {
-      const misIntegrantes = usuarios.filter(u => idsIntegrantes.includes(u.idUser));
-      // Contar por cargo
-      const conteo: any = {};
-      misIntegrantes.forEach((u: any) => {
-        conteo[u.nombreCargo] = (conteo[u.nombreCargo] ?? 0) + 1;
-      });
+    this.userService.obtenerTodos().subscribe({
+      next: (usuarios) => {
+        const misIntegrantes = usuarios.filter(u => idsIntegrantes.includes(u.idUser));
+        const conteo: any = {};
+        misIntegrantes.forEach((u: any) => {
+          conteo[u.nombreCargo] = (conteo[u.nombreCargo] ?? 0) + 1;
+        });
 
-      this.pieChartData = {
-        labels: Object.keys(conteo),
-        datasets: [{
-          data: Object.values(conteo),
-          backgroundColor: ['#1A2B4C', '#00A8E8', '#28A745', '#FFC107', '#DC3545']
-        }]
-      };
-      this.pieChartData = { ...this.pieChartData}; // Trigger update
-      this.cdr.detectChanges();
-    }
-  });
-}
+        this.pieChartData = {
+          labels: Object.keys(conteo),
+          datasets: [{
+            data: Object.values(conteo),
+            backgroundColor: ['#1A2B4C', '#00A8E8', '#28A745', '#FFC107', '#DC3545']
+          }]
+        };
+        this.pieChartData = { ...this.pieChartData};
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
   cargarProyectos(): void {
     this.cargando = true;
@@ -215,6 +233,7 @@ export class Dashboard implements OnInit {
   }
 
   cerrarSesion() {
-    this.router.navigate(['/login']);
+    // 3. Modificado para usar el servicio de autenticación
+    this.authService.cerrarSesion();
   }
 }

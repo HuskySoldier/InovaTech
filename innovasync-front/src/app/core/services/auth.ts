@@ -4,13 +4,15 @@ import { Router } from '@angular/router';
 import { tap, switchMap, catchError } from 'rxjs/operators';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../environments/environment';
-import { throwError } from 'rxjs';
+import { throwError, BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
   private url = `${environment.apiUrl}/auth`;
   private usuariosUrl = `${environment.apiUrl}/usuarios`;
+  private loggedIn = new BehaviorSubject<boolean>(this.estaLogueado());
+  isLoggedIn$ = this.loggedIn.asObservable();
 
   constructor(
     private http: HttpClient,
@@ -41,12 +43,13 @@ export class AuthService {
               localStorage.setItem('idUser', String(usuario.idUser));
               localStorage.setItem('run', usuario.run ?? '');
             }
-          }),
-          catchError(error => {
-            console.error('Error detectado en el servicio:', error);
-            return throwError(() => error); // Esto "empuja" el error hacia el login.ts
           })
         );
+      }),
+      // Ahora este catchError captura errores tanto del POST como del GET
+      catchError(error => {
+        console.error('Error detectado en el servicio:', error);
+        return throwError(() => error);
       })
     );
   }
@@ -79,7 +82,10 @@ export class AuthService {
   }
 
   cerrarSesion() {
-    if (this.isBrowser()) localStorage.clear();
-    this.router.navigate(['/login']);
+    if (this.isBrowser()) {
+      localStorage.clear();
+    }
+    this.loggedIn.next(false); // Avisamos que la sesión cerró
+    this.router.navigate(['/login'], { replaceUrl: true }); // Redirigimos eliminando el rastro
   }
 }

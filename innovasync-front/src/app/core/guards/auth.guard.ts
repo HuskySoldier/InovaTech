@@ -1,17 +1,24 @@
-import { inject } from '@angular/core';
+import { inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
+  const platformId = inject(PLATFORM_ID);
 
-  // Verificamos si está logueado usando tu método existente
+  // ¡CLAVE! Si se ejecuta en el servidor (SSR), dejamos pasar temporalmente
+  // porque el servidor no puede leer el localStorage.
+  if (!isPlatformBrowser(platformId)) {
+    return true; 
+  }
+
+  // Validación real en el navegador
   if (authService.estaLogueado()) {
-    return true; // Permite el acceso
+    return true;
   } else {
-    // Si no, lo mandamos al login
-    router.navigate(['/login']);
-    return false; // Bloquea el acceso
+    router.navigate(['/login'], { replaceUrl: true });
+    return false;
   }
 };

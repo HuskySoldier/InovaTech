@@ -1,0 +1,29 @@
+# Maven
+**/target
+
+# Node
+**/node_modules
+
+# IDEs
+.idea
+.vscode
+
+# Git
+.git
+.gitignore
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Angular build
+frontend-app/dist
+
+# Docker
+docker-compose.yml
+
+# Env
+.env
