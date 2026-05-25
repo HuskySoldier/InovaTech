@@ -14,78 +14,225 @@
   <div class="p-4 overflow-auto flex-grow-1" style="background: #F4F7F6;">
     <h2 class="fw-bold mb-4" style="color: #1A2B4C;">Dashboard</h2>
 
-    <!-- KPI Cards -->
-    <div class="row g-3 mb-4">
-      <div class="col-6 col-md-3" *ngFor="let kpi of kpis">
-        <div class="card border-0 shadow-sm rounded-3 h-100">
-          <div class="card-body">
-            <p class="text-muted small mb-1">{{ kpi.titulo }}</p>
-            <h3 class="fw-bold" [style.color]="kpi.color">{{ kpi.valor }}</h3>
+    <!-- ===== ADMIN: Vista completa ===== -->
+    <div *ngIf="esAdmin">
+
+      <!-- KPI Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3" *ngFor="let kpi of kpis">
+          <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-body">
+              <p class="text-muted small mb-1">{{ kpi.titulo }}</p>
+              <h3 class="fw-bold" [style.color]="kpi.color">{{ kpi.valor }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráficos -->
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-md-8">
+          <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body">
+              <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body">
+              <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" type="pie"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla Proyectos -->
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body">
+          <h5 class="fw-bold mb-3" style="color: #1A2B4C;">
+            <i class="bi bi-clock-history me-2"></i>Proyectos Recientes
+          </h5>
+          <div *ngIf="cargando" class="text-center py-3">
+            <div class="spinner-border spinner-border-sm" style="color: #00A8E8;"></div>
+          </div>
+          <div class="table-responsive" *ngIf="!cargando">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Nombre</th>
+                  <th>Fecha Inicio</th>
+                  <th>Fecha Término</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let proyecto of proyectos">
+                  <td class="fw-semibold">{{ proyecto.nombre }}</td>
+                  <td class="text-muted">{{ proyecto.fechaInicio }}</td>
+                  <td class="text-muted">{{ proyecto.fechaTerminoEsti }}</td>
+                  <td>
+                    <span class="badge rounded-pill px-3 py-2 bg-{{ getBadgeEstado(proyecto.idEstado) }}">
+                      {{ getEstadoProyecto(proyecto.idEstado) }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Gráficos -->
-<div class="row g-3 mb-4">
-  <!-- Gráfico de líneas -->
-  <div class="col-12 col-md-8">
-    <div class="card border-0 shadow-sm rounded-3">
-      <div class="card-body">
-        <canvas baseChart
-          [data]="lineChartData"
-          [options]="lineChartOptions"
-          type="line">
-        </canvas>
-      </div>
-    </div>
-  </div>
+    <!-- ===== GESTOR: Sus proyectos y equipo ===== -->
+    <div *ngIf="esGestor">
 
-  <!-- Gráfico de torta -->
-  <div class="col-12 col-md-4">
-    <div class="card border-0 shadow-sm rounded-3">
-      <div class="card-body">
-        <canvas baseChart
-          [data]="pieChartData"
-          [options]="pieChartOptions"
-          type="pie">
-        </canvas>
-      </div>
-    </div>
-  </div>
-</div>
-
-    <!-- Tabla Proyectos -->
-    <div class="card border-0 shadow-sm rounded-3">
-      <div class="card-body">
-        <h5 class="fw-bold mb-3" style="color: #1A2B4C;">
-          <i class="bi bi-clock-history me-2"></i>Proyectos Recientes
-        </h5>
-        <div class="table-responsive">
-          <table class="table table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>Nombre</th>
-                <th>Gestor</th>
-                <th>Fecha Inicio</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let proyecto of proyectos">
-                <td class="fw-semibold">{{ proyecto.nombre }}</td>
-                <td class="text-muted">{{ proyecto.gestor }}</td>
-                <td class="text-muted">{{ proyecto.fecha }}</td>
-                <td>
-                  <span class="badge rounded-pill px-3 py-2 badge-{{ proyecto.badge }}">
-                    {{ proyecto.estado }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- KPI Cards simplificados -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-4">
+          <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-body">
+              <p class="text-muted small mb-1">Proyectos Activos</p>
+              <h3 class="fw-bold" style="color: #1A2B4C;">{{ kpis[0].valor }}</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4">
+          <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-body">
+              <p class="text-muted small mb-1">Total Proyectos</p>
+              <h3 class="fw-bold" style="color: #00A8E8;">{{ proyectos.length }}</h3>
+            </div>
+          </div>
         </div>
       </div>
+      <!-- Gráficos Gestor -->
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-md-8">
+          <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body">
+              <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body">
+              <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" type="pie"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Mis Equipos con avance -->
+      <div class="mb-4" *ngIf="misEquipos.length > 0">
+        <h5 class="fw-bold mb-3" style="color: #1A2B4C;">
+          <i class="bi bi-people me-2"></i>Mis Equipos
+        </h5>
+        <div class="row g-3">
+          <div class="col-12 col-md-6" *ngFor="let equipo of misEquipos">
+            <div class="card border-0 shadow-sm rounded-3">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <p class="fw-bold mb-0" style="color: #1A2B4C;">{{ equipo.nombre }}</p>
+                    <p class="text-muted small mb-0">{{ equipo.nombreProyecto }}</p>
+                  </div>
+                  <span class="badge rounded-pill px-2" style="background: #e8f4fd; color: #00A8E8; font-size: 11px;">
+                    {{ equipo.integrantes?.length ?? 0 }} integrantes
+                  </span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="text-muted small">Avance</span>
+                  <span class="fw-bold" [style.color]="getColorAvance(equipo.avance)">{{ equipo.avance }}%</span>
+                </div>
+                <div class="progress" style="height: 6px; border-radius: 4px;">
+                  <div class="progress-bar" [style.width]="equipo.avance + '%'" [style.background]="getColorAvance(equipo.avance)"></div>
+                </div>
+                <p class="text-muted small mt-1 mb-0">{{ equipo.tareasCompletadas ?? 0 }} de {{ equipo.totalTareas ?? 0 }} tareas completadas</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla Proyectos del Gestor -->
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body">
+          <h5 class="fw-bold mb-3" style="color: #1A2B4C;">
+            <i class="bi bi-clock-history me-2"></i>Mis Proyectos
+          </h5>
+          <div *ngIf="cargando" class="text-center py-3">
+            <div class="spinner-border spinner-border-sm" style="color: #00A8E8;"></div>
+          </div>
+          <div class="table-responsive" *ngIf="!cargando">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Nombre</th>
+                  <th>Fecha Inicio</th>
+                  <th>Fecha Término</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let proyecto of proyectos">
+                  <td class="fw-semibold">{{ proyecto.nombre }}</td>
+                  <td class="text-muted">{{ proyecto.fechaInicio }}</td>
+                  <td class="text-muted">{{ proyecto.fechaTerminoEsti }}</td>
+                  <td>
+                    <span class="badge rounded-pill px-3 py-2 bg-{{ getBadgeEstado(proyecto.idEstado) }}">
+                      {{ getEstadoProyecto(proyecto.idEstado) }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== COLABORADOR: Solo su equipo ===== -->
+    <div *ngIf="esColaborador">
+
+      <div *ngIf="misEquipos.length === 0 && !cargando" class="text-center text-muted py-5">
+        <i class="bi bi-people fs-1 d-block mb-2"></i>
+        No estás asignado a ningún equipo aún.
+      </div>
+
+      <div *ngIf="misEquipos.length > 0">
+        <h5 class="fw-bold mb-3" style="color: #1A2B4C;">
+          <i class="bi bi-people me-2"></i>Mi Equipo
+        </h5>
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-md-6" *ngFor="let equipo of misEquipos">
+            <div class="card border-0 shadow-sm rounded-3">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <p class="fw-bold mb-0" style="color: #1A2B4C;">{{ equipo.nombre }}</p>
+                    <p class="text-muted small mb-0">{{ equipo.nombreProyecto }}</p>
+                  </div>
+                  <span class="badge rounded-pill px-2" style="background: #e8f4fd; color: #00A8E8; font-size: 11px;">
+                    {{ equipo.integrantes?.length ?? 0 }} integrantes
+                  </span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="text-muted small">Avance del proyecto</span>
+                  <span class="fw-bold" [style.color]="getColorAvance(equipo.avance)">{{ equipo.avance }}%</span>
+                </div>
+                <div class="progress" style="height: 6px; border-radius: 4px;">
+                  <div class="progress-bar" [style.width]="equipo.avance + '%'" [style.background]="getColorAvance(equipo.avance)"></div>
+                </div>
+                <p class="text-muted small mt-1 mb-0">{{ equipo.tareasCompletadas ?? 0 }} de {{ equipo.totalTareas ?? 0 }} tareas completadas</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </div>

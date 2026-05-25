@@ -1,14 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterModule } from '@angular/router';
-import { BaseChartDirective } from 'ng2-charts';  
-import { Chart,ChartData, ChartOptions, registerables } from 'chart.js';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { BaseChartDirective } from 'ng2-charts';
+import { Chart, ChartData, ChartOptions, registerables } from 'chart.js';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth';
+import { environment } from '../../../environments/environment';
+import { UserService} from '../../core/services/users';
 
 Chart.register(...registerables);
-
-
-
 
 @Component({
   selector: 'app-dashboard',
@@ -23,21 +23,20 @@ export class Dashboard implements OnInit {
   rol = '';
   esAdmin = false;
   esGestor = false;
+  esColaborador = false;
+  cargando = false;
+  idUserActual = 0;
+
+  proyectos: any[] = [];
+  misEquipos: any[] = [];
 
   kpis = [
-    { titulo: 'Proyectos Activos', valor: '12', color: '#1A2B4C' },
-    { titulo: 'Utilización de Recursos', valor: '85%', color: '#00A8E8' },
-    { titulo: 'Tareas Críticas', valor: '3', color: '#DC3545' },
-    { titulo: 'Presupuesto Restante', valor: '40%', color: '#28A745' }
+    { titulo: 'Proyectos Activos', valor: '0', color: '#1A2B4C' },
+    { titulo: 'Utilización de Recursos', valor: '0%', color: '#00A8E8' },
+    { titulo: 'Tareas Críticas', valor: '0', color: '#DC3545' },
+    { titulo: 'Presupuesto Restante', valor: '0%', color: '#28A745' }
   ];
 
-  proyectos = [
-    { nombre: 'Proyecto 1', gestor: 'Alejandro M.', fecha: '09/07/2023', estado: 'En Progreso', badge: 'amarillo' },
-    { nombre: 'Proyecto 2', gestor: 'Alejandro Martin', fecha: '29/03/2023', estado: 'Finalizado', badge: 'verde' },
-    { nombre: 'Proyecto 3', gestor: 'Alejandro Mara', fecha: '30/01/2023', estado: 'En Riesgo', badge: 'rojo' }
-  ];
-
-  // ===== GRÁFICO DE LÍNEAS =====
   lineChartData: ChartData<'line'> = {
     labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
     datasets: [
@@ -68,7 +67,6 @@ export class Dashboard implements OnInit {
     }
   };
 
-  // ===== GRÁFICO DE TORTA =====
   pieChartData: ChartData<'pie'> = {
     labels: ['Backend Devs', 'UX Designers', 'DevOps', 'Others'],
     datasets: [{
@@ -85,17 +83,138 @@ export class Dashboard implements OnInit {
     }
   };
 
-  constructor(private router: Router,private authService: AuthService) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private http: HttpClient,
+    private userService: UserService,
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
+
   ngOnInit(): void {
-  this.nombreUsuario = this.authService.obtenerNombre();
-  this.rol = this.authService.obtenerCargo();
-  const rolId = this.authService.obtenerRol();
-  this.esAdmin = rolId === '1';
-  this.esGestor = rolId === '2';
+    this.nombreUsuario = this.authService.obtenerNombre();
+    this.rol = this.authService.obtenerCargo();
+    const rolId = this.authService.obtenerRol();
+    this.esAdmin = rolId === '1';
+    this.esGestor = rolId === '2';
+    this.esColaborador = rolId === '3';
+    this.idUserActual = this.authService.obtenerIdUser();
+
+    if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => {
+        this.cargarProyectos();
+      }, 300);
+    }
+  }
+
+  actualizarGraficoTorta(): void {
+  // Obtener todos los integrantes de mis equipos
+    const idsIntegrantes = this.misEquipos
+      .flatMap(e => e.integrantes?.map((i: any) => i.idUser) ?? []);
+
+  // Buscar sus cargos en los usuarios
+  this.userService.obtenerTodos().subscribe({
+    next: (usuarios) => {
+      const misIntegrantes = usuarios.filter(u => idsIntegrantes.includes(u.idUser));
+      // Contar por cargo
+      const conteo: any = {};
+      misIntegrantes.forEach((u: any) => {
+        conteo[u.nombreCargo] = (conteo[u.nombreCargo] ?? 0) + 1;
+      });
+
+      this.pieChartData = {
+        labels: Object.keys(conteo),
+        datasets: [{
+          data: Object.values(conteo),
+          backgroundColor: ['#1A2B4C', '#00A8E8', '#28A745', '#FFC107', '#DC3545']
+        }]
+      };
+      this.pieChartData = { ...this.pieChartData}; // Trigger update
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+  cargarProyectos(): void {
+    this.cargando = true;
+    this.http.get<any[]>(`${environment.apiUrl}/proyectos`).subscribe({
+      next: (data) => {
+        this.proyectos = data;
+        this.kpis[0].valor = String(data.filter(p => p.idEstado === 5).length);
+        this.cargando = false;
+        this.cdr.detectChanges();
+        setTimeout(() => this.cargarEquipos(), 500);
+      },
+      error: () => {
+        this.cargando = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  cargarEquipos(): void {
+    this.http.get<any[]>(`${environment.apiUrl}/equipos`).subscribe({
+      next: (data) => {
+        const equiposMapeados = data.map(e => ({
+          ...e,
+          nombreProyecto: this.proyectos.find(p => p.idProyecto === e.idProyecto)?.nombre ?? `Proyecto ${e.idProyecto}`,
+          avance: 0,
+          totalTareas: 0,
+          tareasCompletadas: 0
+        }));
+
+        this.misEquipos = equiposMapeados.filter(e =>
+          e.integrantes?.some((i: any) => i.idUser === this.idUserActual)
+        );
+
+        this.misEquipos.forEach(equipo => this.calcularAvance(equipo));
+        this.actualizarGraficoTorta();
+        this.pieChartData = { ...this.pieChartData};
+        this.cdr.detectChanges();
+
+      },
+      error: () => {
+        this.misEquipos = [];
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  calcularAvance(equipo: any): void {
+    this.http.get<any[]>(`${environment.apiUrl}/tareas/proyecto/${equipo.idProyecto}`).subscribe({
+      next: (tareas) => {
+        const total = tareas.length;
+        const completadas = tareas.filter(t => t.idEstado === 10).length;
+        equipo.avance = total > 0 ? Math.round((completadas / total) * 100) : 0;
+        equipo.totalTareas = total;
+        equipo.tareasCompletadas = completadas;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        equipo.avance = 0;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  getColorAvance(avance: number): string {
+    if (avance >= 75) return '#28A745';
+    if (avance >= 40) return '#FFC107';
+    return '#DC3545';
+  }
+
+  getEstadoProyecto(idEstado: number): string {
+    const estados: any = { 4: 'En Planificación', 5: 'En Progreso', 6: 'Completado', 7: 'Cancelado' };
+    return estados[idEstado] ?? 'Desconocido';
+  }
+
+  getBadgeEstado(idEstado: number): string {
+    const badges: any = { 4: 'secondary', 5: 'warning', 6: 'success', 7: 'danger' };
+    return badges[idEstado] ?? 'secondary';
   }
 
   cerrarSesion() {
     this.router.navigate(['/login']);
   }
 }
-

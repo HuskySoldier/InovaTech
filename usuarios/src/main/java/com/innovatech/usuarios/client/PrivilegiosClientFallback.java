@@ -8,6 +8,12 @@ public class PrivilegiosClientFallback implements PrivilegiosClient {
 
     @Override
     public RolDTO obtenerRolPorId(Long id) {
-        throw new RuntimeException("MS Privilegios no disponible, intente más tarde");
+        RolDTO rol = new RolDTO();
+        rol.setIdRol(id);
+        rol.setNombre("Sin rol");
+        return rol;
+        
+
     }
+
 }

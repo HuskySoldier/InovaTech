@@ -34,12 +34,19 @@
             (click)="cambiarPestana('notificaciones')">
             <i class="bi bi-bell me-2"></i>Notificaciones
           </button>
-          <button class="btn text-start rounded-2"
+          <button class="btn text-start rounded-2 mb-1"
             *ngIf="rolUsuario === '1'"
             [class.active-link]="pestanaActiva === 'roles'"
             [class.text-white]="pestanaActiva === 'roles'"
             (click)="cambiarPestana('roles')">
             <i class="bi bi-shield-lock me-2"></i>Gestión de Roles
+          </button>
+          <button class="btn text-start rounded-2 mt-1"
+            *ngIf="rolUsuario === '1'"
+            [class.active-link]="pestanaActiva === 'usuarios'"
+            [class.text-white]="pestanaActiva === 'usuarios'"
+            (click)="cambiarPestana('usuarios')">
+            <i class="bi bi-person-plus me-2"></i>Nuevo Usuario
           </button>
         </div>
 
@@ -60,7 +67,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Cargo</label>
-              <select [(ngModel)]="cargo" class="form-select" [disabled]="rolUsuario !=='1'">
+              <select [(ngModel)]="cargo" class="form-select" [disabled]="rolUsuario !== '1'">
                 <option value="">-- Selecciona un cargo --</option>
                 <option *ngFor="let c of cargos" [value]="c.nombreCargo">
                   {{ c.nombreCargo }}
@@ -69,7 +76,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Nueva contraseña</label>
-              <input type="password"[(ngModel)]="nuevaContrasena" placeholder="••••••••" class="form-control"/>
+              <input type="password" [(ngModel)]="nuevaContrasena" placeholder="••••••••" class="form-control"/>
             </div>
           </div>
 
@@ -112,12 +119,10 @@
             <h5 class="fw-bold mb-4" style="color: #1A2B4C;">
               <i class="bi bi-shield-lock me-2"></i>Gestión de Roles
             </h5>
-
             <div *ngIf="cargandoRoles" class="text-center py-4">
               <div class="spinner-border" style="color: #00A8E8;"></div>
               <p class="mt-2 text-muted">Cargando usuarios...</p>
             </div>
-
             <div class="table-responsive" *ngIf="!cargandoRoles">
               <table class="table table-hover align-middle">
                 <thead class="table-light">
@@ -150,6 +155,67 @@
                   </tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          <!-- NUEVO USUARIO -->
+          <div *ngIf="pestanaActiva == 'usuarios' && rolUsuario == '1'">
+            <h5 class="fw-bold mb-4" style="color: #1A2B4C;">
+              <i class="bi bi-person-plus me-2"></i>Crear Nuevo Usuario
+            </h5>
+
+            <div *ngIf="exitoUsuario" class="alert alert-success py-2">{{ exitoUsuario }}</div>
+            <div *ngIf="errorUsuario" class="alert alert-danger py-2">{{ errorUsuario }}</div>
+
+            <!-- Resumen usuario creado -->
+            <div *ngIf="usuarioCreado" class="card border-0 rounded-3 p-3 mb-4" style="background: #e8f4fd;">
+              <h6 class="fw-bold mb-2" style="color: #1A2B4C;">
+                <i class="bi bi-check-circle me-2" style="color: #28A745;"></i>Usuario creado:
+              </h6>
+              <p class="mb-1"><i class="bi bi-person me-2" style="color: #00A8E8;"></i>{{ usuarioCreado.nombreCompleto }}</p>
+              <p class="mb-1"><i class="bi bi-envelope me-2" style="color: #00A8E8;"></i>{{ usuarioCreado.correo }}</p>
+              <p class="mb-1"><i class="bi bi-briefcase me-2" style="color: #00A8E8;"></i>{{ usuarioCreado.cargo }}</p>
+              <p class="mb-0"><i class="bi bi-shield me-2" style="color: #00A8E8;"></i>{{ usuarioCreado.rol }}</p>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-6">
+                <label class="form-label fw-semibold">RUN <span class="text-danger">*</span></label>
+                <input type="text" [(ngModel)]="nuevoUsuario.run" class="form-control" placeholder="12345678-9"/>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                <input type="text" [(ngModel)]="nuevoUsuario.nombre" class="form-control" placeholder="Juan"/>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Apellido <span class="text-danger">*</span></label>
+                <input type="text" [(ngModel)]="nuevoUsuario.apellido" class="form-control" placeholder="Pérez"/>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Contraseña <span class="text-danger">*</span></label>
+                <input type="password" [(ngModel)]="nuevoUsuario.clave" class="form-control" placeholder="••••••••"/>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Cargo <span class="text-danger">*</span></label>
+                <select [(ngModel)]="nuevoUsuario.idCargo" class="form-select">
+                  <option [ngValue]="null" disabled>-- Selecciona un cargo --</option>
+                  <option *ngFor="let c of cargos" [ngValue]="c.idCargo">{{ c.nombreCargo }}</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Rol <span class="text-danger">*</span></label>
+                <select [(ngModel)]="nuevoUsuario.idRol" class="form-select">
+                  <option [ngValue]="null" disabled>-- Selecciona un rol --</option>
+                  <option *ngFor="let r of roles" [ngValue]="r.idRol">{{ r.nombre }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="mt-4">
+              <button class="btn text-white fw-bold px-4" style="background: #00A8E8;"
+                (click)="crearUsuario()" [disabled]="guardandoUsuario">
+                <span *ngIf="guardandoUsuario" class="spinner-border spinner-border-sm me-1"></span>
+                {{ guardandoUsuario ? 'Creando...' : 'Crear Usuario' }}
+              </button>
             </div>
           </div>
 
