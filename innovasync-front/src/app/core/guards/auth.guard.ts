@@ -8,16 +8,19 @@ export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const platformId = inject(PLATFORM_ID);
 
-  // ¡CLAVE! Si se ejecuta en el servidor (SSR), dejamos pasar temporalmente
-  // porque el servidor no puede leer el localStorage.
   if (!isPlatformBrowser(platformId)) {
     return true; 
   }
 
-  // Validación real en el navegador
-  if (authService.estaLogueado()) {
+  const logueado = authService.estaLogueado();
+  console.log('🛡️ [GUARDIA] Intentando entrar a la ruta:', state.url);
+  console.log('🛡️ [GUARDIA] ¿Tiene Token guardado en localStorage?', logueado);
+
+  if (logueado) {
+    console.log('🛡️ [GUARDIA] ¡Acceso Permitido!');
     return true;
   } else {
+    console.warn('🛡️ [GUARDIA] Acceso Denegado. Expulsando al Login...');
     router.navigate(['/login'], { replaceUrl: true });
     return false;
   }

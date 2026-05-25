@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
@@ -7,7 +7,6 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth';
 import { environment } from '../../../environments/environment';
 import { UserService } from '../../core/services/users';
-import { Subscription } from 'rxjs'; // <-- Importamos Subscription
 
 Chart.register(...registerables);
 
@@ -18,7 +17,7 @@ Chart.register(...registerables);
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
-export class Dashboard implements OnInit, OnDestroy { // <-- Añadimos OnDestroy
+export class Dashboard implements OnInit { 
 
   nombreUsuario = '';
   rol = '';
@@ -30,9 +29,6 @@ export class Dashboard implements OnInit, OnDestroy { // <-- Añadimos OnDestroy
 
   proyectos: any[] = [];
   misEquipos: any[] = [];
-
-  // Propiedad privada para guardar la suscripción
-  private authSubscription!: Subscription;
 
   kpis = [
     { titulo: 'Proyectos Activos', valor: '0', color: '#1A2B4C' },
@@ -97,15 +93,7 @@ export class Dashboard implements OnInit, OnDestroy { // <-- Añadimos OnDestroy
   ) {}
 
   ngOnInit(): void {
-    // 1. Nos suscribimos al estado de la sesión
-    this.authSubscription = this.authService.isLoggedIn$.subscribe({
-      next: (isLogged) => {
-        if (!isLogged) {
-          // Si la sesión se cierra, expulsamos al usuario borrando el historial
-          this.router.navigate(['/login'], { replaceUrl: true });
-        }
-      }
-    });
+    console.log('📊 [DASHBOARD] Componente iniciado correctamente.');
 
     this.nombreUsuario = this.authService.obtenerNombre();
     this.rol = this.authService.obtenerCargo();
@@ -119,13 +107,6 @@ export class Dashboard implements OnInit, OnDestroy { // <-- Añadimos OnDestroy
       setTimeout(() => {
         this.cargarProyectos();
       }, 300);
-    }
-  }
-
-  // 2. Limpiamos la memoria al destruir el componente
-  ngOnDestroy(): void {
-    if (this.authSubscription) {
-      this.authSubscription.unsubscribe();
     }
   }
 
@@ -233,7 +214,6 @@ export class Dashboard implements OnInit, OnDestroy { // <-- Añadimos OnDestroy
   }
 
   cerrarSesion() {
-    // 3. Modificado para usar el servicio de autenticación
     this.authService.cerrarSesion();
   }
 }
