@@ -6,7 +6,7 @@ import { Chart, ChartData, ChartOptions, registerables } from 'chart.js';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth';
 import { environment } from '../../../environments/environment';
-import { UserService} from '../../core/services/users';
+import { UserService } from '../../core/services/users';
 
 Chart.register(...registerables);
 
@@ -28,6 +28,8 @@ export class Dashboard implements OnInit {
   idUserActual = 0;
 
   proyectos: any[] = [];
+  misProyectos: any[] = [];
+  otrosProyectos: any[] = [];
   misEquipos: any[] = [];
 
   kpis = [
@@ -109,32 +111,28 @@ export class Dashboard implements OnInit {
   }
 
   actualizarGraficoTorta(): void {
-  // Obtener todos los integrantes de mis equipos
     const idsIntegrantes = this.misEquipos
       .flatMap(e => e.integrantes?.map((i: any) => i.idUser) ?? []);
 
-  // Buscar sus cargos en los usuarios
-  this.userService.obtenerTodos().subscribe({
-    next: (usuarios) => {
-      const misIntegrantes = usuarios.filter(u => idsIntegrantes.includes(u.idUser));
-      // Contar por cargo
-      const conteo: any = {};
-      misIntegrantes.forEach((u: any) => {
-        conteo[u.nombreCargo] = (conteo[u.nombreCargo] ?? 0) + 1;
-      });
-
-      this.pieChartData = {
-        labels: Object.keys(conteo),
-        datasets: [{
-          data: Object.values(conteo),
-          backgroundColor: ['#1A2B4C', '#00A8E8', '#28A745', '#FFC107', '#DC3545']
-        }]
-      };
-      this.pieChartData = { ...this.pieChartData}; // Trigger update
-      this.cdr.detectChanges();
-    }
-  });
-}
+    this.userService.obtenerTodos().subscribe({
+      next: (usuarios) => {
+        const misIntegrantes = usuarios.filter((u: any) => idsIntegrantes.includes(u.idUser));
+        const conteo: any = {};
+        misIntegrantes.forEach((u: any) => {
+          conteo[u.nombreCargo] = (conteo[u.nombreCargo] ?? 0) + 1;
+        });
+        this.pieChartData = {
+          labels: Object.keys(conteo),
+          datasets: [{
+            data: Object.values(conteo),
+            backgroundColor: ['#1A2B4C', '#00A8E8', '#28A745', '#FFC107', '#DC3545']
+          }]
+        };
+        this.pieChartData = { ...this.pieChartData };
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
   cargarProyectos(): void {
     this.cargando = true;
@@ -168,14 +166,20 @@ export class Dashboard implements OnInit {
           e.integrantes?.some((i: any) => i.idUser === this.idUserActual)
         );
 
+        // Calcular mis proyectos y otros proyectos para gestor y admin
+        const misIdProyectos = this.misEquipos.map(e => e.idProyecto);
+        this.misProyectos = this.proyectos.filter(p => misIdProyectos.includes(p.idProyecto));
+        this.otrosProyectos = this.proyectos.filter(p => !misIdProyectos.includes(p.idProyecto));
+
         this.misEquipos.forEach(equipo => this.calcularAvance(equipo));
         this.actualizarGraficoTorta();
-        this.pieChartData = { ...this.pieChartData};
+        this.pieChartData = { ...this.pieChartData };
         this.cdr.detectChanges();
-
       },
       error: () => {
         this.misEquipos = [];
+        this.misProyectos = [];
+        this.otrosProyectos = this.proyectos;
         this.cdr.detectChanges();
       }
     });
