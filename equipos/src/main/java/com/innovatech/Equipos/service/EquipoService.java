@@ -1,6 +1,7 @@
 package com.innovatech.Equipos.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,6 +138,10 @@ public class EquipoService {
         }).toList();
 
         return detalles;
+    }
+
+    public Optional<Integrante> obtenerIntegrantePorId(Long idIntegrante) {
+        return integranteRepository.findById(idIntegrante);
     }
 
     // Listener actualizado apuntando a la configuración centralizada

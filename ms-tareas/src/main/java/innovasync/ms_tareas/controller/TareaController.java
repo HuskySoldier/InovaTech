@@ -3,6 +3,7 @@ package innovasync.ms_tareas.controller;
 import innovasync.ms_tareas.dto.TareaDTO;
 import innovasync.ms_tareas.dto.TareaDetalleDTO;
 import innovasync.ms_tareas.dto.TareaResponseDTO;
+import innovasync.ms_tareas.model.Tarea;
 import innovasync.ms_tareas.service.TareaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -99,5 +100,15 @@ public class TareaController {
             @PathVariable Long id) {
         tareaService.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/batch")
+    public ResponseEntity<List<TareaResponseDTO>> obtenerTareasBatch(@RequestParam List<Long> ids) {
+        
+        // Llamamos a la capa de servicio
+        List<TareaResponseDTO> tareas = tareaService.obtenerTareasBatch(ids);
+        
+        // Si no se encuentran tareas, devolverá una lista vacía con un status 200 OK
+        return ResponseEntity.ok(tareas);
     }
 }

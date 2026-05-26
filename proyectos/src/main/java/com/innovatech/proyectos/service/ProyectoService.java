@@ -1,6 +1,7 @@
 package com.innovatech.proyectos.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate; 
@@ -107,6 +108,15 @@ public class ProyectoService {
 
     public List<HistorialProyecto> verHistorial(Long idProyecto) {
         return historialRepository.findByProyectoIdProyecto(idProyecto);
+    }
+
+    // Método para obtener múltiples proyectos en una sola consulta
+    public List<Proyecto> obtenerProyectosBatch(List<Long> ids) {
+        // Validación de seguridad para evitar consultas vacías
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return proyectoRepository.findAllById(ids);
     }
 
     // Método privado para automatizar el guardado en el historial

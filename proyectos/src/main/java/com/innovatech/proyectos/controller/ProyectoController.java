@@ -99,4 +99,15 @@ public class ProyectoController {
             @Parameter(description = "ID del proyecto para ver historial", required = true) @PathVariable Long id) {
         return ResponseEntity.ok(proyectoService.verHistorial(id));
     }
+
+    // Endpoint para buscar por lotes: /api/proyectos/batch?ids=1,2,3
+    @GetMapping("/batch")
+    public ResponseEntity<List<Proyecto>> obtenerProyectosBatch(@RequestParam List<Long> ids) {
+        
+        // Delegamos la lógica a la capa de servicio
+        List<Proyecto> proyectos = proyectoService.obtenerProyectosBatch(ids);
+        
+        // Retornamos la lista con un 200 OK
+        return ResponseEntity.ok(proyectos);
+    }
 }

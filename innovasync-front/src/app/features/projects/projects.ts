@@ -16,25 +16,33 @@ import { environment } from '../../../environments/environment';
 })
 export class Projects implements OnInit {
 
-  // Estado general
   cargando = true;
   guardando = false;
+  guardandoDetalle = false;
+  guardandoDetalleTarea = false;
   error = '';
   exito = '';
   esAdmin = false;
   esGestor = false;
   esColaborador = false;
   puedeCrear = false;
+  editandoDetalle = false;
+  editandoDetalleTarea = false;
+  
 
-  // Proyectos
   proyectos: any[] = [];
+  misIdProyectos: number[] = [];
   proyectoSeleccionado: any = null;
+  asignaciones: any[] = [];
+  usuarios: any[] = [];
 
-  // Modales
   mostrarModalProyecto = false;
   mostrarModalTarea = false;
+  mostrarModalDetalle = false;
+  mostrarModalDetalleTarea = false;
+  proyectoDetalle: any = null;
+  tareaDetalle: any = null;
 
-  // Nuevo proyecto
   nuevoProyecto = {
     nombre: '',
     descripcion: '',
@@ -44,7 +52,6 @@ export class Projects implements OnInit {
     idEstado: 4
   };
 
-  // Nueva tarea
   nuevaTarea = {
     nombre: '',
     descripcion: '',
@@ -57,7 +64,6 @@ export class Projects implements OnInit {
 
   prioridades: any[] = [];
 
-  // Kanban de tareas
   columnas = [
     { titulo: 'Pendiente',   color: '#6c757d', idEstado: 8,  tareas: [] as any[] },
     { titulo: 'En Progreso', color: '#FFC107', idEstado: 9,  tareas: [] as any[] },
@@ -65,12 +71,12 @@ export class Projects implements OnInit {
     { titulo: 'Bloqueada',   color: '#DC3545', idEstado: 11, tareas: [] as any[] }
   ];
 
-  // Drag & Drop
   draggingTarea: any = null;
   draggingFromCol: any = null;
 
   private tareasUrl = `${environment.apiUrl}/tareas`;
   private prioridadesUrl = `${environment.apiUrl}/prioridades`;
+  private proyectosUrl = `${environment.apiUrl}/proyectos`;
 
   constructor(
     private proyectosService: ProyectosService,
@@ -81,66 +87,237 @@ export class Projects implements OnInit {
   ) {}
 
   ngOnInit(): void {
-  setTimeout(() => {
-    if (isPlatformBrowser(this.platformId)) {
-      const rol = this.authService.obtenerRol();
-      this.esAdmin = rol === '1';
-      this.esGestor = rol === '2';
-      this.esColaborador = rol === '3';
-      this.puedeCrear = rol === '1' || rol === '2';
-      this.cdr.detectChanges();
-      
-      setTimeout(() => {
-        this.cargarProyectos();
-        this.cargarPrioridades();
-      }, 300);
-    } else {
-      this.cargando = false;
-    }
-  }, 100);
-}
-
-  // ===== PROYECTOS =====
-  cargarProyectos(): void {
-  this.cargando = true;
-  this.proyectosService.obtenerTodos().subscribe({
-    next: (data: any[]) => {
-      if (this.esColaborador) {
-        // Cargar equipos para filtrar proyectos del colaborador
-        const idUser = this.authService.obtenerIdUser();
-        this.http.get<any[]>(`${environment.apiUrl}/equipos`).subscribe({
-          next: (equipos) => {
-            const misEquipos = equipos.filter(e =>
-              e.integrantes?.some((i: any) => i.idUser === idUser)
-            );
-            const misIdProyectos = misEquipos.map(e => e.idProyecto);
-            this.proyectos = data.filter(p => misIdProyectos.includes(p.idProyecto));
-            this.cargando = false;
-            this.cdr.detectChanges();
-          },
-          error: () => {
-            this.proyectos = data;
-            this.cargando = false;
-            this.cdr.detectChanges();
-          }
-        });
+    setTimeout(() => {
+      if (isPlatformBrowser(this.platformId)) {
+        const rol = this.authService.obtenerRol();
+        this.esAdmin = rol === '1';
+        this.esGestor = rol === '2';
+        this.esColaborador = rol === '3';
+        this.puedeCrear = rol === '1' || rol === '2';
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.cargarProyectos();
+          this.cargarPrioridades();
+          this.cargarAsignaciones();
+          this.cargarUsuarios();
+        }, 300);
       } else {
-        this.proyectos = data;
+        this.cargando = false;
+      }
+    }, 100);
+  }
+
+  cargarProyectos(): void {
+    this.cargando = true;
+    this.proyectosService.obtenerTodos().subscribe({
+      next: (data: any[]) => {
+        if (this.esColaborador) {
+          const idUser = this.authService.obtenerIdUser();
+          this.http.get<any[]>(`${environment.apiUrl}/equipos`).subscribe({
+            next: (equipos) => {
+              const misEquipos = equipos.filter(e =>
+                e.integrantes?.some((i: any) => i.idUser === idUser)
+              );
+              const misIdProyectos = misEquipos.map(e => e.idProyecto);
+              this.proyectos = data.filter(p => misIdProyectos.includes(p.idProyecto));
+              this.cargando = false;
+              this.cdr.detectChanges();
+            },
+            error: () => {
+              this.proyectos = data;
+              this.cargando = false;
+              this.cdr.detectChanges();
+            }
+          });
+        } else if (this.esGestor) {
+          const idUser = this.authService.obtenerIdUser();
+          this.http.get<any[]>(`${environment.apiUrl}/equipos`).subscribe({
+            next: (equipos) => {
+              const misEquipos = equipos.filter(e =>
+                e.integrantes?.some((i: any) => i.idUser === idUser)
+              );
+              this.misIdProyectos = misEquipos.map(e => e.idProyecto);
+              this.proyectos = data;
+              this.cargando = false;
+              this.cdr.detectChanges();
+            },
+            error: () => {
+              this.proyectos = data;
+              this.cargando = false;
+              this.cdr.detectChanges();
+            }
+          });
+        } else {
+          this.proyectos = data;
+          this.cargando = false;
+          this.cdr.detectChanges();
+        }
+      },
+      error: () => {
+        this.error = 'No se pudieron cargar los proyectos.';
         this.cargando = false;
         this.cdr.detectChanges();
       }
-    },
-    error: () => {
-      this.error = 'No se pudieron cargar los proyectos.';
-      this.cargando = false;
-      this.cdr.detectChanges();
-    }
-  });
-}
+    });
+  }
+
+  esMiProyecto(idProyecto: number): boolean {
+    return this.esGestor && this.misIdProyectos.includes(idProyecto);
+  }
 
   seleccionarProyecto(proyecto: any): void {
     this.proyectoSeleccionado = proyecto;
     this.cargarTareas(proyecto.idProyecto);
+  }
+
+  // ===== MODAL DETALLE PROYECTO =====
+  abrirModalDetalle(event: Event, proyecto: any): void {
+    event.stopPropagation();
+    this.editandoDetalle = false;
+    this.http.get<any>(`${this.proyectosUrl}/detalle/${proyecto.idProyecto}`).subscribe({
+      next: (detalle) => {
+        this.proyectoDetalle = {
+          idProyecto: proyecto.idProyecto,
+          idEstado: proyecto.idEstado,
+          nombre: detalle.nombre,
+          descripcion: detalle.descripcion,
+          fechaInicio: detalle.fechaInicio,
+          fechaTerminoEsti: detalle.fechaTermEst,
+          presuEstimado: detalle.presupuestoEst
+        };
+        this.mostrarModalDetalle = true;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.proyectoDetalle = {
+          idProyecto: proyecto.idProyecto,
+          idEstado: proyecto.idEstado,
+          nombre: proyecto.nombre,
+          descripcion: proyecto.descripcion,
+          fechaInicio: proyecto.fechaInicio,
+          fechaTerminoEsti: proyecto.fechaTerminoEsti,
+          presuEstimado: proyecto.presuEstimado ?? 0
+        };
+        this.mostrarModalDetalle = true;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  cerrarModalDetalle(): void {
+    this.mostrarModalDetalle = false;
+    this.proyectoDetalle = null;
+    this.editandoDetalle = false;
+  }
+
+  guardarDetalleProyecto(): void {
+    if (!this.proyectoDetalle.nombre || !this.proyectoDetalle.fechaInicio || !this.proyectoDetalle.fechaTerminoEsti) {
+      this.error = 'Por favor completa los campos obligatorios.';
+      return;
+    }
+    this.guardandoDetalle = true;
+    const body = {
+      nombre: this.proyectoDetalle.nombre,
+      descripcion: this.proyectoDetalle.descripcion,
+      fechaInicio: this.proyectoDetalle.fechaInicio,
+      fechaTerminoEsti: this.proyectoDetalle.fechaTerminoEsti,
+      presuEstimado: this.proyectoDetalle.presuEstimado,
+      idEstado: this.proyectoDetalle.idEstado
+    };
+    this.http.put(`${this.proyectosUrl}/${this.proyectoDetalle.idProyecto}`, body).subscribe({
+      next: () => {
+        this.guardandoDetalle = false;
+        this.exito = '¡Proyecto actualizado correctamente!';
+        this.cerrarModalDetalle();
+        this.cargarProyectos();
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.error = 'Error al actualizar el proyecto.';
+        this.guardandoDetalle = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // ===== MODAL DETALLE TAREA =====
+  abrirModalDetalleTarea(event: Event, tarea: any): void {
+    event.stopPropagation();
+    this.editandoDetalleTarea = false;
+    this.http.get<any>(`${this.tareasUrl}/detalle/${tarea.id}`).subscribe({
+      next: (detalle) => {
+        this.tareaDetalle = {
+          id: tarea.id,
+          nombre: detalle.nombre,
+          descripcion: detalle.descripcion,
+          fLimiteTerm: detalle.fLimiteTerm,
+          presupuestoAsignado: detalle.presupuestoAsignado,
+          proyectoNombre: detalle.proyectoNombre,
+          idPrioridad: tarea.idPrioridad ?? 1,
+          idEstado: tarea.idEstado,
+          proyectoId: this.proyectoSeleccionado?.idProyecto ?? null,
+          idIntegrante: this.asignaciones.find(a => a.idTarea === tarea.id)?.idIntegrante ?? null
+        };
+        this.mostrarModalDetalleTarea = true;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.tareaDetalle = {
+          id: tarea.id,
+          nombre: tarea.titulo,
+          descripcion: tarea.descripcion,
+          fLimiteTerm: tarea.fecha,
+          presupuestoAsignado: 0,
+          proyectoNombre: this.proyectoSeleccionado?.nombre ?? '',
+          idPrioridad: tarea.idPrioridad ?? 1,
+          idEstado: tarea.idEstado,
+          proyectoId: this.proyectoSeleccionado?.idProyecto ?? null
+        };
+        this.mostrarModalDetalleTarea = true;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  cerrarModalDetalleTarea(): void {
+    this.mostrarModalDetalleTarea = false;
+    this.tareaDetalle = null;
+    this.editandoDetalleTarea = false;
+  }
+
+  guardarDetalleTarea(): void {
+    if (!this.tareaDetalle.nombre || !this.tareaDetalle.fLimiteTerm) {
+      this.error = 'Por favor completa los campos obligatorios.';
+      if (this.tareaDetalle.idIntegrante){
+        this.http.post(`${environment.apiUrl}/asignaciones/tarea/${this.tareaDetalle.id}/integrante/${this.tareaDetalle.idIntegrante}`, {}).subscribe({
+        });
+      }
+      return;
+    }
+    this.guardandoDetalleTarea = true;
+    const body = {
+      nombre: this.tareaDetalle.nombre,
+      descripcion: this.tareaDetalle.descripcion,
+      fLimiteTerm: this.tareaDetalle.fLimiteTerm,
+      presupuestoAsignado: this.tareaDetalle.presupuestoAsignado,
+      idPrioridad: this.tareaDetalle.idPrioridad,
+      idEstado: this.tareaDetalle.idEstado,
+      proyectoId: this.tareaDetalle.proyectoId
+    };
+    this.http.put(`${this.tareasUrl}/${this.tareaDetalle.id}`, body).subscribe({
+      next: () => {
+        this.guardandoDetalleTarea = false;
+        this.exito = '¡Tarea actualizada correctamente!';
+        this.cerrarModalDetalleTarea();
+        if (this.proyectoSeleccionado) this.cargarTareas(this.proyectoSeleccionado.idProyecto);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.error = 'Error al actualizar la tarea.';
+        this.guardandoDetalleTarea = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   getEstadoProyecto(idEstado: number): string {
@@ -153,7 +330,11 @@ export class Projects implements OnInit {
     return colores[idEstado] ?? '#6c757d';
   }
 
-  // ===== TAREAS =====
+  getNombreEstadoTarea(idEstado: number): string {
+    const estados: any = { 8: 'Pendiente', 9: 'En Progreso', 10: 'Completada', 11: 'Bloqueada' };
+    return estados[idEstado] ?? 'Desconocido';
+  }
+
   cargarTareas(idProyecto: number): void {
     this.columnas.forEach(col => col.tareas = []);
     this.http.get<any[]>(`${this.tareasUrl}/proyecto/${idProyecto}`).subscribe({
@@ -168,7 +349,8 @@ export class Projects implements OnInit {
               fecha: t.fLimiteTerm ?? '—',
               prioridad: this.getPrioridad(t.idPrioridad),
               colorPrioridad: this.getColorPrioridad(t.idPrioridad),
-              idEstado: t.idEstado
+              idEstado: t.idEstado,
+              idPrioridad: t.idPrioridad
             });
           }
         });
@@ -185,6 +367,29 @@ export class Projects implements OnInit {
     });
   }
 
+  cargarAsignaciones(): void {
+    this.http.get<any[]>(`${environment.apiUrl}/asignaciones`).subscribe({
+      next: (data) => { this.asignaciones = data; this.cdr.detectChanges(); },
+      error: () => this.asignaciones = []
+    });
+  }
+
+  cargarUsuarios(): void {
+    this.http.get<any[]>(`${environment.apiUrl}/usuarios`).subscribe({
+      next: (data) => { this.usuarios = data; this.cdr.detectChanges(); },
+      error: () => this.usuarios = []
+    });
+  }
+
+  getAsignadosTarea(idTarea: number): string {
+    const asigs = this.asignaciones.filter(a => a.idTarea === idTarea);
+    if (asigs.length === 0) return 'Sin asignar';
+    return asigs.map(a => {
+      const u = this.usuarios.find(u => u.idUser === a.idIntegrante);
+      return u ? u.nombreCompleto : `Usuario ${a.idIntegrante}`;
+    }).join(', ');
+  }
+
   getPrioridad(idPrioridad: number): string {
     const p = this.prioridades.find(x => x.id === idPrioridad);
     return p?.nombre ?? 'Media';
@@ -195,7 +400,6 @@ export class Projects implements OnInit {
     return colores[idPrioridad] ?? '#FFC107';
   }
 
-  // ===== DRAG & DROP =====
   onDragStart(tarea: any, columna: any): void {
     this.draggingTarea = tarea;
     this.draggingFromCol = columna;
@@ -207,19 +411,16 @@ export class Projects implements OnInit {
 
   onDrop(columnaDestino: any): void {
     if (!this.draggingTarea || this.draggingFromCol === columnaDestino) return;
-
-    // Actualizar en el backend
     this.http.put(`${this.tareasUrl}/${this.draggingTarea.id}`, {
       nombre: this.draggingTarea.titulo,
       descripcion: this.draggingTarea.descripcion,
       fLimiteTerm: this.draggingTarea.fecha,
       presupuestoAsignado: 0,
-      idPrioridad: 1,
+      idPrioridad: this.draggingTarea.idPrioridad ?? 1,
       idEstado: columnaDestino.idEstado,
       proyectoId: this.proyectoSeleccionado.idProyecto
     }).subscribe({
       next: () => {
-        // Mover visualmente
         this.draggingFromCol.tareas = this.draggingFromCol.tareas.filter((t: any) => t.id !== this.draggingTarea.id);
         this.draggingTarea.idEstado = columnaDestino.idEstado;
         columnaDestino.tareas.push(this.draggingTarea);
@@ -236,7 +437,6 @@ export class Projects implements OnInit {
     });
   }
 
-  // ===== MODAL PROYECTO =====
   abrirModalProyecto(): void {
     this.mostrarModalProyecto = true;
     this.exito = '';
@@ -273,7 +473,6 @@ export class Projects implements OnInit {
     });
   }
 
-  // ===== MODAL TAREA =====
   abrirModalTarea(): void {
     this.mostrarModalTarea = true;
     this.error = '';
@@ -297,9 +496,8 @@ export class Projects implements OnInit {
       this.error = 'Por favor completa los campos obligatorios.';
       return;
     }
-
-    if (this.nuevaTarea.presupuestoAsignado < 0 || !Number.isInteger (this.nuevaTarea.presupuestoAsignado)) {
-      this.error ='El presupuesto deber ser número entero positivo.';
+    if (this.nuevaTarea.presupuestoAsignado < 0 || !Number.isInteger(this.nuevaTarea.presupuestoAsignado)) {
+      this.error = 'El presupuesto debe ser un número entero positivo.';
       return;
     }
     this.guardando = true;

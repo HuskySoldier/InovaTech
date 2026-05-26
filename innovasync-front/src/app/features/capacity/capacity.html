@@ -109,13 +109,23 @@
                     <p class="mb-0 text-muted small">{{ equipo.nombreProyecto }}</p>
                   </div>
                 </div>
-                <div class="mt-2">
-                  <span class="badge rounded-pill px-3"
-                    style="background: #e8f4fd; color: #00A8E8; font-size: 12px;">
-                    <i class="bi bi-person me-1"></i>
-                    {{ equipo.integrantes?.length ?? 0 }} integrantes
-                  </span>
+                <div>
+            <p class="fw-semibold mb-2" style="font-size: 13px; color: #1A2B4C;">Integrantes:</p>
+            <div class="d-flex flex-wrap gap-2">
+              <div *ngFor="let integrante of equipo.integrantes"
+                   class="d-flex align-items-center gap-2 rounded-3 px-2 py-1"
+                   style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">
+                <div class="d-flex align-items-center justify-content-center rounded-circle text-white fw-bold"
+                     style="width: 28px; height: 28px; background: #1A2B4C; font-size: 10px; flex-shrink: 0;">
+                  {{ getInicialesIntegrante(integrante.idUser) }}
                 </div>
+                <div>
+                  <p class="mb-0" style="font-size: 12px; font-weight: 600;">{{ getNombreIntegrante(integrante.idUser) }}</p>
+                  <p class="mb-0 text-muted" style="font-size: 11px;">{{ getCargoIntegrante(integrante.idUser) }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
               </div>
             </div>
           </div>
@@ -123,7 +133,7 @@
       </div>
 
       <!-- ===== MIS EQUIPOS (gestor y colaborador) ===== -->
-<div *ngIf="!cargando && (esGestor || esColaborador) && misEquipos.length > 0" class="mb-4">
+<div *ngIf="!cargando && (esGestor || esColaborador || esAdmin) && misEquipos.length > 0" class="mb-4">
   <h4 class="fw-bold mb-3" style="color: #1A2B4C;">
     <i class="bi bi-people me-2"></i>Mi Equipo
   </h4>
@@ -165,7 +175,7 @@
             <div class="d-flex flex-wrap gap-2">
               <div *ngFor="let integrante of equipo.integrantes"
                    class="d-flex align-items-center gap-2 rounded-3 px-2 py-1"
-                   style="background: #f8f9fa; border: 1px solid #e9ecef;">
+                   style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">
                 <div class="d-flex align-items-center justify-content-center rounded-circle text-white fw-bold"
                      style="width: 28px; height: 28px; background: #1A2B4C; font-size: 10px; flex-shrink: 0;">
                   {{ getInicialesIntegrante(integrante.idUser) }}
