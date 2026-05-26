@@ -17,7 +17,7 @@ Chart.register(...registerables);
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
-export class Dashboard implements OnInit {
+export class Dashboard implements OnInit { 
 
   nombreUsuario = '';
   rol = '';
@@ -84,6 +84,7 @@ export class Dashboard implements OnInit {
       title: { display: true, text: 'Distribución de Especialidades por Equipo' }
     }
   };
+  loggedIn: any;
 
   constructor(
     private router: Router,
@@ -95,6 +96,15 @@ export class Dashboard implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Si no hay token, recarga forzosa al login antes de que se vea nada
+    if (isPlatformBrowser(this.platformId) && !localStorage.getItem('token')) {
+       window.location.replace('/login');
+       return;
+    }
+
+    console.log('📊 [DASHBOARD] Componente iniciado correctamente.');
+    // ... el resto de tu código (this.nombreUsuario = ...)
+
     this.nombreUsuario = this.authService.obtenerNombre();
     this.rol = this.authService.obtenerCargo();
     const rolId = this.authService.obtenerRol();
@@ -116,6 +126,7 @@ export class Dashboard implements OnInit {
 
     this.userService.obtenerTodos().subscribe({
       next: (usuarios) => {
+
         const misIntegrantes = usuarios.filter((u: any) => idsIntegrantes.includes(u.idUser));
         const conteo: any = {};
         misIntegrantes.forEach((u: any) => {
@@ -128,6 +139,7 @@ export class Dashboard implements OnInit {
             backgroundColor: ['#1A2B4C', '#00A8E8', '#28A745', '#FFC107', '#DC3545']
           }]
         };
+
         this.pieChartData = { ...this.pieChartData };
         this.cdr.detectChanges();
       }
@@ -219,6 +231,22 @@ export class Dashboard implements OnInit {
   }
 
   cerrarSesion() {
-    this.router.navigate(['/login']);
+    if (this.isBrowser()) {
+      // 1. Destruir almacenamiento
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // 2. Actualizar el BehaviorSubject para que el resto de la app se entere
+      // loggedIn may be undefined or not a Subject in some contexts, guard safely
+      if (this.loggedIn && typeof (this.loggedIn as any).next === 'function') {
+        (this.loggedIn as any).next(false);
+      }
+      
+      // 3. Navegar usando Angular Router, reemplazando el historial
+      this.router.navigate(['/login'], { replaceUrl: true });
+    }
+  }
+  isBrowser() {
+    return isPlatformBrowser(this.platformId);
   }
 }

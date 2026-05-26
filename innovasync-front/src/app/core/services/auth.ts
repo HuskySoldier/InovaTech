@@ -4,13 +4,15 @@ import { Router } from '@angular/router';
 import { tap, switchMap, catchError } from 'rxjs/operators';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../environments/environment';
-import { throwError } from 'rxjs';
+import { throwError, BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
   private url = `${environment.apiUrl}/auth`;
   private usuariosUrl = `${environment.apiUrl}/usuarios`;
+  private loggedIn = new BehaviorSubject<boolean>(this.estaLogueado());
+  isLoggedIn$ = this.loggedIn.asObservable();
 
   constructor(
     private http: HttpClient,
@@ -29,6 +31,7 @@ export class AuthService {
           localStorage.setItem('token', res.token);
           localStorage.setItem('correo', res.correo);
           localStorage.setItem('rol', res.rol);
+          this.loggedIn.next(true);
         }
       }),
       switchMap(res => {
@@ -41,12 +44,13 @@ export class AuthService {
               localStorage.setItem('idUser', String(usuario.idUser));
               localStorage.setItem('run', usuario.run ?? '');
             }
-          }),
-          catchError(error => {
-            console.error('Error detectado en el servicio:', error);
-            return throwError(() => error); // Esto "empuja" el error hacia el login.ts
           })
         );
+      }),
+      // Ahora este catchError captura errores tanto del POST como del GET
+      catchError(error => {
+        console.error('Error detectado en el servicio:', error);
+        return throwError(() => error);
       })
     );
   }
@@ -78,8 +82,19 @@ export class AuthService {
     return this.isBrowser() ? !!localStorage.getItem('token') : false;
   }
 
+  // En auth.ts
+// En: src/app/core/services/auth.ts
   cerrarSesion() {
-    if (this.isBrowser()) localStorage.clear();
-    this.router.navigate(['/login']);
+    if (this.isBrowser()) {
+      // 1. Destruir almacenamiento
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // 2. Actualizar el BehaviorSubject para que el resto de la app se entere
+      this.loggedIn.next(false);
+      
+      // 3. Navegar usando Angular Router, reemplazando el historial
+      this.router.navigate(['/login'], { replaceUrl: true });
+    }
   }
 }

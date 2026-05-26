@@ -25,33 +25,41 @@ export class Login {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  login() {
+login() {
     if (!this.email || !this.password) {
       this.errorMsg = 'Por favor ingresa tu correo y contraseña';
       return;
     }
 
+    console.log('🚀 [LOGIN] Botón presionado. Validando en el backend...');
     this.cargando = true;
     this.errorMsg = '';
 
     this.authService.login(this.email, this.password).subscribe({
       next: () => {
+        console.log('🚀 [LOGIN] ¡Backend dio el OK! Viajando al Dashboard...');
         this.cargando = false;
-        this.cdr.detectChanges(); // Opcional, pero buena práctica
-        this.router.navigate(['/dashboard']);
+        this.cdr.detectChanges(); 
+        // Reemplaza el router.navigate por esto:
+        this.router.navigate(['/dashboard']).then(success => {
+          if (success) {
+            console.log('✅ [ROUTER] Navegación completada al Dashboard.');
+          } else {
+            console.warn('❌ [ROUTER] Angular CANCELÓ la navegación silenciosamente.');
+          }
+        }).catch(err => {
+          console.error('🔥 [ROUTER] Error crítico al navegar:', err);
+        });
       },
       error: (err) => {
-        console.log('El componente Login capturó el error:', err);
-        
-        // Verificamos si el error viene de Java (400) o si es otro error (como el 404 o 504)
+        console.error('🚀 [LOGIN] El Backend rechazó las credenciales:', err);
         if (err.status === 400 || err.status === 401) {
           this.errorMsg = 'Correo o contraseña incorrectos';
         } else {
           this.errorMsg = 'No hay conexión con el servidor. Inténtalo más tarde.';
         }
-        
         this.cargando = false;
-        this.cdr.detectChanges(); // <-- ¡ESTO fuerza al HTML a borrar el spinner!
+        this.cdr.detectChanges(); 
       }
     });
   }
