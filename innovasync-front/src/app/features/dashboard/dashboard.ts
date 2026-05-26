@@ -70,9 +70,9 @@ export class Dashboard implements OnInit {
   };
 
   pieChartData: ChartData<'pie'> = {
-    labels: ['Backend Devs', 'UX Designers', 'DevOps', 'Others'],
+    labels: [],
     datasets: [{
-      data: [40, 25, 20, 15],
+      data: [],
       backgroundColor: ['#1A2B4C', '#00A8E8', '#28A745', '#FFC107']
     }]
   };
@@ -101,8 +101,7 @@ export class Dashboard implements OnInit {
        window.location.replace('/login');
        return;
     }
-
-    console.log('📊 [DASHBOARD] Componente iniciado correctamente.');
+    console.log('[DASHBOARD] Componente iniciado correctamente.');
     // ... el resto de tu código (this.nombreUsuario = ...)
 
     this.nombreUsuario = this.authService.obtenerNombre();
@@ -112,6 +111,13 @@ export class Dashboard implements OnInit {
     this.esGestor = rolId === '2';
     this.esColaborador = rolId === '3';
     this.idUserActual = this.authService.obtenerIdUser();
+    this.pieChartOptions = {
+      responsive: true,
+      plugins: {
+        legend: { position: 'right' },
+        title: { display: true, text: 'Total de Empleados por cargo' }
+      }
+    }
 
     if (isPlatformBrowser(this.platformId)) {
       setTimeout(() => {
@@ -121,30 +127,37 @@ export class Dashboard implements OnInit {
   }
 
   actualizarGraficoTorta(): void {
-    const idsIntegrantes = this.misEquipos
-      .flatMap(e => e.integrantes?.map((i: any) => i.idUser) ?? []);
+  this.userService.obtenerTodos().subscribe({
+    next: (usuarios) => {
+      let misIntegrantes: any[] = [];
 
-    this.userService.obtenerTodos().subscribe({
-      next: (usuarios) => {
-
-        const misIntegrantes = usuarios.filter((u: any) => idsIntegrantes.includes(u.idUser));
-        const conteo: any = {};
-        misIntegrantes.forEach((u: any) => {
-          conteo[u.nombreCargo] = (conteo[u.nombreCargo] ?? 0) + 1;
-        });
-        this.pieChartData = {
-          labels: Object.keys(conteo),
-          datasets: [{
-            data: Object.values(conteo),
-            backgroundColor: ['#1A2B4C', '#00A8E8', '#28A745', '#FFC107', '#DC3545']
-          }]
-        };
-
-        this.pieChartData = { ...this.pieChartData };
-        this.cdr.detectChanges();
+      if (this.esAdmin) {
+        // Admin ve todos los usuarios
+        misIntegrantes = usuarios;
+      } else {
+        // Gestor ve solo los de sus equipos
+        const idsIntegrantes = this.misEquipos
+          .flatMap(e => e.integrantes?.map((i: any) => i.idUser) ?? []);
+        misIntegrantes = usuarios.filter((u: any) => idsIntegrantes.includes(u.idUser));
       }
-    });
-  }
+
+      const conteo: any = {};
+      misIntegrantes.forEach((u: any) => {
+        conteo[u.nombreCargo] = (conteo[u.nombreCargo] ?? 0) + 1;
+      });
+
+      this.pieChartData = {
+        labels: Object.keys(conteo),
+        datasets: [{
+          data: Object.values(conteo),
+          backgroundColor: ['#1A2B4C', '#00A8E8', '#28A745', '#FFC107', '#DC3545']
+        }]
+      };
+      this.pieChartData = { ...this.pieChartData };
+      this.cdr.detectChanges();
+    }
+  });
+}
 
   cargarProyectos(): void {
     this.cargando = true;

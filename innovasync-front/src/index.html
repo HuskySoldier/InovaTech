@@ -9,13 +9,13 @@
   <script>
   window.onpageshow = function(event) {
     // Si esto imprime en consola, el script está vivo
-    console.log("🛡️ [BROWSER] Página restaurada (persisted:", event.persisted, ")");
+    console.log("[BROWSER] Página restaurada (persisted:", event.persisted, ")");
 
     if (event.persisted) {
       var token = localStorage.getItem('token');
       // Verificamos si el token es nulo o vacío
       if (!token && window.location.pathname !== '/login') {
-        console.warn("🛡️ [BROWSER] No hay sesión, forzando redirección...");
+        console.warn("[BROWSER] No hay sesión, forzando redirección...");
         window.location.replace('/login');
       }
     }

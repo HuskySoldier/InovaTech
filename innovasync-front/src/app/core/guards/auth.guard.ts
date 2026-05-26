@@ -14,7 +14,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   const token = localStorage.getItem('token');
 
   if (!token) {
-    console.warn('🛡️ [GUARDIA] ¡TOKEN NO ENCONTRADO! Bloqueando acceso.');
+    console.warn('[GUARDIA] ¡TOKEN NO ENCONTRADO! Bloqueando acceso.');
     // Limpieza total por si acaso
     localStorage.clear();
     return router.createUrlTree(['/login']);

@@ -31,28 +31,28 @@ login() {
       return;
     }
 
-    console.log('🚀 [LOGIN] Botón presionado. Validando en el backend...');
+    console.log(' [LOGIN] Botón presionado. Validando en el backend...');
     this.cargando = true;
     this.errorMsg = '';
 
     this.authService.login(this.email, this.password).subscribe({
       next: () => {
-        console.log('🚀 [LOGIN] ¡Backend dio el OK! Viajando al Dashboard...');
+        console.log(' [LOGIN] ¡Backend dio el OK! Viajando al Dashboard...');
         this.cargando = false;
         this.cdr.detectChanges(); 
         // Reemplaza el router.navigate por esto:
         this.router.navigate(['/dashboard']).then(success => {
           if (success) {
-            console.log('✅ [ROUTER] Navegación completada al Dashboard.');
+            console.log(' [ROUTER] Navegación completada al Dashboard.');
           } else {
-            console.warn('❌ [ROUTER] Angular CANCELÓ la navegación silenciosamente.');
+            console.warn(' [ROUTER] Angular CANCELÓ la navegación silenciosamente.');
           }
         }).catch(err => {
-          console.error('🔥 [ROUTER] Error crítico al navegar:', err);
+          console.error(' [ROUTER] Error crítico al navegar:', err);
         });
       },
       error: (err) => {
-        console.error('🚀 [LOGIN] El Backend rechazó las credenciales:', err);
+        console.error(' [LOGIN] El Backend rechazó las credenciales:', err);
         if (err.status === 400 || err.status === 401) {
           this.errorMsg = 'Correo o contraseña incorrectos';
         } else {
