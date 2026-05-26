@@ -14,14 +14,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.http.ResponseEntity;
 
 import innovasync.ms_tareas.client.EstadoClient;
+import innovasync.ms_tareas.client.ProyectoClient;
 import innovasync.ms_tareas.config.RabbitMQConfig;
 import innovasync.ms_tareas.dto.EstadoResponse;
+import innovasync.ms_tareas.dto.ProyectoDTO;
 import innovasync.ms_tareas.dto.TareaDTO;
 import innovasync.ms_tareas.dto.TareaResponseDTO;
 import innovasync.ms_tareas.model.Prioridad;
 import innovasync.ms_tareas.model.Tarea;
+import innovasync.ms_tareas.repository.PrioridadRepository;
 import innovasync.ms_tareas.repository.TareaRepository;
 import innovasync.ms_tareas.service.TareaService;
 
@@ -32,7 +36,13 @@ class TareaServiceTest {
     private TareaRepository tareaRepository;
 
     @Mock
+    private PrioridadRepository prioridadRepository;
+
+    @Mock
     private EstadoClient estadoClient;
+
+    @Mock
+    private ProyectoClient proyectoClient;
 
     @Mock
     private RabbitTemplate rabbitTemplate;
@@ -99,19 +109,27 @@ class TareaServiceTest {
         dto.setNombre("Nueva Tarea");
         dto.setDescripcion("Descripción nueva");
         dto.setIdEstado(1L);
-        dto.setIdPrioridad(3L);
+        dto.setIdPrioridad(1L);
+        dto.setProyectoId(5L);
 
         Tarea tareaGuardadaMock = new Tarea();
         tareaGuardadaMock.setId(10L); // Simulamos que la DB le asignó el ID 10
         tareaGuardadaMock.setNombre("Nueva Tarea");
         tareaGuardadaMock.setIdEstado(1L);
         tareaGuardadaMock.setPrioridad(prioridadMock);
+        tareaGuardadaMock.setDescripcion("Descripción nueva");
+        tareaGuardadaMock.setProyectoId(5L);
 
         when(tareaRepository.save(any(Tarea.class))).thenReturn(tareaGuardadaMock);
-        
+        when(prioridadRepository.findById(1L)).thenReturn(Optional.of(prioridadMock));
         EstadoResponse estadoResponse = new EstadoResponse();
         estadoResponse.setNombre("En Progreso");
         when(estadoClient.obtenerEstado(1L)).thenReturn(estadoResponse);
+        ProyectoDTO proyectoResponse = new ProyectoDTO();
+        proyectoResponse.setIdProyecto(5L);
+        proyectoResponse.setNombre("Proyecto X");
+        when(proyectoClient.getProyectoById(5L)).thenReturn(ResponseEntity.ok(proyectoResponse));
+
 
         // Act
         TareaResponseDTO result = tareaService.crear(dto);
@@ -120,7 +138,7 @@ class TareaServiceTest {
         assertNotNull(result);
         assertEquals(10L, result.getId());
         assertEquals("Nueva Tarea", result.getNombre());
-        assertEquals("Alta", result.getNombre());
+        assertEquals(1L, result.getIdPrioridad());
         verify(tareaRepository).save(any(Tarea.class));
         
         // Verificar que el evento de RabbitMQ se envió correctamente
