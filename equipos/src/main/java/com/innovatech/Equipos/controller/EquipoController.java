@@ -2,7 +2,6 @@ package com.innovatech.Equipos.controller;
 
 import com.innovatech.Equipos.dto.IntegranteDetalleDTO;
 import com.innovatech.Equipos.model.Equipo;
-import com.innovatech.Equipos.repository.IntegranteRepository;
 import com.innovatech.Equipos.service.EquipoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,7 +22,6 @@ import java.util.List;
 public class EquipoController {
 
     private final EquipoService equipoService;
-    private final IntegranteRepository integranteRepository;
 
     @Operation(summary = "Listar todos los equipos", description = "Retorna una lista completa de todos los equipos registrados en el sistema.")
     @ApiResponses(value = {
@@ -113,7 +111,9 @@ public class EquipoController {
     @GetMapping("/integrante/{idIntegrante}")
     public ResponseEntity<?> obtenerIntegrante(
             @Parameter(description = "ID del integrante a consultar", example = "5") @PathVariable Long idIntegrante) {
-        return integranteRepository.findById(idIntegrante)
+        
+        // Llamamos al servicio en lugar del repositorio
+        return equipoService.obtenerIntegrantePorId(idIntegrante)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
     }
@@ -133,4 +133,7 @@ public class EquipoController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+
+    
 }

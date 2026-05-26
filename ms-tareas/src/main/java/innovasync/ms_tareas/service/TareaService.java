@@ -17,6 +17,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate; // Agregado
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,6 +101,17 @@ public class TareaService {
         existente.setPrioridad(nuevaPrioridad);
         existente.setProyectoId(dto.getProyectoId());
         return toResponseDTO(tareaRepository.save(existente));
+    }
+
+
+    public List<TareaResponseDTO> obtenerTareasBatch(List<Long> ids) {
+        // Verifica que la lista no venga vacía o nula para evitar errores en base de datos
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>(); 
+        }
+        return tareaRepository.findAllById(ids).stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
     public void eliminar(Long id) {

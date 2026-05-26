@@ -7,6 +7,6 @@ import java.util.List;
 
 @Repository
 public interface IntegranteRepository extends JpaRepository<Integrante, Long> {
-    List<Integrante> findByIdUser(Long idUser);
+    Integrante findByIdUser(Long idUser);
     List<Integrante> findByEquipo_IdEquipo(Long idEquipo);
 }
