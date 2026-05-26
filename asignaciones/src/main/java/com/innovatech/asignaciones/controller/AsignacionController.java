@@ -1,5 +1,6 @@
 package com.innovatech.asignaciones.controller;
 
+import com.innovatech.asignaciones.dto.RespuestaSemanasDTO;
 import com.innovatech.asignaciones.model.Asignacion;
 import com.innovatech.asignaciones.service.AsignacionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,5 +47,14 @@ public class AsignacionController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+    
+    @GetMapping("/usuario/{idUser}/semanas")
+    public ResponseEntity<RespuestaSemanasDTO> obtenerSemanas(@PathVariable Long idUser) {
+        
+        // Llamamos a tu método y devolvemos un status 200 OK
+        RespuestaSemanasDTO respuesta = asignacionService.obtenerCargaSemanal2(idUser);
+        
+        return ResponseEntity.ok(respuesta);
     }
 }
