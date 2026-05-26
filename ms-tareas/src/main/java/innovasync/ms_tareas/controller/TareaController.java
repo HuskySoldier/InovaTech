@@ -3,7 +3,6 @@ package innovasync.ms_tareas.controller;
 import innovasync.ms_tareas.dto.TareaDTO;
 import innovasync.ms_tareas.dto.TareaDetalleDTO;
 import innovasync.ms_tareas.dto.TareaResponseDTO;
-import innovasync.ms_tareas.model.Tarea;
 import innovasync.ms_tareas.service.TareaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

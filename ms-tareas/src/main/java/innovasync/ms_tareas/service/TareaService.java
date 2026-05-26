@@ -71,12 +71,12 @@ public class TareaService {
         // ==========================================
         // EMISIÓN DE EVENTO A RABBITMQ
         // ==========================================
-        // System.out.println("Enviando evento de nueva tarea a RabbitMQ...");
-        // rabbitTemplate.convertAndSend(
-        // RabbitMQConfig.EXCHANGE_TAREAS,
-        // RabbitMQConfig.ROUTING_KEY_TAREA_CREADA,
-        // "Nueva tarea creada con ID: " + tareaGuardada.getId()
-        // );
+        System.out.println("Enviando evento de nueva tarea a RabbitMQ...");
+        rabbitTemplate.convertAndSend(
+            RabbitMQConfig.EXCHANGE_TAREAS,
+            RabbitMQConfig.ROUTING_KEY_TAREA_CREADA,
+            "Nueva tarea creada con ID: " + tareaGuardada.getId()
+        );
 
         return response;
     }

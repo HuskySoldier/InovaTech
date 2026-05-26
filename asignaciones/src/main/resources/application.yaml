@@ -19,7 +19,7 @@ spring:
       ddl-auto: update
     show-sql: true
 
-  r rabbitmq:
+  rabbitmq:
     host: rabbitmq
     port: 5672
     username: admin
